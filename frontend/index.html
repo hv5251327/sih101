@@ -806,97 +806,112 @@
       }
     }
 
-    function handleCadreRegister(e) {
+        async function handleCadreRegister(e) {
       e.preventDefault();
-      activeOfficer = {
-        name: document.getElementById("regName").value,
-        email: document.getElementById("regEmail").value,
-        department: document.getElementById("regDept").value,
-        designation: document.getElementById("regDesignation").value
+      const btn = e.target.querySelector("button[type='submit']");
+      const prevText = btn.innerText;
+      btn.innerText = "Saving to Database...";
+      btn.disabled = true;
+
+      const payload = {
+        name: document.getElementById("regName").value.trim(),
+        email: document.getElementById("regEmail").value.trim(),
+        password: document.getElementById("regPassword").value.trim(),
+        department: document.getElementById("regDept").value.trim(),
+        designation: document.getElementById("regDesignation").value.trim(),
+        cadre: document.getElementById("regCadre") ? document.getElementById("regCadre").value.trim() : "Indian Statistical Service (ISS)"
       };
-      closeRegisterModal();
-      activateDashboard();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || "Registration failed");
+        }
+        alert("Registration Successful! Your profile is saved in the database.");
+        activeOfficer = data.user;
+        closeRegisterModal();
+        activateDashboard();
+      } catch (err) {
+        alert("Database Error: " + err.message);
+      } finally {
+        btn.innerText = prevText;
+        btn.disabled = false;
+      }
     }
 
-    function handleCadreLogin(e) {
+    async function handleCadreLogin(e) {
       e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const pwd = document.getElementById("loginPassword").value;
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
 
-      if (email === "123@gov.ac.in" && pwd === "1234") {
+      if (email === "123@gov.ac.in" && password === "1234") {
         closeLoginModal();
         activateAdminView();
         return;
       }
 
-      activeOfficer = {
-        name: email.split("@")[0].toUpperCase() + " (ISS)",
-        designation: "Deputy Director / Assistant Director (ISS)",
-        department: "MoSPI - NAD"
-      };
-      closeLoginModal();
-      activateDashboard();
-    }
-
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("adminEmailInput").value.trim();
-      const pwd = document.getElementById("adminPasswordInput").value.trim();
-
-      if (email === "123@gov.ac.in" && pwd === "1234") {
-        closeAdminModal();
-        activateAdminView();
-      } else {
-        alert("Invalid credentials.");
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || "Invalid login");
+        }
+        activeOfficer = data;
+        closeLoginModal();
+        activateDashboard();
+      } catch (err) {
+        alert("Login Error: " + err.message);
       }
     }
 
-    function activateDashboard() {
-      document.getElementById("publicView").style.display = "none";
-      document.getElementById("adminView").style.display = "none";
-      document.getElementById("navLinks").style.display = "none";
+    async function loadAdminUserTable() {
+      const tbody = document.getElementById("adminCadreTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;"><i class="fa-solid fa-spinner fa-spin"></i> Fetching registered cadre from database...</td></tr>`;
 
-      document.getElementById("dashOfficerName").innerText = activeOfficer.name;
-      document.getElementById("dashOfficerRole").innerText = activeOfficer.designation;
-      document.getElementById("dashOfficerDept").innerText = activeOfficer.department;
-
-      document.getElementById("authNav").innerHTML = `
-        <span style="font-size:0.88rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> ${activeOfficer.name}</span>
-        <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
-      `;
-
-      document.getElementById("dashboardView").style.display = "block";
-      document.getElementById("tutorToggleBtn").style.display = "flex";
-      renderOfficerCourses();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users`);
+        const users = await res.json();
+        tbody.innerHTML = "";
+        users.forEach(row => {
+          tbody.innerHTML += `
+            <tr>
+              <td style="font-weight:700; color:var(--gov-navy);">${row.name}</td>
+              <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">${row.cadre}</span></td>
+              <td>${row.department}</td>
+              <td>${row.designation}</td>
+              <td style="font-weight:700; color:var(--primary-blue);">${row.score}</td>
+              <td><span style="color:${row.posh === 'Completed' ? 'var(--gov-green)' : '#b91c1c'}; font-weight:700;">${row.posh}</span></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#b91c1c; text-align:center;">Could not load live database records.</td></tr>`;
+      }
     }
 
     function activateAdminView() {
       document.getElementById("publicView").style.display = "none";
       document.getElementById("dashboardView").style.display = "none";
       document.getElementById("navLinks").style.display = "none";
-      document.getElementById("tutorToggleBtn").style.display = "none";
+      if (document.getElementById("tutorToggleBtn")) document.getElementById("tutorToggleBtn").style.display = "none";
       document.getElementById("adminView").style.display = "block";
 
-      document.getElementById("authNav").innerHTML = `
+      document.getElementById("authNav").innerHTML = 
         <span style="font-size:0.88rem; font-weight:600; color:#cbd5e1;"><i class="fa-solid fa-shield-halved"></i> NSSTA Admin (123@gov.ac.in)</span>
         <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
-      `;
+      ;
 
-      const tbody = document.getElementById("adminCadreTableBody");
-      tbody.innerHTML = "";
-      adminCadreRoster.forEach(row => {
-        tbody.innerHTML += `
-          <tr>
-            <td style="font-weight:700; color:var(--gov-navy);">${row.name}</td>
-            <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">${row.cadre}</span></td>
-            <td>${row.dept}</td>
-            <td>${row.desig}</td>
-            <td style="font-weight:700; color:var(--primary-blue);">${row.score}</td>
-            <td><span style="color:${row.posh === 'Completed' ? 'var(--gov-green)' : '#b91c1c'}; font-weight:700;">${row.posh}</span></td>
-          </tr>
-        `;
-      });
+      loadAdminUserTable();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -904,3 +919,4 @@
   </script>
 </body>
 </html>
+

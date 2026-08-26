@@ -2,14 +2,14 @@
 import io
 import json
 import re
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 from openai import OpenAI
 from pypdf import PdfReader
 from sqlalchemy import create_engine, Column, Integer, String, Text
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 app = FastAPI(title="MoSPI AI Skill Intelligence & iGOT Platform")
 
@@ -33,6 +33,19 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+class UserRecord(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password = Column(String(255), nullable=False)
+    department = Column(String(255), default="National Accounts Division (NAD)")
+    designation = Column(String(255), default="Deputy Director / Assistant Director (ISS)")
+    cadre = Column(String(100), default="Indian Statistical Service (ISS)")
+    role = Column(String(50), default="employee")
+    competency_score = Column(String(10), default="75%")
+    posh_status = Column(String(50), default="Pending")
+
 class TopicQuizRecord(Base):
     __tablename__ = "topic_quizzes"
     id = Column(Integer, primary_key=True, index=True)
@@ -44,53 +57,82 @@ class TopicQuizRecord(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# Seed default baseline quizzes if empty
-def seed_default_quizzes():
+def get_db():
     db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Seed Admin & Default Users
+def seed_initial_data():
+    db = SessionLocal()
+    # Check Admin
+    admin_user = db.query(UserRecord).filter(UserRecord.email == "123@gov.ac.in").first()
+    if not admin_user:
+        admin = UserRecord(
+            name="Master Administrator",
+            email="123@gov.ac.in",
+            password="1234",
+            department="Capacity Building Commission",
+            designation="Chief Administrator",
+            cadre="Commission",
+            role="admin",
+            competency_score="100%",
+            posh_status="Completed"
+        )
+        db.add(admin)
+
+    # Check Default Officer
+    officer = db.query(UserRecord).filter(UserRecord.email == "rajesh.k@mospi.gov.in").first()
+    if not officer:
+        sample_officer = UserRecord(
+            name="Shri Rajesh Kumar",
+            email="rajesh.k@mospi.gov.in",
+            password="1234",
+            department="National Accounts Division (NAD)",
+            designation="Deputy Director / Assistant Director (ISS)",
+            cadre="Indian Statistical Service (ISS)",
+            role="employee",
+            competency_score="75%",
+            posh_status="Completed"
+        )
+        db.add(sample_officer)
+
+    # Seed Default Quizzes if empty
     if db.query(TopicQuizRecord).count() == 0:
         defaults = [
             TopicQuizRecord(
                 course_id=7,
-                question="Under the POSH Act 2013, within what maximum timeframe must an Internal Committee (IC) complete an inquiry from the date of complaint?",
+                question="Under the POSH Act 2013, within what maximum timeframe must an Internal Committee (IC) complete an inquiry?",
                 options_json=json.dumps([
-                    "Within 90 days",
-                    "Within 30 days",
-                    "Within 180 days",
-                    "Within 15 days"
+                    "Within 90 days from complaint receipt",
+                    "Within 30 days of initial notice",
+                    "Within 180 days of annual report",
+                    "Within 15 days of hearings"
                 ]),
                 correct_index=0,
-                explanation="Section 11(4) of the POSH Act mandates that the inquiry process must be completed within 90 days."
+                explanation="Section 11(4) of the POSH Act mandates that the inquiry must be completed within 90 days."
             ),
             TopicQuizRecord(
                 course_id=1,
-                question="In the System of National Accounts (SNA 2008), how is Gross Value Added (GVA) at basic prices computed?",
+                question="Under SNA 2008, how is Gross Value Added (GVA) at basic prices computed?",
                 options_json=json.dumps([
                     "Output at basic prices minus Intermediate Consumption at purchasers' prices",
                     "GDP at market prices minus Net Taxes on Products",
                     "Final Consumption Expenditure plus Gross Capital Formation",
-                    "Total Export receipts minus Import bill"
+                    "Total Exports minus Total Imports"
                 ]),
                 correct_index=0,
                 explanation="GVA at basic prices represents total output valued at basic prices less intermediate inputs consumed at purchasers' prices."
-            ),
-            TopicQuizRecord(
-                course_id=2,
-                question="What is the primary objective of applying the Total Survey Error (TSE) framework in multi-stage survey sampling?",
-                options_json=json.dumps([
-                    "Simultaneously minimizing both sampling variance and non-sampling biases (measurement, coverage, non-response)",
-                    "Arbitrary non-response deletion to artificially reduce standard deviation",
-                    "Replacing probability sampling with unweighted quota selection",
-                    "Omission of outlier strata from the sampling frame"
-                ]),
-                correct_index=0,
-                explanation="The TSE framework provides a holistic approach to minimize errors across every phase of survey design and execution."
             )
         ]
         db.add_all(defaults)
-        db.commit()
+    
+    db.commit()
     db.close()
 
-seed_default_quizzes()
+seed_initial_data()
 
 # ----------------- GROK AI CLIENT -----------------
 XAI_API_KEY = os.getenv("XAI_API_KEY", "")
@@ -99,33 +141,120 @@ client = OpenAI(
     base_url="https://api.x.ai/v1"
 )
 
-# ----------------- ENDPOINTS -----------------
+# ----------------- MODELS -----------------
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    department: str
+    designation: str
+    cadre: Optional[str] = "Indian Statistical Service (ISS)"
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+# ----------------- AUTH ENDPOINTS -----------------
+@app.post("/api/register")
+def register_user(req: RegisterRequest, db: Session = Depends(get_db)):
+    existing = db.query(UserRecord).filter(UserRecord.email == req.email.strip().lower()).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An official with this email is already registered.")
+    
+    new_user = UserRecord(
+        name=req.name.strip(),
+        email=req.email.strip().lower(),
+        password=req.password.strip(),
+        department=req.department.strip(),
+        designation=req.designation.strip(),
+        cadre=req.cadre.strip() if req.cadre else "Indian Statistical Service (ISS)",
+        role="admin" if req.email.strip().lower() == "123@gov.ac.in" else "employee",
+        competency_score="70%",
+        posh_status="Pending"
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {
+        "status": "success",
+        "message": "User registered and stored successfully in database",
+        "user": {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email,
+            "department": new_user.department,
+            "designation": new_user.designation,
+            "cadre": new_user.cadre,
+            "role": new_user.role,
+            "competency_score": new_user.competency_score,
+            "posh_status": new_user.posh_status
+        }
+    }
+
+@app.post("/api/login")
+def login_user(req: LoginRequest, db: Session = Depends(get_db)):
+    email_clean = req.email.strip().lower()
+    user = db.query(UserRecord).filter(UserRecord.email == email_clean).first()
+    
+    if not user or user.password != req.password.strip():
+        raise HTTPException(status_code=401, detail="Invalid official credentials. Please verify email and password.")
+    
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "department": user.department,
+        "designation": user.designation,
+        "cadre": user.cadre,
+        "role": user.role,
+        "competency_score": user.competency_score,
+        "posh_status": user.posh_status
+    }
+
+@app.get("/api/admin/users")
+def get_all_users(db: Session = Depends(get_db)):
+    users = db.query(UserRecord).all()
+    return [
+        {
+            "id": u.id,
+            "name": u.name,
+            "email": u.email,
+            "department": u.department,
+            "designation": u.designation,
+            "cadre": u.cadre,
+            "role": u.role,
+            "score": u.competency_score,
+            "posh": u.posh_status
+        } for u in users
+    ]
+
+# ----------------- TOPIC QUIZ & AI ENDPOINTS -----------------
 @app.get("/")
-def read_root():
-    db = SessionLocal()
-    count = db.query(TopicQuizRecord).count()
-    db.close()
-    return {"status": "MoSPI Skill Intelligence Backend Active", "total_stored_questions": count}
+def read_root(db: Session = Depends(get_db)):
+    user_count = db.query(UserRecord).count()
+    quiz_count = db.query(TopicQuizRecord).count()
+    return {
+        "status": "MoSPI Skill Intelligence Backend Active",
+        "registered_users": user_count,
+        "stored_quiz_questions": quiz_count
+    }
 
 @app.get("/api/topics/{course_id}/quiz")
-def get_topic_quiz(course_id: int):
-    db = SessionLocal()
+def get_topic_quiz(course_id: int, db: Session = Depends(get_db)):
     records = db.query(TopicQuizRecord).filter(TopicQuizRecord.course_id == course_id).all()
-    db.close()
-
     if records:
-        quiz_list = []
-        for r in records:
-            quiz_list.append({
-                "id": r.id,
-                "question": r.question,
-                "options": json.loads(r.options_json),
-                "correct_index": r.correct_index,
-                "explanation": r.explanation
-            })
-        return {"course_id": course_id, "questions": quiz_list}
-
-    # Fallback if no specific questions exist
+        return {
+            "course_id": course_id,
+            "questions": [
+                {
+                    "id": r.id,
+                    "question": r.question,
+                    "options": json.loads(r.options_json),
+                    "correct_index": r.correct_index,
+                    "explanation": r.explanation
+                } for r in records
+            ]
+        }
     return {
         "course_id": course_id,
         "questions": [
@@ -148,10 +277,10 @@ def get_topic_quiz(course_id: int):
 async def upload_quiz_material(
     course_id: int = Form(...),
     file: Optional[UploadFile] = File(None),
-    raw_text: Optional[str] = Form(None)
+    raw_text: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
 ):
     extracted_text = ""
-
     if file:
         file_bytes = await file.read()
         if file.filename.lower().endswith(".pdf"):
@@ -166,52 +295,41 @@ async def upload_quiz_material(
     elif raw_text:
         extracted_text = raw_text
     else:
-        raise HTTPException(status_code=400, detail="No PDF file or text notes provided")
+        raise HTTPException(status_code=400, detail="No PDF file or text provided")
 
-    # Clean text
     clean_text = re.sub(r'\s+', ' ', extracted_text).strip()
     context = clean_text[:9000]
-    if len(context) < 40:
-        raise HTTPException(status_code=400, detail="Uploaded material contains insufficient readable content")
+    if len(context) < 30:
+        raise HTTPException(status_code=400, detail="Insufficient readable content extracted.")
 
-    # High-Grade Grok System Prompt
     system_prompt = (
-        "You are an expert psychometrician and senior curriculum evaluator for the "
-        "National Statistical Systems Training Academy (NSSTA), Ministry of Statistics and Programme Implementation (MoSPI). "
-        "Your task is to create 3 high-quality, professional multiple-choice assessment questions based strictly on the provided training text."
+        "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). "
+        "Create 3 high-quality, professional multiple-choice assessment questions based strictly on the provided text."
     )
-
     user_prompt = f"""
-Analyze the training text below and generate exactly 3 objective Multiple Choice Questions (MCQs) following these strict rules:
-1. Question 1: Core Conceptual / Methodological Principle.
-2. Question 2: Practical Scenario / Decision-Making Application.
+Analyze the training text below and generate 3 rigorous Multiple Choice Questions (MCQs):
+1. Question 1: Core Conceptual principle.
+2. Question 2: Practical Scenario / Decision-Making.
 3. Question 3: Standard, Threshold, Compliance, or Formula Definition.
 
-Quality Standards:
-- Do NOT make trivial questions.
-- Distractors (incorrect options) must be plausible and professional (not obviously fake).
-- The correct option must be accurate according to the text.
-- Provide a clear, detailed 1-2 sentence explanation citing the rationale.
-- Shuffle the correct option position (correct_index must accurately reflect the index 0, 1, 2, or 3).
-
-Return ONLY valid JSON matching this exact structure:
+Return strictly raw JSON format without markdown fences:
 [
   {{
-    "question": "Clear, direct question statement",
-    "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+    "question": "Question statement",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct_index": 0,
-    "explanation": "Detailed explanation of why this answer is correct based on the curriculum."
+    "explanation": "1-2 sentence explanation of why this answer is correct."
   }}
 ]
 
 Training Text:
-\"\"\"{context}\"\"\"
+{context}
 """
 
     quiz_data = []
     if XAI_API_KEY:
         try:
-            response = client.chat.completions.create(
+            res = client.chat.completions.create(
                 model="grok-2-latest",
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -219,22 +337,21 @@ Training Text:
                 ],
                 temperature=0.2
             )
-            raw_res = response.choices[0].message.content.strip()
+            raw_res = res.choices[0].message.content.strip()
             if raw_res.startswith("```json"):
                 raw_res = raw_res[7:-3].strip()
             elif raw_res.startswith("```"):
                 raw_res = raw_res[3:-3].strip()
             quiz_data = json.loads(raw_res)
         except Exception as e:
-            print(f"Grok API Exception: {e}")
+            print(f"Grok Error: {e}")
 
-    # Fallback only if Grok API call failed
     if not quiz_data or not isinstance(quiz_data, list):
         words = re.findall(r'\b[A-Z][a-zA-Z]{3,}\b', context)
-        key_term = words[0] if words else "Statistical Framework"
+        key_term = words[0] if words else "Statistical Methodology"
         quiz_data = [
             {
-                "question": f"According to the uploaded material on {key_term}, what is the mandatory operational standard?",
+                "question": f"Under the provided curriculum on {key_term}, what is the mandatory operational benchmark?",
                 "options": [
                     f"Adherence to calibrated {key_term} validation and institutional metadata protocols",
                     "Unweighted non-probabilistic sample imputation",
@@ -257,11 +374,8 @@ Training Text:
             }
         ]
 
-    # Save generated quiz into Database
-    db = SessionLocal()
-    # Remove existing questions for this course to replace with updated PDF content
+    # Save permanently to DB
     db.query(TopicQuizRecord).filter(TopicQuizRecord.course_id == course_id).delete()
-
     for item in quiz_data:
         record = TopicQuizRecord(
             course_id=course_id,
@@ -271,9 +385,7 @@ Training Text:
             explanation=item.get("explanation", "Accredited NSSTA standard.")
         )
         db.add(record)
-
     db.commit()
-    db.close()
 
     return {
         "status": "success",
@@ -309,7 +421,7 @@ def ask_grok_tutor(payload: dict):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a senior AI Statistical Tutor for NSSTA. Provide authoritative, concise answers on statistical methodology (SNA 2008, Sampling Design, CPI, POSH guidelines) in 2 paragraphs."
+                    "content": "You are a senior AI Statistical Tutor for NSSTA. Provide authoritative, concise answers on statistical methodology in 2 paragraphs."
                 },
                 {"role": "user", "content": msg}
             ],
