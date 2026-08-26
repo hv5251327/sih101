@@ -350,342 +350,133 @@
   </footer>
 
   <script>
-    const API_BASE = "https://sih101.onrender.com";
+  const API_BASE = "https://sih101.onrender.com";
 
-    let activeOfficer = { name: "Shri Rajesh Kumar", designation: "Deputy Director (ISS)", department: "MoSPI - NAD" };
-    let completedCourseIds = [];
-    let watchedVideoIds = [];
-    let currentActiveQuiz = { courseId: null, questions: [], userSelections: {} };
-
-    const officialCourses = [
-      { id: 7, title: "Prevention of Sexual Harassment of Women at Workplace (POSH)", category: "Mandatory Behavioural", duration: "45 mins", videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
-      { id: 1, title: "National Accounts Statistics & GDP Compilation (SNA 2008)", category: "Statistical Domain", duration: "3 hrs 30 mins", videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" },
-      { id: 2, title: "Survey Sampling Design & Total Survey Error (TSE)", category: "Statistical Domain", duration: "2 hrs 45 mins", videoUrl: "https://www.youtube.com/embed/sdpxddDzXfE" },
-      { id: 3, title: "Data Analytics with Python & R for Official Statistics", category: "Technical Domain", duration: "4 hrs 15 mins", videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" }
-    ];
-
-    function openModal(id) {
-      document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
-      const target = document.getElementById(id);
-      if (target) target.classList.add("active");
-    }
-
-    function closeAllModals() {
-      document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
-    }
-
-    // Direct event listeners to bypass inline execution blocks
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("navLoginBtn").addEventListener("click", () => openModal("loginModal"));
-      document.getElementById("navRegBtn").addEventListener("click", () => openModal("registerModal"));
-      document.getElementById("navAdminBtn").addEventListener("click", () => openModal("adminModal"));
-      document.getElementById("heroRegBtn").addEventListener("click", () => openModal("registerModal"));
-      document.getElementById("heroAdminBtn").addEventListener("click", () => openModal("adminModal"));
-
-      document.querySelectorAll(".modal-overlay").forEach(modal => {
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) closeAllModals();
-        });
-      });
-
-      renderPublicCourses();
-    });
-
-    function renderPublicCourses() {
-      const c = document.getElementById("publicCourseContainer");
-      if (!c) return;
-      c.innerHTML = "";
-      officialCourses.forEach(item => {
-        c.innerHTML += `
-          <div class="course-card">
-            <div class="igot-player-wrap"><iframe src="${item.videoUrl}" allowfullscreen></iframe></div>
-            <div class="course-body">
-              <div><span class="course-tag">${item.category}</span><div class="course-title">${item.title}</div></div>
-              <div style="font-size:0.8rem; color:#64748b; margin-top:10px;"><i class="fa-regular fa-clock"></i> ${item.duration}</div>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function renderOfficerCourses() {
-      const c = document.getElementById("dashCourseContainer");
-      if (!c) return;
-      c.innerHTML = "";
-      officialCourses.forEach(item => {
-        const isDone = completedCourseIds.includes(item.id);
-        const isWatched = watchedVideoIds.includes(item.id);
-        let actionHtml = isDone 
-          ? `<span class="status-pill status-done"><i class="fa-solid fa-circle-check"></i> Completed</span>`
-          : (isWatched 
-              ? `<button class="btn btn-blue" style="padding:6px 14px;" onclick="openTopicQuiz(${item.id})"><i class="fa-solid fa-file-pen"></i> Take Assessment</button>`
-              : `<button class="btn btn-outline" style="color:var(--gov-navy); border-color:#cbd5e1; padding:6px 14px;" onclick="simulateWatchVideo(${item.id})"><i class="fa-solid fa-circle-play"></i> Watch Video</button>`);
-
-        c.innerHTML += `
-          <div class="course-card">
-            <div class="igot-player-wrap"><iframe src="${item.videoUrl}" allowfullscreen></iframe></div>
-            <div class="course-body">
-              <div><span class="course-tag">${item.category}</span><div class="course-title">${item.title}</div></div>
-              <div class="course-action-bar">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <span style="font-size:0.78rem; color:#64748b;"><i class="fa-regular fa-clock"></i> ${item.duration}</span>
-                  ${actionHtml}
-                </div>
-                ${!isDone ? `<div class="cert-link" onclick="openCertModal(${item.id})"><i class="fa-solid fa-award"></i> Already completed on iGOT?</div>` : ''}
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      document.getElementById("statCompleted").innerText = completedCourseIds.length;
-      document.getElementById("statPending").innerText = officialCourses.length - completedCourseIds.length;
-    }
-
-    function simulateWatchVideo(courseId) {
-      if (!watchedVideoIds.includes(courseId)) watchedVideoIds.push(courseId);
-      renderOfficerCourses();
-      openTopicQuiz(courseId);
-    }
-
-    async function openTopicQuiz(courseId) {
-      const title = document.getElementById("quizModalTitle");
-      const body = document.getElementById("quizQuestionBody");
-      const course = officialCourses.find(c => c.id === courseId);
-      title.innerText = `Assessment: ${course ? course.title : 'Topic Quiz'}`;
-      body.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin"></i> Loading latest quiz from DB...</div>`;
-      openModal("quizModal");
-
-      try {
-        const res = await fetch(`${API_BASE}/api/topics/${courseId}/quiz`);
-        const data = await res.json();
-        currentActiveQuiz = { courseId: courseId, questions: data.questions, userSelections: {} };
-        renderQuizQuestions();
-      } catch (err) {
-        body.innerHTML = `<div>Assessment loaded from local accredited standards.</div>`;
-      }
-    }
-
-    function renderQuizQuestions() {
-      const body = document.getElementById("quizQuestionBody");
-      body.innerHTML = "";
-      currentActiveQuiz.questions.forEach((q, qIdx) => {
-        body.innerHTML += `
-          <div style="margin-bottom:18px; padding:12px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-            <div style="font-weight:700; font-size:0.9rem; color:var(--gov-navy); margin-bottom:10px;">Q${qIdx+1}: ${q.question}</div>
-            ${q.options.map((opt, oIdx) => `
-              <div class="quiz-option-item" id="opt_${qIdx}_${oIdx}" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.85rem; margin-bottom:6px; cursor:pointer; background:white;" onclick="selectQuizAns(${qIdx}, ${oIdx})">
-                ${String.fromCharCode(65 + oIdx)}) ${opt}
-              </div>
-            `).join('')}
-          </div>
-        `;
-      });
-    }
-
-    function selectQuizAns(qIdx, oIdx) {
-      currentActiveQuiz.userSelections[qIdx] = oIdx;
-      for (let i = 0; i < currentActiveQuiz.questions[qIdx].options.length; i++) {
-        const el = document.getElementById(`opt_${qIdx}_${i}`);
-        if (el) {
-          el.style.borderColor = (i === oIdx) ? "#1d4ed8" : "#cbd5e1";
-          el.style.background = (i === oIdx) ? "#eff6ff" : "white";
-        }
-      }
-    }
-
-    function submitTopicQuiz() {
-      const notice = document.getElementById("quizResultNotice");
-      if (Object.keys(currentActiveQuiz.userSelections).length < currentActiveQuiz.questions.length) {
-        alert("Please answer all questions before submitting.");
-        return;
-      }
-      notice.style.display = "block";
-      notice.style.color = "var(--gov-green)";
-      notice.innerHTML = `<i class="fa-solid fa-circle-check"></i> Passed (Score 100%). Accredited!`;
-      if (!completedCourseIds.includes(currentActiveQuiz.courseId)) completedCourseIds.push(currentActiveQuiz.courseId);
-      setTimeout(() => { closeAllModals(); renderOfficerCourses(); }, 1200);
-    }
-
-    function openCertModal(courseId) {
-      document.getElementById("certCourseId").value = courseId;
-      document.getElementById("certOfficerName").value = activeOfficer.name;
-      openModal("certModal");
-    }
-
-    async function handleCertVerification(e) {
-      e.preventDefault();
-      const courseId = parseInt(document.getElementById("certCourseId").value);
-      if (!completedCourseIds.includes(courseId)) completedCourseIds.push(courseId);
-      alert("Certificate validated with iGOT Karmayogi Bharat repository.");
-      closeAllModals();
-      renderOfficerCourses();
-    }
-
-    async function handleAdminPdfUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const courseId = document.getElementById("adminTopicSelect").value;
-      const statusText = document.getElementById("adminUploadStatus");
-      statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing ${file.name} & generating MCQs via Grok...`;
-
-      const formData = new FormData();
-      formData.append("course_id", courseId);
-      formData.append("file", file);
-
-      try {
-        const res = await fetch(`${API_BASE}/api/admin/upload-quiz-material`, { method: "POST", body: formData });
-        const data = await res.json();
-        statusText.innerHTML = `<span style="color:var(--gov-green);"><i class="fa-solid fa-circle-check"></i> ${file.name} saved to DB!</span>`;
-        const preview = document.getElementById("adminGeneratedPreview");
-        const list = document.getElementById("adminQuizList");
-        preview.style.display = "block";
-        list.innerHTML = "";
-        data.quiz.forEach((q, idx) => {
-          list.innerHTML += `<div style="margin-bottom:10px; font-size:0.85rem;"><strong>Q${idx+1}: ${q.question}</strong><div style="color:var(--gov-green);"><i class="fa-solid fa-check"></i> Answer: ${q.options[q.correct_index || 0]}</div></div>`;
-        });
-      } catch (err) {
-        alert("Upload error: " + err.message);
-        statusText.innerText = "Click here to upload training PDF document";
-      }
-    }
-
-    async function handleCadreRegister(e) {
-  e.preventDefault();
-  const name = document.getElementById("regName")?.value.trim() || "Registered Officer";
-  const email = document.getElementById("regEmail")?.value.trim() || "";
-  const password = document.getElementById("regPassword")?.value.trim() || "1234";
-  const cadre = document.getElementById("regCadre")?.value.trim() || "Indian Statistical Service (ISS)";
-  const department = document.getElementById("regDept")?.value.trim() || "National Accounts Division (NAD)";
-  const designation = document.getElementById("regDesignation")?.value.trim() || "Deputy Director / Assistant Director (ISS)";
-
-  if (!email) {
-    alert("Please enter a valid official email address.");
-    return;
-  }
-
-  const payload = {
-    name: name,
-    email: email,
-    password: password,
-    department: department,
-    designation: designation,
-    cadre: cadre
+  let activeOfficer = {
+    name: "Shri Rajesh Kumar",
+    designation: "Deputy Director (ISS)",
+    department: "MoSPI - NAD",
+    email: "rajesh.k@mospi.gov.in"
   };
 
-  try {
-    const res = await fetch(`${API_BASE}/api/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.detail || "Registration failed.");
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.style.display = "flex";
+      modal.classList.add("active");
     }
-
-    alert(`Officer registration successful for ${data.user?.name || name}!`);
-    closeAllModals();
-    if (typeof loadAdminUsers === "function") {
-      loadAdminUsers();
-    }
-  } catch (err) {
-    console.error("Registration error:", err);
-    alert("Registration error: " + err.message);
   }
-});
-        if (res.ok) {
-          const data = await res.json();
-          activeOfficer = data.user;
-        } else {
-          activeOfficer = payload;
-        }
-      } catch (err) {
-        activeOfficer = payload;
+
+  function closeAllModals() {
+    document.querySelectorAll(".modal-overlay").forEach(modal => {
+      modal.style.display = "none";
+      modal.classList.remove("active");
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Bind navigation buttons safely
+    const navLoginBtn = document.getElementById("navLoginBtn");
+    const navRegBtn = document.getElementById("navRegBtn");
+    const navAdminBtn = document.getElementById("navAdminBtn");
+    const heroRegBtn = document.getElementById("heroRegBtn");
+    const heroAdminBtn = document.getElementById("heroAdminBtn");
+
+    if (navLoginBtn) navLoginBtn.addEventListener("click", () => openModal("loginModal"));
+    if (navRegBtn) navRegBtn.addEventListener("click", () => openModal("registerModal"));
+    if (navAdminBtn) navAdminBtn.addEventListener("click", () => openModal("adminModal"));
+    if (heroRegBtn) heroRegBtn.addEventListener("click", () => openModal("registerModal"));
+    if (heroAdminBtn) heroAdminBtn.addEventListener("click", () => openModal("adminModal"));
+
+    // Modal background click to close
+    document.querySelectorAll(".modal-overlay").forEach(modal => {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeAllModals();
+      });
+    });
+  });
+
+  async function handleCadreRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById("regName")?.value.trim() || "Registered Officer";
+    const email = document.getElementById("regEmail")?.value.trim() || "";
+    const cadre = document.getElementById("regCadre")?.value.trim() || "Indian Statistical Service (ISS)";
+    const department = document.getElementById("regDept")?.value.trim() || "National Accounts Division (NAD)";
+    const designation = document.getElementById("regDesignation")?.value.trim() || "Deputy Director / Assistant Director (ISS)";
+    const password = document.getElementById("regPassword")?.value.trim() || "1234";
+
+    if (!email) {
+      alert("Please provide a valid official email.");
+      return;
+    }
+
+    const payload = { name, email, password, department, designation, cadre };
+
+    try {
+      const res = await fetch(`${API_BASE}/api/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Registration failed.");
       }
+
+      alert(`Officer registration successful for ${data.user?.name || name}!`);
       closeAllModals();
-      activateDashboard();
+    } catch (err) {
+      console.error("Registration error:", err);
+      alert("Registration error: " + err.message);
+    }
+  }
+
+  async function handleCadreLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail")?.value.trim();
+    const password = document.getElementById("loginPassword")?.value.trim();
+
+    if (!email || !password) {
+      alert("Please enter both email and password.");
+      return;
     }
 
-    async function handleCadreLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-      if (email === "123@gov.ac.in" && password === "1234") {
-        closeAllModals();
-        activateAdminView();
-        return;
+    try {
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Login failed.");
       }
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        if (res.ok) activeOfficer = await res.json();
-        else activeOfficer = { name: email.split("@")[0].toUpperCase() + " (ISS)", designation: "Deputy Director (ISS)", department: "MoSPI" };
-      } catch (err) {
-        activeOfficer = { name: email.split("@")[0].toUpperCase() + " (ISS)", designation: "Deputy Director (ISS)", department: "MoSPI" };
-      }
+
+      alert(`Welcome back, ${data.user.name}! Logged in successfully.`);
       closeAllModals();
-      activateDashboard();
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Login error: " + err.message);
     }
+  }
 
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("adminEmailInput").value.trim();
-      const pwd = document.getElementById("adminPasswordInput").value.trim();
-      if (email === "123@gov.ac.in" && pwd === "1234") {
-        closeAllModals();
-        activateAdminView();
-      } else {
-        alert("Invalid Admin credentials.");
-      }
-    }
+  async function handleAdminLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById("adminEmailInput")?.value.trim();
+    const password = document.getElementById("adminPasswordInput")?.value.trim();
 
-    async function loadAdminUserTable() {
-      const tbody = document.getElementById("adminCadreTableBody");
-      if (!tbody) return;
-      try {
-        const res = await fetch(`${API_BASE}/api/admin/users`);
-        const users = await res.json();
-        tbody.innerHTML = "";
-        users.forEach(row => {
-          tbody.innerHTML += `<tr><td style="font-weight:700;">${row.name}</td><td>${row.cadre}</td><td>${row.department}</td><td>${row.designation}</td><td>${row.score}</td><td>${row.posh}</td></tr>`;
-        });
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Loaded local default roster.</td></tr>`;
-      }
+    if (email === "123@gov.ac.in" && password === "1234") {
+      alert("Admin authenticated successfully.");
+      closeAllModals();
+    } else {
+      alert("Invalid Admin credentials.");
     }
-
-    function activateDashboard() {
-      document.getElementById("publicView").style.display = "none";
-      document.getElementById("adminView").style.display = "none";
-      document.getElementById("dashOfficerName").innerText = activeOfficer.name;
-      document.getElementById("dashOfficerRole").innerText = activeOfficer.designation;
-      document.getElementById("dashOfficerDept").innerText = activeOfficer.department;
-      document.getElementById("authNav").innerHTML = `
-        <span style="font-size:0.88rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> ${activeOfficer.name}</span>
-        <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
-      `;
-      document.getElementById("dashboardView").style.display = "block";
-      renderOfficerCourses();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function activateAdminView() {
-      document.getElementById("publicView").style.display = "none";
-      document.getElementById("dashboardView").style.display = "none";
-      document.getElementById("adminView").style.display = "block";
-      document.getElementById("authNav").innerHTML = `
-        <span style="font-size:0.88rem; font-weight:600; color:#cbd5e1;"><i class="fa-solid fa-shield-halved"></i> NSSTA Admin</span>
-        <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
-      `;
-      loadAdminUserTable();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  </script>
+  }
+</script>
 </body>
 </html>
+
 
 
