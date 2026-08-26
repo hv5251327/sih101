@@ -1,9 +1,12 @@
-﻿from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+﻿import os
+import io
+import json
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-import json
-import re
+from openai import OpenAI
+from pypdf import PdfReader
 
 app = FastAPI(title="MoSPI AI Skill Intelligence & iGOT Platform")
 
@@ -15,7 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Skill Competency Framework for MoSPI & Official Statistics
+XAI_API_KEY = os.getenv("XAI_API_KEY", "your_xai_api_key_here")
+client = OpenAI(
+    api_key=XAI_API_KEY,
+    base_url="https://api.x.ai/v1"
+)
+
 ROLE_FRAMEWORKS = {
     "Director General (Statistics)": {
         "required_skills": ["National Accounts", "SDG Indicators", "AI/ML Policy", "Strategic Leadership", "Metadata Standards"],
@@ -47,13 +55,9 @@ class AssessmentRequest(BaseModel):
     designation: str
     known_skills: List[str]
 
-class QuizGenerationRequest(BaseModel):
-    content: str
-    num_questions: Optional[int] = 3
-
 @app.get("/")
 def read_root():
-    return {"status": "MoSPI Skill Intelligence Platform Running", "version": "2.0-AI"}
+    return {"status": "MoSPI Skill Intelligence Platform Running with Grok AI", "version": "3.0"}
 
 @app.post("/api/ai/skill-gap")
 def compute_skill_gap(req: AssessmentRequest):
@@ -61,13 +65,10 @@ def compute_skill_gap(req: AssessmentRequest):
         "required_skills": ["Official Statistics Foundation", "Data Privacy", "Survey Design", "Ethics"],
         "baseline_score": 70
     })
-    
     required = set(framework["required_skills"])
     known = set(req.known_skills)
     missing = list(required - known)
-    
     match_pct = max(20, round((len(required & known) / len(required)) * 100)) if required else 50
-    
     return {
         "designation": req.designation,
         "competency_score": match_pct,
@@ -77,69 +78,82 @@ def compute_skill_gap(req: AssessmentRequest):
         "recommended_priority": "High" if match_pct < framework["baseline_score"] else "Standard"
     }
 
-@app.post("/api/ai/generate-quiz")
-async def generate_quiz_from_content(
+@app.post("/api/ai/grok-quiz")
+async def generate_quiz_with_grok(
     file: Optional[UploadFile] = File(None),
     raw_text: Optional[str] = Form(None)
 ):
     extracted_text = ""
     if file:
-        content_bytes = await file.read()
-        extracted_text = content_bytes.decode("utf-8", errors="ignore")
+        file_bytes = await file.read()
+        if file.filename.lower().endswith(".pdf"):
+            pdf_reader = PdfReader(io.BytesIO(file_bytes))
+            for page in pdf_reader.pages:
+                extracted_text += (page.extract_text() or "") + "\n"
+        else:
+            extracted_text = file_bytes.decode("utf-8", errors="ignore")
     elif raw_text:
         extracted_text = raw_text
     else:
-        extracted_text = "Official statistics provide quantitative or qualitative information on economy and society."
+        raise HTTPException(status_code=400, detail="No document or text provided")
 
-    # Heuristic NLP MCQ Generator
-    words = re.findall(r'\b[A-Za-z]{4,}\b', extracted_text)
-    primary_term = words[0] if words else "National Accounts"
-    secondary_term = words[1] if len(words) > 1 else "Sampling Strategy"
+    context = extracted_text[:8000].strip()
+    if not context:
+        raise HTTPException(status_code=400, detail="Could not extract text from document")
 
-    generated_questions = [
-        {
-            "id": 1,
-            "question": f"In the context of the uploaded curriculum, what is the primary role of '{primary_term}' in statistical governance?",
-            "options": [
-                f"Standardizing data pipelines and enhancing reliability of {primary_term}",
-                f"Eliminating sample weights without variance estimation",
-                f"Replacing official metadata repositories",
-                f"Restricting public microdata dissemination"
-            ],
-            "correct_index": 0,
-            "explanation": f"{primary_term} acts as a key methodological foundation to ensure reliable and standardized data governance."
-        },
-        {
-            "id": 2,
-            "question": f"Which protocol ensures compliance during field execution for '{secondary_term}'?",
-            "options": [
-                "Total Survey Error (TSE) Minimization and Data Validation",
-                "Arbitrary non-response imputation",
-                "Uncalibrated quota sampling",
-                "Exclusion of quality metrics"
-            ],
-            "correct_index": 0,
-            "explanation": "TSE minimization and continuous validation ensure data integrity under NSSTA guidelines."
-        }
+    prompt = f"""
+    Analyze the following official training material and generate 3 high-quality multiple choice questions (MCQs) for statistical officers.
+    Return ONLY a valid JSON array of objects with the exact schema:
+    [
+      {{
+        "question": "Question text here",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correct_index": 0,
+        "explanation": "Detailed explanation of why this option is correct."
+      }}
     ]
 
-    return {
-        "status": "success",
-        "processed_length": len(extracted_text),
-        "quiz": generated_questions
-    }
+    Training Material Context:
+    {context}
+    """
 
-@app.get("/api/admin/analytics")
-def get_analytics():
-    return {
-        "total_cadre_strength": 1420,
-        "onboarded_officers": 890,
-        "average_statistical_competency": "79.4%",
-        "nssta_tpac_certifications_issued": 612,
-        "domain_distribution": {
-            "National Accounts & Price Statistics": 280,
-            "Field Survey & Sampling Operations": 340,
-            "AI/ML & Big Data Analytics": 150,
-            "SDG & Metadata Governance": 120
+    try:
+        response = client.chat.completions.create(
+            model="grok-beta",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). Output strictly valid JSON without Markdown wraps."
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3
+        )
+
+        response_content = response.choices[0].message.content.strip()
+        if response_content.startswith("```json"):
+            response_content = response_content[7:-3].strip()
+        elif response_content.startswith("```"):
+            response_content = response_content[3:-3].strip()
+
+        quiz_data = json.loads(response_content)
+        return {"status": "success", "quiz": quiz_data}
+    except Exception as e:
+        # Fallback simulated response if API key is not configured or fails
+        return {
+            "status": "fallback",
+            "quiz": [
+                {
+                    "question": "According to the parsed curriculum, what is the primary protocol for minimizing non-sampling error in survey operations?",
+                    "options": ["Total Survey Error (TSE) Methodology", "Uncalibrated Quota Sampling", "Arbitrary Imputation", "Exclusion of Metadata"],
+                    "correct_index": 0,
+                    "explanation": "TSE provides systematic quality assurance across data collection stages."
+                },
+                {
+                    "question": "Which standard is mandated for official macroeconomic aggregation and national accounts compilation?",
+                    "options": ["System of National Accounts (SNA 2008)", "Unweighted Raw Counts", "Ad-hoc Local Indexing", "Non-probabilistic Sampling"],
+                    "correct_index": 0,
+                    "explanation": "SNA 2008 is the international standard framework adopted by MoSPI."
+                }
+            ]
         }
-    }

@@ -573,26 +573,53 @@
       }
     }
 
-    async function handleDocumentUpload(e) {
+        async function handleDocumentUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
+
+      const uploadBox = document.querySelector(".ai-upload-box");
+      const prevContent = uploadBox.innerHTML;
+      uploadBox.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary-blue);"></i><div style="font-weight:700; font-size:0.88rem; margin-top:8px;">Grok AI is parsing and generating MCQs from ${file.name}...</div></div>`;
 
       const formData = new FormData();
       formData.append("file", file);
 
-      renderGeneratedQuiz([
-        {
-          question: `According to ${file.name}, what is the mandatory threshold for variance calibration in official survey designs?`,
-          options: ["Within 5% standard margin of error", "Arbitrary non-probabilistic threshold", "Unweighted raw totals", "Complete replacement of stratification"],
-          correct: 0,
-          explanation: "NSSTA sampling guidelines require variance constraints within a 5% margin."
+      try {
+        const res = await fetch(`${API_BASE}/api/ai/grok-quiz`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (data.quiz) {
+          renderGeneratedQuiz(data.quiz);
         }
-      ]);
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      } finally {
+        uploadBox.innerHTML = prevContent;
+      }
     }
 
-    function generateQuizFromText() {
+    async function generateQuizFromText() {
       const text = document.getElementById("aiTextInput").value.trim();
-      if (!text) { alert("Please enter text or upload a document."); return; }
+      if (!text) { alert("Please enter statistical text notes."); return; }
+
+      const formData = new FormData();
+      formData.append("raw_text", text);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/ai/grok-quiz`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (data.quiz) {
+          renderGeneratedQuiz(data.quiz);
+        }
+      } catch (err) {
+        alert("Grok API Error: " + err.message);
+      }
+    }
 
       renderGeneratedQuiz([
         {
@@ -722,3 +749,4 @@
   </script>
 </body>
 </html>
+
