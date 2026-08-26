@@ -18,10 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Grok AI Client (xAI endpoint is fully OpenAI-compatible)
-XAI_API_KEY = os.getenv("XAI_API_KEY", "your_xai_api_key_here")
+# Read key strictly from the runtime environment
+XAI_API_KEY = os.getenv("XAI_API_KEY", "")
+
 client = OpenAI(
-    api_key=XAI_API_KEY,
+    api_key=XAI_API_KEY or "placeholder",
     base_url="https://api.x.ai/v1"
 )
 
@@ -58,7 +59,7 @@ class AssessmentRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "MoSPI Skill Intelligence Platform Active", "engine": "Grok-Beta via xAI"}
+    return {"status": "MoSPI Skill Intelligence Platform Active", "engine": "Grok AI via xAI API"}
 
 @app.post("/api/ai/skill-gap")
 def compute_skill_gap(req: AssessmentRequest):
@@ -86,7 +87,6 @@ async def generate_quiz_with_grok(
 ):
     extracted_text = ""
 
-    # Step 1: In-Memory Byte Stream Extraction
     if file:
         file_bytes = await file.read()
         if file.filename.lower().endswith(".pdf"):
@@ -102,16 +102,15 @@ async def generate_quiz_with_grok(
 
     context = extracted_text[:8000].strip()
     if not context:
-        raise HTTPException(status_code=400, detail="Could not extract readable text from the document")
+        raise HTTPException(status_code=400, detail="Could not extract readable text from document")
 
-    # Step 2: Formulate Structured LLM Evaluation Prompt
     prompt = f"""
 Analyze the following official training material and generate 3 rigorous, objective Multiple Choice Questions (MCQs) for statistical officers.
 Return strictly a valid JSON array of objects following this exact schema:
 [
   {{
     "question": "Question text based directly on the concepts in the text",
-    "options": ["Correct or Plausible Option A", "Option B", "Option C", "Option D"],
+    "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct_index": 0,
     "explanation": "Clear explanation of why this option is correct based on the context."
   }}
@@ -121,14 +120,16 @@ Training Material Context:
 {context}
 """
 
-    # Step 3: Execute xAI / Grok Inference
     try:
+        if not XAI_API_KEY:
+            raise ValueError("XAI_API_KEY environment variable not set")
+
         response = client.chat.completions.create(
             model="grok-beta",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). Return strictly raw JSON with no Markdown wrappers or explanation text."
+                    "content": "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). Return strictly raw JSON without Markdown code fences."
                 },
                 {"role": "user", "content": prompt}
             ],
@@ -142,15 +143,16 @@ Training Material Context:
             response_content = response_content[3:-3].strip()
 
         quiz_data = json.loads(response_content)
-        return {"status": "success", "quiz": quiz_data}
+        return {"status": "success", "engine": "grok-beta", "quiz": quiz_data}
 
     except Exception as e:
-        # Fallback structured response if key is unconfigured or rate-limited
+        print(f"Grok API Error: {str(e)}")
         return {
             "status": "fallback",
+            "engine": "local-statistical-engine",
             "quiz": [
                 {
-                    "question": f"Based on the parsed document ({file.filename if file else 'Provided Notes'}), what is the primary methodology to ensure data consistency?",
+                    "question": f"Based on the parsed document ({file.filename if file else 'Provided Notes'}), what is the primary methodology to ensure survey variance calibration?",
                     "options": [
                         "Total Survey Error (TSE) Minimization and Standardized Stratification",
                         "Arbitrary Non-Response Imputation without Weighting",
