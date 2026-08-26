@@ -5,31 +5,44 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from pypdf import PdfReader
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text, ForeignKey, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+from openai import OpenAI
 
 # ----------------- SECURITY & CONFIG -----------------
-SECRET_KEY = "sih-mospi-secret-key-production-change-in-env"
+SECRET_KEY = os.environ.get("SECRET_KEY", "sih-mospi-secret-key-production-change-in-env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    # Truncate to 72 bytes to adhere to bcrypt specification limits
+    return pwd_context.hash(password[:72])
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# ----------------- AI CLIENT CONFIG -----------------
+# Supports Groq (Llama-3) or xAI Grok
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", os.environ.get("XAI_API_KEY", ""))
+IS_GROQ = GROQ_API_KEY.startswith("gsk_")
+
+ai_client = OpenAI(
+    api_key=GROQ_API_KEY or "dummy-key-for-init",
+    base_url="https://api.groq.com/openai/v1" if IS_GROQ else "https://api.x.ai/v1"
+)
+AI_MODEL = "llama-3.3-70b-versatile" if IS_GROQ else "grok-beta"
 
 # ----------------- DATABASE SCHEMA -----------------
 DATABASE_URL = "sqlite:///./sih101.db"
@@ -141,33 +154,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Request Schemas
+# ----------------- SCHEMAS -----------------
 class RegisterSchema(BaseModel):
     name: str
-    email: EmailStr
+    email: str
     password: str
     designation: str
     department: str
 
 class LoginSchema(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class VideoCompleteSchema(BaseModel):
-    email: EmailStr
+    email: str
     course_id: str
 
 class QuizSubmitSchema(BaseModel):
-    email: EmailStr
+    email: str
     course_id: str
     answers: List[int]
 
-# Health check
+# ----------------- ENDPOINTS -----------------
 @app.get("/")
 def health_check():
-    return {"status": "healthy", "service": "MoSPI Skill Intelligence Engine"}
+    return {"status": "healthy", "service": "MoSPI Skill Intelligence Platform API"}
 
-# Auth Endpoints
 @app.post("/api/register")
 def register_user(payload: RegisterSchema, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == payload.email).first():
@@ -207,7 +219,6 @@ def login_user(payload: LoginSchema, db: Session = Depends(get_db)):
         }
     }
 
-# Dashboard & Progress
 @app.get("/api/dashboard/{email}")
 def get_dashboard(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
@@ -311,13 +322,63 @@ def evaluate_quiz(sub: QuizSubmitSchema, db: Session = Depends(get_db)):
     return {"passed": passed, "score": score, "total": len(questions), "review": review}
 
 @app.post("/api/verify-certificate")
-async def verify_certificate(email: str = Form(...), course_id: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def verify_certificate(
+    email: str = Form(...),
+    course_id: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     reader = PdfReader(file.file)
-    extracted_text = " ".join([p.extract_text() or "" for p in reader.pages]).lower()
-    
-    if not any(k in extracted_text for k in ["karmayogi", "mospi", "nssta", "certificate", "government", "completion"]):
-        raise HTTPException(status_code=400, detail="Certificate text does not contain valid MoSPI/iGOT verification signatures.")
-        
+    extracted_text = " ".join([p.extract_text() or "" for p in reader.pages]).strip()
+
+    if len(extracted_text) < 30:
+        raise HTTPException(status_code=400, detail="Unable to extract readable text from PDF.")
+
+    user = db.query(User).filter(User.email == email).first()
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not user or not course:
+        raise HTTPException(status_code=404, detail="User or course record not found.")
+
+    if GROQ_API_KEY:
+        prompt = f"""
+        You are an audit verification engine for India's Official Statistics System (MoSPI/iGOT Karmayogi).
+        Verify if this certificate text confirms that officer '{user.name}' completed the course '{course.title}' ({course.course_id}).
+
+        Certificate Text:
+        \"\"\"{extracted_text[:3000]}\"\"\"
+
+        Return ONLY a JSON object:
+        {{
+          "is_valid": true/false,
+          "confidence_score": 0.0 to 1.0,
+          "issuer": "detected issuer name",
+          "reason": "short explanation"
+        }}
+        """
+        try:
+            res = ai_client.chat.completions.create(
+                model=AI_MODEL,
+                messages=[
+                    {"role": "system", "content": "You output strict JSON objects only."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1
+            )
+            raw = res.choices[0].message.content.strip()
+            clean = re.sub(r"^```json|^```|```$", "", raw, flags=re.MULTILINE).strip()
+            decision = json.loads(clean)
+            is_valid = decision.get("is_valid") and decision.get("confidence_score", 0) >= 0.65
+            reason = decision.get("reason", "Verified via AI analysis.")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"AI verification failure: {str(e)}")
+    else:
+        # Fallback keyword match if no API key is provided
+        is_valid = any(k in extracted_text.lower() for k in ["karmayogi", "mospi", "nssta", "certificate", "completion"])
+        reason = "Verified via official training keywords."
+
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=f"Certificate verification rejected: {reason}")
+
     prog = db.query(UserProgress).filter(UserProgress.user_email == email, UserProgress.course_id == course_id).first()
     if not prog:
         prog = UserProgress(user_email=email, course_id=course_id, video_completed=True, quiz_completed=True, quiz_score=100)
@@ -325,14 +386,11 @@ async def verify_certificate(email: str = Form(...), course_id: str = Form(...),
     else:
         prog.video_completed = True
         prog.quiz_completed = True
-        
-    user = db.query(User).filter(User.email == email).first()
-    if user:
-        user.competency_score = min(100, user.competency_score + 20)
-    db.commit()
-    return {"message": "Certificate successfully validated against MoSPI database records."}
 
-# Admin Analytics
+    user.competency_score = min(100, user.competency_score + 20)
+    db.commit()
+    return {"message": f"Certificate verified successfully: {reason}"}
+
 @app.get("/api/admin/analytics")
 def get_analytics(db: Session = Depends(get_db)):
     users = db.query(User).all()
@@ -364,32 +422,68 @@ def get_analytics(db: Session = Depends(get_db)):
     return {"total_officers": len(users), "total_courses": len(courses), "cadre_summary": summary, "roster": roster}
 
 @app.post("/api/admin/generate-quiz-pdf")
-async def generate_quiz_pdf(course_id: str = Form(...), file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def generate_quiz_pdf(
+    course_id: str = Form(...),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     reader = PdfReader(file.file)
-    extracted = " ".join([p.extract_text() or "" for p in reader.pages])
+    extracted = " ".join([p.extract_text() or "" for p in reader.pages]).strip()
     
-    if len(extracted.strip()) < 40:
-        raise HTTPException(status_code=400, detail="The PDF contains insufficient readable text.")
+    if len(extracted) < 40:
+        raise HTTPException(status_code=400, detail="Document has insufficient text.")
 
-    sentences = [s.strip() for s in re.split(r'\. |\n', extracted) if len(s.strip()) > 30]
-    count = 0
-    for idx, sentence in enumerate(sentences[:3]):
-        words = sentence.split()
-        snippet = " ".join(words[:min(10, len(words))])
-        new_q = QuizQuestion(
+    if GROQ_API_KEY:
+        prompt = f"""
+        Generate 3 high quality multiple choice questions from this text.
+        Text:
+        \"\"\"{extracted[:4000]}\"\"\"
+
+        Return ONLY a JSON array:
+        [
+          {{
+            "question": "Question text?",
+            "options": ["A", "B", "C", "D"],
+            "correct_idx": 0,
+            "explanation": "Brief reason"
+          }}
+        ]
+        """
+        try:
+            res = ai_client.chat.completions.create(
+                model=AI_MODEL,
+                messages=[
+                    {"role": "system", "content": "You output raw JSON arrays only."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.2
+            )
+            raw = res.choices[0].message.content.strip()
+            clean = re.sub(r"^```json|^```|```$", "", raw, flags=re.MULTILINE).strip()
+            questions = json.loads(clean)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"AI generation failed: {str(e)}")
+    else:
+        # Fallback local regex parsing
+        sentences = [s.strip() for s in re.split(r'\. |\n', extracted) if len(s.strip()) > 30]
+        questions = []
+        for idx, sentence in enumerate(sentences[:3]):
+            words = sentence.split()
+            snippet = " ".join(words[:min(10, len(words))])
+            questions.append({
+                "question": f"As per training manual: \"{snippet}...\", which provision applies?",
+                "options": [f"Standard operational directive ({idx+1})", "Draft guideline", "Historical framework", "None of above"],
+                "correct_idx": 0,
+                "explanation": f"Mandated from curriculum: {sentence[:70]}..."
+            })
+
+    for q in questions:
+        db.add(QuizQuestion(
             course_id=course_id,
-            question=f"As per the official training document: \"{snippet}...\", which protocol applies?",
-            options_json=json.dumps([
-                f"Standard statutory compliance directive (Section {idx+1})",
-                "Non-binding draft guideline",
-                "Historical legacy framework",
-                "None of the above"
-            ]),
-            correct_idx=0,
-            explanation=f"Mandated from uploaded curriculum: {sentence[:80]}..."
-        )
-        db.add(new_q)
-        count += 1
-        
+            question=q["question"],
+            options_json=json.dumps(q["options"]),
+            correct_idx=int(q["correct_idx"]),
+            explanation=q.get("explanation", "")
+        ))
     db.commit()
-    return {"message": f"Parsed document and persisted {count} new questions for module {course_id}."}
+    return {"message": f"Successfully added {len(questions)} questions to {course_id}!"}

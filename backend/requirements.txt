@@ -1,7 +1,6 @@
 fastapi
 uvicorn[standard]
-pydantic[email]
-email-validator
+pydantic
 sqlalchemy
 python-multipart
 pypdf
