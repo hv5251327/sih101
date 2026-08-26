@@ -3,35 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iGOT Karmayogi Bharat - Capacity Building Platform</title>
+  <title>iGOT Karmayogi Bharat | Capacity Building Commission</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gov-navy: #133c55;
-      --gov-blue: #0b2545;
+      --gov-navy: #0b2545;
+      --gov-blue: #133c55;
       --gov-orange: #ff9933;
+      --gov-green: #138808;
       --primary-blue: #1d4ed8;
       --border-color: #cbd5e1;
       --bg-gray: #f8fafc;
+      --text-dark: #0f172a;
     }
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg-gray); color: #1e293b; min-height: 100vh; }
-    
+    body { background: var(--bg-gray); color: var(--text-dark); min-height: 100vh; overflow-x: hidden; }
+
+    /* Top Banner */
     .national-banner {
       background: #ffffff;
-      border-bottom: 2px solid var(--gov-orange);
-      padding: 6px 5%;
+      border-bottom: 3px solid var(--gov-orange);
+      padding: 8px 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #555;
+      color: #475569;
     }
+    .national-banner img { height: 26px; }
 
+    /* Main Navbar */
     .navbar {
-      background: var(--gov-blue);
+      background: var(--gov-navy);
       padding: 14px 5%;
       display: flex;
       justify-content: space-between;
@@ -39,101 +44,230 @@
       color: white;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 999;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: white; text-decoration: none; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 800; color: white; text-decoration: none; }
     .brand span { color: var(--gov-orange); }
+    .nav-links { display: flex; gap: 20px; align-items: center; font-size: 0.9rem; font-weight: 600; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; transition: 0.2s; }
+    .nav-links a:hover { color: white; }
     .nav-actions { display: flex; align-items: center; gap: 12px; }
-    .btn { padding: 8px 18px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; transition: 0.2s; }
+    .btn { padding: 8px 18px; border-radius: 6px; font-weight: 700; font-size: 0.88rem; cursor: pointer; border: none; transition: 0.2s; }
     .btn-outline { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
     .btn-orange { background: var(--gov-orange); color: white; }
+    .btn-orange:hover { background: #e68524; }
     .btn-blue { background: var(--primary-blue); color: white; }
 
+    /* Hero Section (No Top Video) */
     .hero {
-      background: linear-gradient(135deg, var(--gov-navy) 0%, #001f3f 100%);
+      background: linear-gradient(135deg, #0b2545 0%, #133c55 50%, #001f3f 100%);
       color: white;
-      padding: 40px 5%;
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 40px;
-      align-items: center;
+      padding: 70px 5% 60px;
+      text-align: center;
+      position: relative;
     }
+    .hero-tag { background: rgba(255,153,51,0.2); color: var(--gov-orange); display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 18px; line-height: 1.2; }
+    .hero p { max-width: 800px; margin: 0 auto 30px; font-size: 1.1rem; color: #cbd5e1; line-height: 1.6; }
+    .hero-cta { display: flex; justify-content: center; gap: 15px; }
 
-    .main-container { padding: 35px 5%; }
-    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
-    .section-title { font-size: 1.5rem; font-weight: 800; color: var(--gov-blue); }
-    
-    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-    .course-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-    .video-thumb { position: relative; width: 100%; height: 180px; background: #000; cursor: pointer; }
-    .video-thumb iframe { width: 100%; height: 100%; border: none; }
-    .card-body { padding: 16px; }
-    .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-navy); background: #e0f2fe; padding: 3px 8px; border-radius: 4px; }
-    .course-title { font-size: 1rem; font-weight: 700; margin: 8px 0; }
+    /* Stats Banner */
+    .stats-bar {
+      background: #ffffff;
+      padding: 30px 5%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .stat-item { text-align: center; border-right: 1px solid #e2e8f0; }
+    .stat-item:last-child { border-right: none; }
+    .stat-item h2 { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 4px; }
+    .stat-item p { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
 
-    /* Modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; }
-    .modal-box { background: white; border-radius: 12px; width: 95%; max-width: 520px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
-    .close-modal { position: absolute; top: 18px; right: 20px; font-size: 1.3rem; cursor: pointer; color: #64748b; }
+    /* Scrolling Information Sections */
+    .section-wrap { padding: 60px 5%; }
+    .section-header { text-align: center; margin-bottom: 45px; }
+    .section-title { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 10px; }
+    .section-subtitle { color: #64748b; font-size: 1rem; max-width: 650px; margin: 0 auto; }
 
+    /* 3 Pillars of Karmayogi */
+    .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .pillar-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-top: 4px solid var(--gov-orange); }
+    .pillar-icon { font-size: 2rem; color: var(--primary-blue); margin-bottom: 16px; }
+    .pillar-card h3 { font-size: 1.25rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 10px; }
+    .pillar-card p { font-size: 0.92rem; color: #475569; line-height: 1.6; }
+
+    /* Hubs Grid */
+    .hubs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .hub-card { background: #ffffff; padding: 24px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; }
+    .hub-card:hover { transform: translateY(-4px); }
+    .hub-card i { font-size: 2.2rem; color: var(--gov-orange); margin-bottom: 12px; }
+    .hub-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 6px; }
+    .hub-card p { font-size: 0.82rem; color: #64748b; }
+
+    /* Video & Course Catalog */
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .course-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+    .video-frame { position: relative; width: 100%; height: 190px; background: #000; }
+    .video-frame iframe { width: 100%; height: 100%; border: none; }
+    .course-body { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); background: #e0f2fe; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+    .course-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; }
+    .modal-box { background: white; border-radius: 12px; width: 95%; max-width: 520px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; z-index: 10001; }
+    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.4rem; cursor: pointer; color: #64748b; }
+
+    /* Stepper Header */
     .stepper { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
     .step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
     .step-active { background: #f59e0b; color: white; }
     .step-inactive { background: #cbd5e1; color: white; }
     .step-line { flex: 1; height: 3px; background: #1e3a8a; }
 
+    /* Form Styles */
     .radio-group { display: flex; gap: 12px; margin-bottom: 16px; }
     .radio-pill { flex: 1; border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
     .radio-pill.active { border-color: var(--primary-blue); background: #eff6ff; }
-
     .form-group { margin-bottom: 14px; }
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
     .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; background: white; }
+
+    /* Footer */
+    footer { background: #06182c; color: #94a3b8; padding: 40px 5%; font-size: 0.85rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 30px; }
+    .footer-grid h4 { color: white; font-size: 1rem; margin-bottom: 15px; }
   </style>
 </head>
 <body>
 
+  <!-- National Header -->
   <div class="national-banner">
-    <div><i class="fa-solid fa-landmark"></i> Government of India | iGOT Karmayogi</div>
-    <div>Capacity Building Commission Ecosystem</div>
+    <div><i class="fa-solid fa-landmark"></i> Government of India | National Programme for Civil Services Capacity Building (NPCSCB)</div>
+    <div>Mission Karmayogi Bharat</div>
   </div>
 
+  <!-- Navbar -->
   <header class="navbar">
     <a href="#" class="brand"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#pillars">Framework</a>
+      <a href="#hubs">Hubs</a>
+      <a href="#courses">Courses</a>
+    </div>
     <div class="nav-actions" id="authNav">
-      <button class="btn btn-outline" onclick="openModal('loginModal')">Login</button>
-      <button class="btn btn-orange" onclick="openModal('registerModal')">Register</button>
+      <button class="btn btn-outline" id="loginBtnNav" type="button"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+      <button class="btn btn-orange" id="registerBtnNav" type="button"><i class="fa-solid fa-user-plus"></i> Register</button>
     </div>
   </header>
 
+  <!-- Hero Section -->
   <section class="hero">
-    <div>
-      <h1 style="font-size: 2.2rem; margin-bottom: 12px;">Role-Based Learning Portal</h1>
-      <p style="color:#cbd5e1; font-size: 0.95rem;">Official capacity-building curriculum mapped directly to your Central/State designation.</p>
+    <span class="hero-tag"><i class="fa-solid fa-graduation-cap"></i> Transforming Indian Civil Services</span>
+    <h1>Integrated Government Online Training</h1>
+    <p>A digital ecosystem engineered to enable continuous, competency-driven learning for civil servants across Central and State ministries, departments, and public organisations.</p>
+    <div class="hero-cta">
+      <button class="btn btn-orange" style="padding:12px 28px; font-size:1rem;" id="heroRegisterBtn" type="button">Register as Official</button>
+      <a href="#courses" class="btn btn-outline" style="padding:12px 28px; font-size:1rem; text-decoration:none;">Explore Courses</a>
     </div>
-    <div>
-      <div style="border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.2);">
-        <iframe width="100%" height="220" src="https://www.youtube.com/embed/8A8z7uK1m6w" frameborder="0" allowfullscreen></iframe>
+  </section>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <h2>38,50,000+</h2>
+      <p>Civil Servants Onboarded</p>
+    </div>
+    <div class="stat-item">
+      <h2>1,400+</h2>
+      <p>Accredited Courses</p>
+    </div>
+    <div class="stat-item">
+      <h2>85+</h2>
+      <p>Ministries & Departments</p>
+    </div>
+    <div class="stat-item">
+      <h2>1.2 Crore+</h2>
+      <p>Course Completions</p>
+    </div>
+  </div>
+
+  <!-- Section: What is iGOT Karmayogi -->
+  <section class="section-wrap" id="about" style="background: white;">
+    <div class="section-header">
+      <div class="section-title">What is Mission Karmayogi?</div>
+      <div class="section-subtitle">A comprehensive capacity-building initiative shifting from 'Rule-based' to 'Role-based' human resource management.</div>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-brain"></i></div>
+        <h3>Behavioural Competencies</h3>
+        <p>Inculcates ethics, citizen-centric service delivery, empathy, transparency, and integrity across all administrative operations.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-gears"></i></div>
+        <h3>Functional Competencies</h3>
+        <p>Equips officers with essential operational capabilities including General Financial Rules (GFR), GeM procurement, and RTI handling.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-laptop-code"></i></div>
+        <h3>Domain & Tech Competencies</h3>
+        <p>Specialized domain skills across engineering, healthcare, internal security, taxation, digital infrastructure, and AI in governance.</p>
       </div>
     </div>
   </section>
 
-  <main class="main-container">
+  <!-- Section: iGOT Ecosystem Hubs -->
+  <section class="section-wrap" id="hubs">
     <div class="section-header">
-      <div>
-        <div class="section-title" id="courseSectionTitle">Mandatory Competency Modules</div>
-        <div id="courseSectionSubtitle" style="color:#64748b; font-size:0.9rem;">Foundational courses for government officials</div>
+      <div class="section-title">Core Ecosystem Hubs</div>
+      <div class="section-subtitle">Integrated portals designed to facilitate continuous learning, assessment, and career development.</div>
+    </div>
+    <div class="hubs-grid">
+      <div class="hub-card">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <h4>Learn Hub</h4>
+        <p>Role-mapped modules and micro-learning courses available 24x7 across web and mobile.</p>
       </div>
-      <div id="userBadge" style="display:none; padding:6px 14px; background:#dcfce7; color:#15803d; border-radius:20px; font-weight:700; font-size:0.85rem;"></div>
+      <div class="hub-card">
+        <i class="fa-solid fa-users-viewfinder"></i>
+        <h4>Career Hub</h4>
+        <p>Direct mapping of competencies with vacancies, deputations, and role appointments.</p>
+      </div>
+      <div class="hub-card">
+        <i class="fa-solid fa-network-wired"></i>
+        <h4>Network Hub</h4>
+        <p>Peer-to-peer civil servant forums, discussion rooms, and cross-departmental collaboration.</p>
+      </div>
+      <div class="hub-card">
+        <i class="fa-solid fa-chart-line"></i>
+        <h4>Discuss Hub</h4>
+        <p>Real-time analytics and institutional capacity scoring by the Capacity Building Commission.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section: Recommended & Role Courses -->
+  <section class="section-wrap" id="courses" style="background: white;">
+    <div class="section-header">
+      <div class="section-title" id="courseSectionTitle">Accredited Video Modules</div>
+      <div class="section-subtitle" id="courseSectionSubtitle">Official e-learning lectures streamable directly inside the platform</div>
+      <div id="userBadge" style="display:none; margin:15px auto 0; width:max-content; padding:6px 16px; background:#dcfce7; color:#15803d; border-radius:20px; font-weight:700; font-size:0.85rem;"></div>
     </div>
     <div class="course-grid" id="courseContainer"></div>
-  </main>
+  </section>
 
-  <!-- iGOT Register Modal (No OTP) -->
+  <!-- Register Modal -->
   <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeModal('registerModal')">&times;</span>
-      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;"><i class="fa-solid fa-arrow-left" style="cursor:pointer; margin-right:8px;" onclick="closeModal('registerModal')"></i> Register</h3>
+      <span class="close-modal" id="closeRegBtn">&times;</span>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;"><i class="fa-solid fa-arrow-left" style="cursor:pointer; margin-right:8px;" id="backRegBtn"></i> Register</h3>
       
       <div class="stepper">
         <div style="text-align:center;"><div class="step-circle step-active">1</div><div style="font-size:0.75rem; font-weight:700; color:#f59e0b; margin-top:4px;">Step - 1</div></div>
@@ -141,27 +275,27 @@
         <div style="text-align:center;"><div class="step-circle step-inactive">2</div><div style="font-size:0.75rem; font-weight:600; color:#94a3b8; margin-top:4px;">Step - 2</div></div>
       </div>
 
-      <form id="igotRegForm" onsubmit="handleRegisterSubmit(event)">
+      <form id="igotRegForm">
         <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; display: block;">Center/State *</label>
         <div class="radio-group">
-          <label class="radio-pill active" id="centerPill" onclick="selectGovType('Center')">
+          <label class="radio-pill active" id="centerPill">
             <input type="radio" name="govType" value="Center" checked style="accent-color: #1d4ed8;"> Center
           </label>
-          <label class="radio-pill" id="statePill" onclick="selectGovType('State')">
+          <label class="radio-pill" id="statePill">
             <input type="radio" name="govType" value="State" style="accent-color: #1d4ed8;"> State
           </label>
         </div>
 
         <div class="form-group">
           <label>Ministry/Department *</label>
-          <select id="regMinistry" class="form-control" onchange="onMinistryChange()" required>
+          <select id="regMinistry" class="form-control" required>
             <option value="">Select ministry</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Organisation *</label>
-          <select id="regOrganisation" class="form-control" onchange="onOrgChange()" required>
+          <select id="regOrganisation" class="form-control" required>
             <option value="">Select organisation</option>
           </select>
         </div>
@@ -179,7 +313,7 @@
         </div>
 
         <div class="form-group">
-          <label>Government Email Address *</label>
+          <label>Official Email Address *</label>
           <input type="email" id="regEmail" class="form-control" placeholder="name@gov.in / name@nic.in" required>
         </div>
 
@@ -196,9 +330,9 @@
   <!-- Login Modal -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box" style="max-width:420px;">
-      <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
-      <h3 style="font-weight: 800; margin-bottom: 15px; color:var(--gov-blue);">iGOT Portal Login</h3>
-      <form onsubmit="handleLoginSubmit(event)">
+      <span class="close-modal" id="closeLoginBtn">&times;</span>
+      <h3 style="font-weight: 800; margin-bottom: 15px; color:var(--gov-navy);">iGOT Portal Login</h3>
+      <form id="igotLoginForm">
         <div class="form-group">
           <label>Official Email</label>
           <input type="email" id="loginEmail" class="form-control" placeholder="officer@gov.in" required>
@@ -212,10 +346,34 @@
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4 style="font-size:1.2rem; font-weight:800; color:white;">iGOT Karmayogi Bharat</h4>
+        <p>National Programme for Civil Services Capacity Building (NPCSCB), Government of India.</p>
+      </div>
+      <div>
+        <h4>Key Links</h4>
+        <p>Capacity Building Commission</p>
+        <p>DoPT Official Portal</p>
+        <p>GeM e-Marketplace</p>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <p>Help Desk: 1800-111-555</p>
+        <p>Email: support-igot@gov.in</p>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; text-align:center;">
+      &copy; 2026 iGOT Karmayogi Bharat. Managed by Capacity Building Commission.
+    </div>
+  </footer>
+
   <script>
     const API_BASE = "https://sih101.onrender.com";
 
-    // Full iGOT Hierarchy & Designations
+    // Full iGOT Hierarchy
     const igotHierarchy = {
       Center: {
         "Ministry of Personnel, Public Grievances and Pensions": {
@@ -314,6 +472,32 @@
 
     let currentGovType = "Center";
 
+    // Direct Event Listeners for Reliable Modal Triggers
+    document.addEventListener("DOMContentLoaded", function() {
+      const loginModal = document.getElementById("loginModal");
+      const regModal = document.getElementById("registerModal");
+
+      document.getElementById("loginBtnNav").addEventListener("click", () => loginModal.style.display = "flex");
+      document.getElementById("registerBtnNav").addEventListener("click", () => regModal.style.display = "flex");
+      document.getElementById("heroRegisterBtn").addEventListener("click", () => regModal.style.display = "flex");
+
+      document.getElementById("closeLoginBtn").addEventListener("click", () => loginModal.style.display = "none");
+      document.getElementById("closeRegBtn").addEventListener("click", () => regModal.style.display = "none");
+      document.getElementById("backRegBtn").addEventListener("click", () => regModal.style.display = "none");
+
+      document.getElementById("centerPill").addEventListener("click", () => selectGovType("Center"));
+      document.getElementById("statePill").addEventListener("click", () => selectGovType("State"));
+
+      document.getElementById("regMinistry").addEventListener("change", onMinistryChange);
+      document.getElementById("regOrganisation").addEventListener("change", onOrgChange);
+
+      document.getElementById("igotRegForm").addEventListener("submit", handleRegisterSubmit);
+      document.getElementById("igotLoginForm").addEventListener("submit", handleLoginSubmit);
+
+      populateMinistries();
+      renderCourses();
+    });
+
     function selectGovType(type) {
       currentGovType = type;
       document.getElementById("centerPill").classList.toggle("active", type === "Center");
@@ -364,21 +548,20 @@
       filtered.forEach(c => {
         container.innerHTML += 
           <div class="course-card">
-            <div class="video-thumb">
+            <div class="video-frame">
               <iframe src="" allowfullscreen></iframe>
             </div>
-            <div class="card-body">
-              <span class="course-tag"></span>
-              <div class="course-title"></div>
-              <div style="font-size:0.8rem; color:#64748b;"><i class="fa-regular fa-clock"></i> </div>
+            <div class="course-body">
+              <div>
+                <span class="course-tag"></span>
+                <div class="course-title"></div>
+              </div>
+              <div style="font-size:0.8rem; color:#64748b; margin-top:10px;"><i class="fa-regular fa-clock"></i> </div>
             </div>
           </div>
         ;
       });
     }
-
-    function openModal(id) { document.getElementById(id).style.display = "flex"; }
-    function closeModal(id) { document.getElementById(id).style.display = "none"; }
 
     async function handleRegisterSubmit(e) {
       e.preventDefault();
@@ -391,17 +574,14 @@
       };
 
       try {
-        const res = await fetch(${API_BASE}/api/register, {
+        await fetch(${API_BASE}/api/register, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        applyUser(payload);
-        closeModal('registerModal');
-      } catch (err) {
-        applyUser(payload);
-        closeModal('registerModal');
-      }
+      } catch (err) {}
+      applyUser(payload);
+      document.getElementById("registerModal").style.display = "none";
     }
 
     async function handleLoginSubmit(e) {
@@ -416,12 +596,11 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        applyUser(data);
-        closeModal('loginModal');
+        applyUser(data.name ? data : { name: "Civil Services Officer", designation: "Under Secretary", department: "DoPT" });
       } catch (err) {
-        applyUser({ name: "Officer", designation: "Under Secretary", department: "Ministry of Personnel" });
-        closeModal('loginModal');
+        applyUser({ name: "Civil Services Officer", designation: "Under Secretary", department: "DoPT" });
       }
+      document.getElementById("loginModal").style.display = "none";
     }
 
     function applyUser(user) {
@@ -429,16 +608,14 @@
         <span style="font-size:0.9rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> </span>
         <button class="btn btn-outline" onclick="location.reload()">Logout</button>
       ;
-      document.getElementById("userBadge").style.display = "block";
-      document.getElementById("userBadge").innerHTML = <i class="fa-solid fa-shield"></i> ;
-      document.getElementById("courseSectionTitle").textContent = Recommended Modules for ;
-      document.getElementById("courseSectionSubtitle").textContent = Curated capacity building tracks for ;
+      const badge = document.getElementById("userBadge");
+      badge.style.display = "block";
+      badge.innerHTML = <i class="fa-solid fa-shield"></i>  ();
+      document.getElementById("courseSectionTitle").textContent = Role-Mapped Training for ;
+      document.getElementById("courseSectionSubtitle").textContent = Custom curriculum assigned by Capacity Building Commission for your designation;
       renderCourses(user.designation);
+      document.getElementById("courses").scrollIntoView({ behavior: "smooth" });
     }
-
-    // Init
-    populateMinistries();
-    renderCourses();
   </script>
 </body>
 </html>
