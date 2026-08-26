@@ -1,8 +1,7 @@
 ﻿fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 sqlalchemy
-psycopg2-binary
 openai
 pypdf
 python-multipart
