@@ -6,8 +6,6 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from openai import OpenAI
-from pypdf import PdfReader
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
@@ -54,10 +52,11 @@ class TopicQuizRecord(Base):
     correct_index = Column(Integer, default=0)
     explanation = Column(Text, nullable=False)
 
+db_init_error = None
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
-    print(f"Database sync notice: {e}")
+    db_init_error = str(e)
 
 def get_db():
     db = SessionLocal()
@@ -65,9 +64,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-XAI_API_KEY = os.getenv("XAI_API_KEY", "")
-client = OpenAI(api_key=XAI_API_KEY or "placeholder", base_url="https://api.x.ai/v1")
 
 class RegisterRequest(BaseModel):
     name: str
@@ -85,38 +81,69 @@ class LoginRequest(BaseModel):
 def read_root(db: Session = Depends(get_db)):
     try:
         count = db.query(UserRecord).count()
-    except Exception:
-        count = 0
+        db_status = "connected"
+    except Exception as e:
+        count = -1
+        db_status = f"error: {str(e)}"
+    
     return {
         "status": "online",
+        "database_engine": "PostgreSQL" if "postgresql" in DATABASE_URL else "SQLite",
+        "database_status": db_status,
         "users_count": count,
-        "database_engine": "PostgreSQL" if "postgresql" in DATABASE_URL else "SQLite"
+        "init_error": db_init_error
     }
 
 @app.post("/api/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
-    existing = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Officer already registered.")
-    
-    user = UserRecord(
-        name=req.name.strip(),
-        email=clean_email,
-        password=req.password.strip(),
-        department=req.department.strip(),
-        designation=req.designation.strip(),
-        cadre=req.cadre.strip() if req.cadre else "Indian Statistical Service (ISS)",
-        role="admin" if clean_email == "123@gov.ac.in" else "employee",
-        competency_score="75%",
-        posh_status="Pending"
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return {
-        "status": "success",
-        "user": {
+    try:
+        existing = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Officer already registered.")
+        
+        user = UserRecord(
+            name=req.name.strip(),
+            email=clean_email,
+            password=req.password.strip(),
+            department=req.department.strip(),
+            designation=req.designation.strip(),
+            cadre=req.cadre.strip() if req.cadre else "Indian Statistical Service (ISS)",
+            role="admin" if clean_email == "123@gov.ac.in" else "employee",
+            competency_score="75%",
+            posh_status="Pending"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return {
+            "status": "success",
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "department": user.department,
+                "designation": user.designation,
+                "cadre": user.cadre,
+                "role": user.role,
+                "competency_score": user.competency_score,
+                "posh_status": user.posh_status
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database sync failed: {str(e)}")
+
+@app.post("/api/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    try:
+        user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+        if not user or user.password != req.password.strip():
+            raise HTTPException(status_code=401, detail="Invalid email or password.")
+        return {
             "id": user.id,
             "name": user.name,
             "email": user.email,
@@ -127,25 +154,10 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "competency_score": user.competency_score,
             "posh_status": user.posh_status
         }
-    }
-
-@app.post("/api/login")
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    clean_email = req.email.strip().lower()
-    user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
-    if not user or user.password != req.password.strip():
-        raise HTTPException(status_code=401, detail="Invalid email or password.")
-    return {
-        "id": user.id,
-        "name": user.name,
-        "email": user.email,
-        "department": user.department,
-        "designation": user.designation,
-        "cadre": user.cadre,
-        "role": user.role,
-        "competency_score": user.competency_score,
-        "posh_status": user.posh_status
-    }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database login error: {str(e)}")
 
 @app.get("/api/admin/users")
 def get_users(db: Session = Depends(get_db)):
@@ -163,42 +175,5 @@ def get_users(db: Session = Depends(get_db)):
                 "posh": u.posh_status
             } for u in db.query(UserRecord).all()
         ]
-    except Exception:
-        return []
-
-@app.get("/api/topics/{course_id}/quiz")
-def get_quiz(course_id: int, db: Session = Depends(get_db)):
-    try:
-        records = db.query(TopicQuizRecord).filter(TopicQuizRecord.course_id == course_id).all()
-        if records:
-            return {
-                "course_id": course_id,
-                "questions": [
-                    {
-                        "id": r.id,
-                        "question": r.question,
-                        "options": json.loads(r.options_json),
-                        "correct_index": r.correct_index,
-                        "explanation": r.explanation
-                    } for r in records
-                ]
-            }
-    except Exception:
-        pass
-    return {
-        "course_id": course_id,
-        "questions": [
-            {
-                "id": 1,
-                "question": "Which compliance framework is mandatory for official data handling?",
-                "options": [
-                    "Adherence to standardized NSSTA Data Quality and Metadata Frameworks",
-                    "Unverified raw processing",
-                    "Arbitrary quota allocation without variance logs",
-                    "Non-probabilistic manual estimation"
-                ],
-                "correct_index": 0,
-                "explanation": "NSSTA standards mandate verified data handling."
-            }
-        ]
-    }
+    except Exception as e:
+        return [{"error": f"Failed to retrieve cadre: {str(e)}"}]
