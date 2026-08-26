@@ -44,11 +44,8 @@
       z-index: 1000;
       box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: white; text-decoration: none; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: white; text-decoration: none; cursor: pointer; }
     .brand span { color: var(--gov-orange); }
-    .nav-links { display: flex; gap: 20px; align-items: center; font-size: 0.9rem; font-weight: 600; }
-    .nav-links a { color: #cbd5e1; text-decoration: none; transition: 0.2s; }
-    .nav-links a:hover { color: white; }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
     .btn { padding: 8px 16px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; transition: 0.2s; }
     .btn-outline { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); }
@@ -106,7 +103,6 @@
 
     .course-action-bar { border-top: 1px solid #f1f5f9; padding-top: 14px; margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
     .cert-link { font-size: 0.8rem; color: var(--primary-blue); font-weight: 600; cursor: pointer; text-decoration: underline; }
-    .cert-link:hover { color: var(--gov-navy); }
 
     .status-pill { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; }
     .status-done { background: #dcfce7; color: var(--gov-green); }
@@ -117,21 +113,22 @@
     .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
     .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
 
+    /* Modals with explicit high z-index and flex positioning */
     .modal-overlay { 
       display: none; 
       position: fixed; 
       top: 0; left: 0; width: 100vw; height: 100vh; 
-      background: rgba(0,0,0,0.75); 
+      background: rgba(0,0,0,0.7); 
       backdrop-filter: blur(4px); 
       z-index: 999999; 
       align-items: center; 
       justify-content: center; 
     }
     .modal-box { 
-      background: white; border-radius: 12px; width: 95%; max-width: 520px; 
+      background: white; border-radius: 12px; width: 95%; max-width: 480px; 
       padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; 
     }
-    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #64748b; font-weight: bold; }
+    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.6rem; cursor: pointer; color: #64748b; font-weight: bold; }
     .form-group { margin-bottom: 14px; text-align: left; }
     .form-group label { display: block; font-size: 0.84rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
     .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; }
@@ -167,14 +164,11 @@
   </div>
 
   <header class="navbar">
-    <a href="#" class="brand" onclick="location.reload()"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></a>
-    <div class="nav-links" id="navLinks">
-      <a href="#courses">Courses</a>
-    </div>
+    <div class="brand" onclick="location.reload()"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></div>
     <div class="nav-actions" id="authNav">
-      <button class="btn btn-admin" type="button" onclick="openAdminModal()"><i class="fa-solid fa-shield-halved"></i> Admin Console</button>
-      <button class="btn btn-outline" type="button" onclick="openLoginModal()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
-      <button class="btn btn-orange" type="button" onclick="openRegisterModal()"><i class="fa-solid fa-user-plus"></i> Register</button>
+      <button class="btn btn-admin" type="button" onclick="showModal('adminModal')"><i class="fa-solid fa-shield-halved"></i> Admin Console</button>
+      <button class="btn btn-outline" type="button" onclick="showModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+      <button class="btn btn-orange" type="button" onclick="showModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Register</button>
     </div>
   </header>
 
@@ -185,8 +179,8 @@
       <h1>Official Capacity Building Platform</h1>
       <p>Competency-driven training curriculum for Indian Statistical Service (ISS) & Subordinate Statistical Service (SSS) cadres, integrated with mandatory iGOT Karmayogi Bharat modules.</p>
       <div class="hero-cta">
-        <button class="btn btn-orange" style="padding:12px 28px; font-size:0.95rem;" type="button" onclick="openRegisterModal()">Official Cadre Registration</button>
-        <button class="btn btn-admin" style="padding:12px 28px; font-size:0.95rem;" type="button" onclick="openAdminModal()">Admin Login</button>
+        <button class="btn btn-orange" style="padding:12px 28px; font-size:0.95rem;" type="button" onclick="showModal('registerModal')">Official Cadre Registration</button>
+        <button class="btn btn-admin" style="padding:12px 28px; font-size:0.95rem;" type="button" onclick="showModal('adminModal')">Admin Login</button>
       </div>
     </section>
 
@@ -225,7 +219,7 @@
         <h2 id="dashOfficerName">Shri Rajesh Kumar</h2>
         <div style="margin-top: 6px;">
           <span style="background:#dbeafe; color:#1e40af; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700;" id="dashOfficerRole">Deputy Director (ISS)</span>
-          <span style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-left:6px;" id="dashOfficerDept">MoSPI - National Accounts Division</span>
+          <span style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-left:6px;" id="dashOfficerDept">MoSPI - NAD</span>
         </div>
       </div>
       <button class="btn btn-outline" style="color:var(--gov-navy); border-color:#cbd5e1;" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
@@ -269,7 +263,7 @@
 
     <div class="dash-box" style="border-top: 4px solid var(--gov-orange);">
       <h3><i class="fa-solid fa-file-arrow-up" style="color:var(--gov-orange); margin-right:8px;"></i> Upload PDF for Making Quiz Questions</h3>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">Select a relevant course topic and upload curriculum material (PDF/Notes) to generate and save MCQs to the database.</p>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">Select a course topic and upload curriculum material to generate and save MCQs to the database.</p>
 
       <div class="admin-upload-card">
         <div class="form-group" style="max-width:400px; margin:0 auto 15px;">
@@ -319,7 +313,7 @@
   <!-- Register Modal -->
   <div class="modal-overlay" id="registerModal" onclick="overlayClose(event, 'registerModal')">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
+      <span class="close-modal" onclick="hideModal('registerModal')">&times;</span>
       <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
       <form onsubmit="handleCadreRegister(event)">
         <div class="form-group">
@@ -364,7 +358,7 @@
   <!-- Login Modal -->
   <div class="modal-overlay" id="loginModal" onclick="overlayClose(event, 'loginModal')">
     <div class="modal-box" style="max-width:400px;">
-      <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+      <span class="close-modal" onclick="hideModal('loginModal')">&times;</span>
       <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:15px;">Officer Login</h3>
       <form onsubmit="handleCadreLogin(event)">
         <div class="form-group">
@@ -383,7 +377,7 @@
   <!-- Admin Modal -->
   <div class="modal-overlay" id="adminModal" onclick="overlayClose(event, 'adminModal')">
     <div class="modal-box" style="max-width:400px; border-top:5px solid #1d4ed8;">
-      <span class="close-modal" onclick="closeAdminModal()">&times;</span>
+      <span class="close-modal" onclick="hideModal('adminModal')">&times;</span>
       <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:6px;"><i class="fa-solid fa-shield-halved"></i> Admin Portal Login</h3>
       <p style="font-size:0.82rem; color:#64748b; margin-bottom:16px;">Access: 123@gov.ac.in / 1234</p>
       <form onsubmit="handleAdminLogin(event)">
@@ -403,7 +397,7 @@
   <!-- Topic Quiz Modal -->
   <div class="modal-overlay" id="quizModal" onclick="overlayClose(event, 'quizModal')">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeQuizModal()">&times;</span>
+      <span class="close-modal" onclick="hideModal('quizModal')">&times;</span>
       <h3 id="quizModalTitle" style="font-weight:800; color:var(--gov-navy); margin-bottom:8px;">Topic Assessment</h3>
       <p style="font-size:0.82rem; color:#64748b; margin-bottom:18px;">Answer all questions to complete the module and earn competency credit.</p>
       <div id="quizQuestionBody"></div>
@@ -415,7 +409,7 @@
   <!-- Certificate Modal -->
   <div class="modal-overlay" id="certModal" onclick="overlayClose(event, 'certModal')">
     <div class="modal-box" style="max-width:460px;">
-      <span class="close-modal" onclick="closeCertModal()">&times;</span>
+      <span class="close-modal" onclick="hideModal('certModal')">&times;</span>
       <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:6px;"><i class="fa-solid fa-certificate" style="color:var(--gov-orange);"></i> Verify Existing Certificate</h3>
       <p style="font-size:0.82rem; color:#64748b; margin-bottom:16px;">Already finished this course on iGOT Karmayogi? Upload certificate PDF to verify.</p>
       <form onsubmit="handleCertVerification(event)">
@@ -487,15 +481,19 @@
       { id: 3, title: "Data Analytics with Python & R for Official Statistics", category: "Technical Domain", duration: "4 hrs 15 mins", roles: ["All", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" }
     ];
 
-    function openRegisterModal() { document.getElementById("registerModal").style.display = "flex"; }
-    function closeRegisterModal() { document.getElementById("registerModal").style.display = "none"; }
-    function openLoginModal() { document.getElementById("loginModal").style.display = "flex"; }
-    function closeLoginModal() { document.getElementById("loginModal").style.display = "none"; }
-    function openAdminModal() { document.getElementById("adminModal").style.display = "flex"; }
-    function closeAdminModal() { document.getElementById("adminModal").style.display = "none"; }
-    function closeQuizModal() { document.getElementById("quizModal").style.display = "none"; }
-    function closeCertModal() { document.getElementById("certModal").style.display = "none"; }
-    function overlayClose(e, id) { if (e.target.id === id) { document.getElementById(id).style.display = "none"; } }
+    function showModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "flex";
+    }
+
+    function hideModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    }
+
+    function overlayClose(e, id) {
+      if (e.target.id === id) hideModal(id);
+    }
 
     function toggleTutorChat() {
       const win = document.getElementById("tutorChatWindow");
@@ -617,7 +615,7 @@
       const course = officialCourses.find(c => c.id === courseId);
       title.innerText = `Assessment: ${course ? course.title : 'Topic Quiz'}`;
       body.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin"></i> Loading latest quiz from repository...</div>`;
-      modal.style.display = "flex";
+      showModal("quizModal");
 
       try {
         const res = await fetch(`${API_BASE}/api/topics/${courseId}/quiz`);
@@ -678,7 +676,7 @@
       }
 
       setTimeout(() => {
-        closeQuizModal();
+        hideModal("quizModal");
         renderOfficerCourses();
       }, 1500);
     }
@@ -686,7 +684,7 @@
     function openCertModal(courseId) {
       document.getElementById("certCourseId").value = courseId;
       document.getElementById("certOfficerName").value = activeOfficer.name;
-      document.getElementById("certModal").style.display = "flex";
+      showModal("certModal");
     }
 
     async function handleCertVerification(e) {
@@ -716,12 +714,12 @@
         if (!completedCourseIds.includes(courseId)) {
           completedCourseIds.push(courseId);
         }
-        closeCertModal();
+        hideModal("certModal");
         renderOfficerCourses();
       } catch (err) {
         alert("Verification complete. Marked accredited.");
         if (!completedCourseIds.includes(courseId)) { completedCourseIds.push(courseId); }
-        closeCertModal();
+        hideModal("certModal");
         renderOfficerCourses();
       } finally {
         btn.innerText = "Verify & Mark Completed";
@@ -768,10 +766,10 @@
       }
     }
 
-        async function handleCadreRegister(e) {
+    async function handleCadreRegister(e) {
       e.preventDefault();
       const btn = e.target.querySelector("button[type='submit']");
-      btn.innerText = "Connecting to DB...";
+      btn.innerText = "Saving...";
       btn.disabled = true;
 
       const payload = {
@@ -789,34 +787,19 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-        
         if (res.ok) {
           const data = await res.json();
           activeOfficer = data.user;
-          alert("Registration Successful! Profile saved in database.");
+          alert("Registration Successful! Saved to database.");
         } else {
-          // If Render returned 404/500, activate locally so the user is not blocked
-          activeOfficer = {
-            name: payload.name,
-            email: payload.email,
-            department: payload.department,
-            designation: payload.designation,
-            cadre: payload.cadre
-          };
+          activeOfficer = payload;
         }
       } catch (err) {
-        // Fallback for cold-start or offline backend
-        activeOfficer = {
-          name: payload.name,
-          email: payload.email,
-          department: payload.department,
-          designation: payload.designation,
-          cadre: payload.cadre
-        };
+        activeOfficer = payload;
       } finally {
         btn.innerText = "Create Profile";
         btn.disabled = false;
-        closeRegisterModal();
+        hideModal("registerModal");
         activateDashboard();
       }
     }
@@ -827,7 +810,7 @@
       const password = document.getElementById("loginPassword").value.trim();
 
       if (email === "123@gov.ac.in" && password === "1234") {
-        closeLoginModal();
+        hideModal("loginModal");
         activateAdminView();
         return;
       }
@@ -854,26 +837,8 @@
           department: "MoSPI - National Accounts Division"
         };
       } finally {
-        closeLoginModal();
+        hideModal("loginModal");
         activateDashboard();
-      }
-    }
-
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.detail || "Invalid login");
-        }
-        activeOfficer = data;
-        closeLoginModal();
-        activateDashboard();
-      } catch (err) {
-        alert("Login Error: " + err.message);
       }
     }
 
@@ -883,7 +848,7 @@
       const pwd = document.getElementById("adminPasswordInput").value.trim();
 
       if (email === "123@gov.ac.in" && pwd === "1234") {
-        closeAdminModal();
+        hideModal("adminModal");
         activateAdminView();
       } else {
         alert("Invalid Admin credentials.");
@@ -919,7 +884,6 @@
     function activateDashboard() {
       document.getElementById("publicView").style.display = "none";
       document.getElementById("adminView").style.display = "none";
-      document.getElementById("navLinks").style.display = "none";
 
       document.getElementById("dashOfficerName").innerText = activeOfficer.name;
       document.getElementById("dashOfficerRole").innerText = activeOfficer.designation;
@@ -939,7 +903,6 @@
     function activateAdminView() {
       document.getElementById("publicView").style.display = "none";
       document.getElementById("dashboardView").style.display = "none";
-      document.getElementById("navLinks").style.display = "none";
       if (document.getElementById("tutorToggleBtn")) document.getElementById("tutorToggleBtn").style.display = "none";
       document.getElementById("adminView").style.display = "block";
 
@@ -952,9 +915,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Init
     renderPublicCourses();
   </script>
 </body>
 </html>
-
