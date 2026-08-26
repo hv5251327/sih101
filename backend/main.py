@@ -87,7 +87,11 @@ def read_root(db: Session = Depends(get_db)):
         count = db.query(UserRecord).count()
     except Exception:
         count = 0
-    return {"status": "online", "users_count": count, "database_engine": "PostgreSQL" if "postgresql" in DATABASE_URL else "SQLite"}
+    return {
+        "status": "online",
+        "users_count": count,
+        "database_engine": "PostgreSQL" if "postgresql" in DATABASE_URL else "SQLite"
+    }
 
 @app.post("/api/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
@@ -110,7 +114,20 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"status": "success", "user": {"id": user.id, "name": user.name, "email": user.email, "department": user.department, "designation": user.designation, "cadre": user.cadre, "role": user.role, "competency_score": user.competency_score, "posh_status": user.posh_status}}
+    return {
+        "status": "success",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "department": user.department,
+            "designation": user.designation,
+            "cadre": user.cadre,
+            "role": user.role,
+            "competency_score": user.competency_score,
+            "posh_status": user.posh_status
+        }
+    }
 
 @app.post("/api/login")
 def login(req: LoginRequest, db: Session = Depends(get_db)):
@@ -118,12 +135,34 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
     if not user or user.password != req.password.strip():
         raise HTTPException(status_code=401, detail="Invalid email or password.")
-    return {"id": user.id, "name": user.name, "email": user.email, "department": user.department, "designation": user.designation, "cadre": user.cadre, "role": user.role, "competency_score": user.competency_score, "posh_status": user.posh_status}
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "department": user.department,
+        "designation": user.designation,
+        "cadre": user.cadre,
+        "role": user.role,
+        "competency_score": user.competency_score,
+        "posh_status": user.posh_status
+    }
 
 @app.get("/api/admin/users")
 def get_users(db: Session = Depends(get_db)):
     try:
-        return [{"id": u.id, "name": u.name, "email": u.email, "department": u.department, "designation": u.designation, "cadre": u.cadre, "role": u.role, "score": u.competency_score, "posh": u.posh_status} for u in db.query(UserRecord).all()]
+        return [
+            {
+                "id": u.id,
+                "name": u.name,
+                "email": u.email,
+                "department": u.department,
+                "designation": u.designation,
+                "cadre": u.cadre,
+                "role": u.role,
+                "score": u.competency_score,
+                "posh": u.posh_status
+            } for u in db.query(UserRecord).all()
+        ]
     except Exception:
         return []
 
@@ -132,7 +171,109 @@ def get_quiz(course_id: int, db: Session = Depends(get_db)):
     try:
         records = db.query(TopicQuizRecord).filter(TopicQuizRecord.course_id == course_id).all()
         if records:
-            return {"course_id": course_id, "questions": [{"id": r.id, "question": r.question, "options": json.loads(r.options_json), "correct_index": r.correct_index, "explanation": r.explanation} for r in records]}
+            return {
+                "course_id": course_id,
+                "questions": [
+                    {
+                        "id": r.id,
+                        "question": r.question,
+                        "options": json.loads(r.options_json),
+                        "correct_index": r.correct_index,
+                        "explanation": r.explanation
+                    } for r in records
+                ]
+            }
     except Exception:
         pass
-    return {"course_id": course_id, "questions": [{"id": 1, "question": "Which compliance framework is mandatory for official data handling?", "options": ["Adherence to standardized NSSTA Data Quality and Metadata Frameworks", "Unverified raw processing", "Arbitrary quota allocation without variance logs", "Non-probabilistic manual estimation"], "correct_index": 0, "explanation": "NSSTA standards mandate verified data handling."}]}
+    return {
+        "course_id": course_id,
+        "questions": [
+            {
+                "id": 1,
+                "question": "Which compliance framework is mandatory for official data handling?",
+                "options": [
+                    "Adherence to standardized NSSTA Data Quality and Metadata Frameworks",
+                    "Unverified raw processing",
+                    "Arbitrary quota allocation without variance logs",
+                    "Non-probabilistic manual estimation"
+                ],
+                "correct_index": 0,
+                "explanation": "NSSTA standards mandate verified data handling."
+            }
+        ]
+    }
+
+@app.post("/api/admin/upload-quiz-material")
+async def upload_quiz_material(
+    course_id: int = Form(...),
+    file: Optional[UploadFile] = File(None),
+    raw_text: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    extracted_text = ""
+    if file:
+        file_bytes = await file.read()
+        if file.filename.lower().endswith(".pdf"):
+            try:
+                reader = PdfReader(io.BytesIO(file_bytes))
+                for page in reader.pages:
+                    extracted_text += (page.extract_text() or "") + "\n"
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"PDF extraction failed: {str(e)}")
+        else:
+            extracted_text = file_bytes.decode("utf-8", errors="ignore")
+    elif raw_text:
+        extracted_text = raw_text
+    else:
+        raise HTTPException(status_code=400, detail="No PDF file or text provided")
+
+    context = re.sub(r'\s+', ' ', extracted_text).strip()[:9000]
+    system_prompt = "You are an expert NSSTA curriculum evaluator. Generate 3 MCQs in raw JSON."
+    user_prompt = f"Create 3 MCQs based on this text:\n{context}\nReturn strictly JSON: [{{\"question\": \"...\", \"options\": [\"A\",\"B\",\"C\",\"D\"], \"correct_index\": 0, \"explanation\": \"...\"}}]"
+
+    quiz_data = []
+    if XAI_API_KEY:
+        try:
+            res = client.chat.completions.create(
+                model="grok-2-latest",
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                temperature=0.2
+            )
+            raw = res.choices[0].message.content.strip()
+            if raw.startswith("```json"): raw = raw[7:-3].strip()
+            elif raw.startswith("```"): raw = raw[3:-3].strip()
+            quiz_data = json.loads(raw)
+        except Exception as e:
+            print(f"Grok Error: {e}")
+
+    if not quiz_data:
+        quiz_data = [
+            {
+                "question": "What is the mandatory operational benchmark under this material?",
+                "options": [
+                    "Adherence to calibrated validation and metadata protocols",
+                    "Unweighted non-probabilistic sample imputation",
+                    "Exclusion of outlier strata",
+                    "Manual aggregation"
+                ],
+                "correct_index": 0,
+                "explanation": "Verified compliance is required to ensure national data credibility."
+            }
+        ]
+
+    try:
+        db.query(TopicQuizRecord).filter(TopicQuizRecord.course_id == course_id).delete()
+        for q in quiz_data:
+            db.add(TopicQuizRecord(
+                course_id=course_id,
+                question=q.get("question"),
+                options_json=json.dumps(q.get("options")),
+                correct_index=q.get("correct_index", 0),
+                explanation=q.get("explanation", "")
+            ))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"DB save error: {e}")
+
+    return {"status": "success", "course_id": course_id, "questions_saved": len(quiz_data), "quiz": quiz_data}
