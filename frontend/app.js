@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "https://sih101.onrender.com/api";
 let currentQuizCourseId = null;
 let currentQuizQuestions = [];
 
