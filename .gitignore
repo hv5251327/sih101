@@ -1,0 +1,5 @@
+backend/sih101.db
+backend/__pycache__/
+__pycache__/
+*.pyc
+.env
