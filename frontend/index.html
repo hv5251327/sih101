@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iGOT Karmayogi Bharat | Capacity Building Commission</title>
+  <title>iGOT Karmayogi Bharat - Capacity Building Platform</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --gov-navy: #0b2545;
       --gov-blue: #133c55;
       --gov-orange: #ff9933;
-      --gov-green: #138808;
       --primary-blue: #1d4ed8;
       --border-color: #cbd5e1;
       --bg-gray: #f8fafc;
@@ -20,7 +19,6 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
     body { background: var(--bg-gray); color: var(--text-dark); min-height: 100vh; overflow-x: hidden; }
 
-    /* Top Banner */
     .national-banner {
       background: #ffffff;
       border-bottom: 3px solid var(--gov-orange);
@@ -32,9 +30,7 @@
       font-weight: 600;
       color: #475569;
     }
-    .national-banner img { height: 26px; }
 
-    /* Main Navbar */
     .navbar {
       background: var(--gov-navy);
       padding: 14px 5%;
@@ -44,7 +40,7 @@
       color: white;
       position: sticky;
       top: 0;
-      z-index: 999;
+      z-index: 100;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     .brand { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 800; color: white; text-decoration: none; }
@@ -60,7 +56,6 @@
     .btn-orange:hover { background: #e68524; }
     .btn-blue { background: var(--primary-blue); color: white; }
 
-    /* Hero Section (No Top Video) */
     .hero {
       background: linear-gradient(135deg, #0b2545 0%, #133c55 50%, #001f3f 100%);
       color: white;
@@ -73,7 +68,6 @@
     .hero p { max-width: 800px; margin: 0 auto 30px; font-size: 1.1rem; color: #cbd5e1; line-height: 1.6; }
     .hero-cta { display: flex; justify-content: center; gap: 15px; }
 
-    /* Stats Banner */
     .stats-bar {
       background: #ffffff;
       padding: 30px 5%;
@@ -88,20 +82,17 @@
     .stat-item h2 { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 4px; }
     .stat-item p { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
 
-    /* Scrolling Information Sections */
     .section-wrap { padding: 60px 5%; }
     .section-header { text-align: center; margin-bottom: 45px; }
     .section-title { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 10px; }
     .section-subtitle { color: #64748b; font-size: 1rem; max-width: 650px; margin: 0 auto; }
 
-    /* 3 Pillars of Karmayogi */
     .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .pillar-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-top: 4px solid var(--gov-orange); }
     .pillar-icon { font-size: 2rem; color: var(--primary-blue); margin-bottom: 16px; }
     .pillar-card h3 { font-size: 1.25rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 10px; }
     .pillar-card p { font-size: 0.92rem; color: #475569; line-height: 1.6; }
 
-    /* Hubs Grid */
     .hubs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .hub-card { background: #ffffff; padding: 24px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; }
     .hub-card:hover { transform: translateY(-4px); }
@@ -109,7 +100,6 @@
     .hub-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 6px; }
     .hub-card p { font-size: 0.82rem; color: #64748b; }
 
-    /* Video & Course Catalog */
     .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
     .course-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
     .video-frame { position: relative; width: 100%; height: 190px; background: #000; }
@@ -118,19 +108,40 @@
     .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); background: #e0f2fe; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
     .course-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
 
-    /* Modals */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; }
-    .modal-box { background: white; border-radius: 12px; width: 95%; max-width: 520px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; z-index: 10001; }
-    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.4rem; cursor: pointer; color: #64748b; }
+    /* Guaranteed High Z-Index Modal Overlay */
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(0,0,0,0.75); 
+      backdrop-filter: blur(4px); 
+      z-index: 99999 !important; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .modal-box { 
+      background: white; 
+      border-radius: 12px; 
+      width: 95%; 
+      max-width: 520px; 
+      padding: 30px; 
+      position: relative; 
+      max-height: 90vh; 
+      overflow-y: auto; 
+      z-index: 100000 !important; 
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #64748b; font-weight: bold; }
 
-    /* Stepper Header */
     .stepper { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
     .step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
     .step-active { background: #f59e0b; color: white; }
     .step-inactive { background: #cbd5e1; color: white; }
     .step-line { flex: 1; height: 3px; background: #1e3a8a; }
 
-    /* Form Styles */
     .radio-group { display: flex; gap: 12px; margin-bottom: 16px; }
     .radio-pill { flex: 1; border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
     .radio-pill.active { border-color: var(--primary-blue); background: #eff6ff; }
@@ -138,7 +149,6 @@
     .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
     .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; background: white; }
 
-    /* Footer */
     footer { background: #06182c; color: #94a3b8; padding: 40px 5%; font-size: 0.85rem; }
     .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 30px; }
     .footer-grid h4 { color: white; font-size: 1rem; margin-bottom: 15px; }
@@ -146,13 +156,11 @@
 </head>
 <body>
 
-  <!-- National Header -->
   <div class="national-banner">
     <div><i class="fa-solid fa-landmark"></i> Government of India | National Programme for Civil Services Capacity Building (NPCSCB)</div>
     <div>Mission Karmayogi Bharat</div>
   </div>
 
-  <!-- Navbar -->
   <header class="navbar">
     <a href="#" class="brand"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></a>
     <div class="nav-links">
@@ -162,23 +170,21 @@
       <a href="#courses">Courses</a>
     </div>
     <div class="nav-actions" id="authNav">
-      <button class="btn btn-outline" id="loginBtnNav" type="button"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
-      <button class="btn btn-orange" id="registerBtnNav" type="button"><i class="fa-solid fa-user-plus"></i> Register</button>
+      <button class="btn btn-outline" onclick="showModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+      <button class="btn btn-orange" onclick="showModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Register</button>
     </div>
   </header>
 
-  <!-- Hero Section -->
   <section class="hero">
     <span class="hero-tag"><i class="fa-solid fa-graduation-cap"></i> Transforming Indian Civil Services</span>
     <h1>Integrated Government Online Training</h1>
     <p>A digital ecosystem engineered to enable continuous, competency-driven learning for civil servants across Central and State ministries, departments, and public organisations.</p>
     <div class="hero-cta">
-      <button class="btn btn-orange" style="padding:12px 28px; font-size:1rem;" id="heroRegisterBtn" type="button">Register as Official</button>
+      <button class="btn btn-orange" style="padding:12px 28px; font-size:1rem;" onclick="showModal('registerModal')">Register as Official</button>
       <a href="#courses" class="btn btn-outline" style="padding:12px 28px; font-size:1rem; text-decoration:none;">Explore Courses</a>
     </div>
   </section>
 
-  <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-item">
       <h2>38,50,000+</h2>
@@ -198,7 +204,6 @@
     </div>
   </div>
 
-  <!-- Section: What is iGOT Karmayogi -->
   <section class="section-wrap" id="about" style="background: white;">
     <div class="section-header">
       <div class="section-title">What is Mission Karmayogi?</div>
@@ -223,7 +228,6 @@
     </div>
   </section>
 
-  <!-- Section: iGOT Ecosystem Hubs -->
   <section class="section-wrap" id="hubs">
     <div class="section-header">
       <div class="section-title">Core Ecosystem Hubs</div>
@@ -253,7 +257,6 @@
     </div>
   </section>
 
-  <!-- Section: Recommended & Role Courses -->
   <section class="section-wrap" id="courses" style="background: white;">
     <div class="section-header">
       <div class="section-title" id="courseSectionTitle">Accredited Video Modules</div>
@@ -264,10 +267,10 @@
   </section>
 
   <!-- Register Modal -->
-  <div class="modal-overlay" id="registerModal">
+  <div class="modal-overlay" id="registerModal" onclick="checkModalOverlayClick(event, 'registerModal')">
     <div class="modal-box">
-      <span class="close-modal" id="closeRegBtn">&times;</span>
-      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;"><i class="fa-solid fa-arrow-left" style="cursor:pointer; margin-right:8px;" id="backRegBtn"></i> Register</h3>
+      <span class="close-modal" onclick="hideModal('registerModal')">&times;</span>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;"><i class="fa-solid fa-arrow-left" style="cursor:pointer; margin-right:8px;" onclick="hideModal('registerModal')"></i> Register</h3>
       
       <div class="stepper">
         <div style="text-align:center;"><div class="step-circle step-active">1</div><div style="font-size:0.75rem; font-weight:700; color:#f59e0b; margin-top:4px;">Step - 1</div></div>
@@ -275,27 +278,27 @@
         <div style="text-align:center;"><div class="step-circle step-inactive">2</div><div style="font-size:0.75rem; font-weight:600; color:#94a3b8; margin-top:4px;">Step - 2</div></div>
       </div>
 
-      <form id="igotRegForm">
+      <form id="igotRegForm" onsubmit="handleRegisterSubmit(event)">
         <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; display: block;">Center/State *</label>
         <div class="radio-group">
-          <label class="radio-pill active" id="centerPill">
+          <label class="radio-pill active" id="centerPill" onclick="selectGovType('Center')">
             <input type="radio" name="govType" value="Center" checked style="accent-color: #1d4ed8;"> Center
           </label>
-          <label class="radio-pill" id="statePill">
+          <label class="radio-pill" id="statePill" onclick="selectGovType('State')">
             <input type="radio" name="govType" value="State" style="accent-color: #1d4ed8;"> State
           </label>
         </div>
 
         <div class="form-group">
           <label>Ministry/Department *</label>
-          <select id="regMinistry" class="form-control" required>
+          <select id="regMinistry" class="form-control" onchange="onMinistryChange()" required>
             <option value="">Select ministry</option>
           </select>
         </div>
 
         <div class="form-group">
           <label>Organisation *</label>
-          <select id="regOrganisation" class="form-control" required>
+          <select id="regOrganisation" class="form-control" onchange="onOrgChange()" required>
             <option value="">Select organisation</option>
           </select>
         </div>
@@ -328,11 +331,11 @@
   </div>
 
   <!-- Login Modal -->
-  <div class="modal-overlay" id="loginModal">
+  <div class="modal-overlay" id="loginModal" onclick="checkModalOverlayClick(event, 'loginModal')">
     <div class="modal-box" style="max-width:420px;">
-      <span class="close-modal" id="closeLoginBtn">&times;</span>
+      <span class="close-modal" onclick="hideModal('loginModal')">&times;</span>
       <h3 style="font-weight: 800; margin-bottom: 15px; color:var(--gov-navy);">iGOT Portal Login</h3>
-      <form id="igotLoginForm">
+      <form id="igotLoginForm" onsubmit="handleLoginSubmit(event)">
         <div class="form-group">
           <label>Official Email</label>
           <input type="email" id="loginEmail" class="form-control" placeholder="officer@gov.in" required>
@@ -346,7 +349,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-grid">
       <div>
@@ -373,7 +375,6 @@
   <script>
     const API_BASE = "https://sih101.onrender.com";
 
-    // Full iGOT Hierarchy
     const igotHierarchy = {
       Center: {
         "Ministry of Personnel, Public Grievances and Pensions": {
@@ -472,31 +473,19 @@
 
     let currentGovType = "Center";
 
-    // Direct Event Listeners for Reliable Modal Triggers
-    document.addEventListener("DOMContentLoaded", function() {
-      const loginModal = document.getElementById("loginModal");
-      const regModal = document.getElementById("registerModal");
+    function showModal(id) {
+      document.getElementById(id).style.display = "flex";
+    }
 
-      document.getElementById("loginBtnNav").addEventListener("click", () => loginModal.style.display = "flex");
-      document.getElementById("registerBtnNav").addEventListener("click", () => regModal.style.display = "flex");
-      document.getElementById("heroRegisterBtn").addEventListener("click", () => regModal.style.display = "flex");
+    function hideModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
 
-      document.getElementById("closeLoginBtn").addEventListener("click", () => loginModal.style.display = "none");
-      document.getElementById("closeRegBtn").addEventListener("click", () => regModal.style.display = "none");
-      document.getElementById("backRegBtn").addEventListener("click", () => regModal.style.display = "none");
-
-      document.getElementById("centerPill").addEventListener("click", () => selectGovType("Center"));
-      document.getElementById("statePill").addEventListener("click", () => selectGovType("State"));
-
-      document.getElementById("regMinistry").addEventListener("change", onMinistryChange);
-      document.getElementById("regOrganisation").addEventListener("change", onOrgChange);
-
-      document.getElementById("igotRegForm").addEventListener("submit", handleRegisterSubmit);
-      document.getElementById("igotLoginForm").addEventListener("submit", handleLoginSubmit);
-
-      populateMinistries();
-      renderCourses();
-    });
+    function checkModalOverlayClick(e, id) {
+      if (e.target.id === id) {
+        hideModal(id);
+      }
+    }
 
     function selectGovType(type) {
       currentGovType = type;
@@ -581,7 +570,7 @@
         });
       } catch (err) {}
       applyUser(payload);
-      document.getElementById("registerModal").style.display = "none";
+      hideModal('registerModal');
     }
 
     async function handleLoginSubmit(e) {
@@ -600,7 +589,7 @@
       } catch (err) {
         applyUser({ name: "Civil Services Officer", designation: "Under Secretary", department: "DoPT" });
       }
-      document.getElementById("loginModal").style.display = "none";
+      hideModal('loginModal');
     }
 
     function applyUser(user) {
@@ -616,6 +605,10 @@
       renderCourses(user.designation);
       document.getElementById("courses").scrollIntoView({ behavior: "smooth" });
     }
+
+    // Init dropdowns and default courses
+    populateMinistries();
+    renderCourses();
   </script>
 </body>
 </html>
