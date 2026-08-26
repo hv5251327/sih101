@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Officer Dashboard - MoSPI Skill Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800">
+  <header class="bg-blue-950 text-white px-6 py-4 flex justify-between items-center shadow-lg sticky top-0 z-40">
+    <div class="flex items-center space-x-3">
+      <span class="bg-orange-500 text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider">iGOT Sync</span>
+      <div>
+        <h1 class="text-base font-bold">MoSPI • Capacity Building Platform</h1>
+        <p class="text-[11px] text-blue-200">Official Statistics Competency Framework</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-3">
+      <span id="nav-user-name" class="text-xs font-semibold bg-blue-900 px-3 py-1.5 rounded-full border border-blue-700"></span>
+      <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded text-xs font-semibold transition">Logout</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6 space-y-6">
+    <!-- Profile & Competency Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Officer Profile</span>
+        <h2 class="text-lg font-black text-slate-900 mt-1" id="prof-name">-</h2>
+        <p class="text-xs font-bold text-blue-900" id="prof-desig">-</p>
+        <p class="text-[11px] text-slate-500 mt-0.5" id="prof-dept">-</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm md:col-span-2 flex flex-col justify-between">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Verified Competency Level</span>
+            <p class="text-xs text-slate-500 mt-0.5">Passing quizzes and validating certificates boosts your official competency score.</p>
+          </div>
+          <span class="text-3xl font-black text-blue-950" id="stat-score">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-3 mt-3 overflow-hidden">
+          <div id="stat-bar" class="bg-emerald-600 h-3 rounded-full transition-all duration-700" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-500 mt-2 font-medium">
+          <span id="stat-modules-done">0/0 Completed</span>
+          <span id="stat-target-status">Role Benchmark: Target 80%+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assigned Pending Modules -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-slate-900">Assigned Skill Pathways (Pending Modules)</h3>
+        <span class="text-xs text-slate-500">Watch video or upload certificate to unlock assessment</span>
+      </div>
+      <div id="todo-list" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+    </div>
+
+    <!-- Completed Modules -->
+    <div class="space-y-4 pt-4">
+      <h3 class="text-base font-bold text-slate-900">Verified Completed Modules</h3>
+      <div id="completed-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+  </main>
+
+  <!-- Quiz Modal -->
+  <div id="quiz-modal" class="fixed inset-0 bg-slate-950/70 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="bg-white max-w-xl w-full rounded-2xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div>
+          <h4 class="font-bold text-sm text-slate-900" id="quiz-title">Competency Evaluation</h4>
+          <p class="text-[11px] text-slate-500">Score at least 50% to pass.</p>
+        </div>
+        <button onclick="closeQuizModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div id="quiz-questions-container" class="space-y-4"></div>
+      <div id="quiz-feedback-box" class="hidden p-4 rounded-xl text-xs space-y-3"></div>
+
+      <div class="flex space-x-3 pt-2">
+        <button id="quiz-submit-btn" onclick="submitCurrentQuiz()" class="flex-1 bg-blue-950 hover:bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold transition">Submit Answers & Calculate Score</button>
+        <button id="quiz-close-btn" onclick="closeQuizModal()" class="hidden flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 py-2.5 rounded-xl text-xs font-bold transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => loadDashboard());
+  </script>
+</body>
+</html>
