@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iGOT Karmayogi Bharat - Capacity Building Platform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gov-navy: #0b2545;
+      --gov-blue: #133c55;
+      --gov-orange: #ff9933;
+      --primary-blue: #1d4ed8;
+      --border-color: #cbd5e1;
+      --bg-gray: #f8fafc;
+      --text-dark: #0f172a;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg-gray); color: var(--text-dark); min-height: 100vh; overflow-x: hidden; }
+
+    .national-banner {
+      background: #ffffff;
+      border-bottom: 3px solid var(--gov-orange);
+      padding: 8px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .navbar {
+      background: var(--gov-navy);
+      padding: 14px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 800; color: white; text-decoration: none; }
+    .brand span { color: var(--gov-orange); }
+    .nav-links { display: flex; gap: 20px; align-items: center; font-size: 0.9rem; font-weight: 600; }
+    .nav-links a { color: #cbd5e1; text-decoration: none; transition: 0.2s; }
+    .nav-links a:hover { color: white; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .btn { padding: 8px 18px; border-radius: 6px; font-weight: 700; font-size: 0.88rem; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-outline { background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4); }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+    .btn-orange { background: var(--gov-orange); color: white; }
+    .btn-orange:hover { background: #e68524; }
+    .btn-blue { background: var(--primary-blue); color: white; }
+
+    .hero {
+      background: linear-gradient(135deg, #0b2545 0%, #133c55 50%, #001f3f 100%);
+      color: white;
+      padding: 70px 5% 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-tag { background: rgba(255,153,51,0.2); color: var(--gov-orange); display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; }
+    .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 18px; line-height: 1.2; }
+    .hero p { max-width: 800px; margin: 0 auto 30px; font-size: 1.1rem; color: #cbd5e1; line-height: 1.6; }
+    .hero-cta { display: flex; justify-content: center; gap: 15px; }
+
+    .stats-bar {
+      background: #ffffff;
+      padding: 30px 5%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .stat-item { text-align: center; border-right: 1px solid #e2e8f0; }
+    .stat-item:last-child { border-right: none; }
+    .stat-item h2 { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 4px; }
+    .stat-item p { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+
+    .section-wrap { padding: 60px 5%; }
+    .section-header { text-align: center; margin-bottom: 45px; }
+    .section-title { font-size: 2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 10px; }
+    .section-subtitle { color: #64748b; font-size: 1rem; max-width: 650px; margin: 0 auto; }
+
+    .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .pillar-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-top: 4px solid var(--gov-orange); }
+    .pillar-icon { font-size: 2rem; color: var(--primary-blue); margin-bottom: 16px; }
+    .pillar-card h3 { font-size: 1.25rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 10px; }
+    .pillar-card p { font-size: 0.92rem; color: #475569; line-height: 1.6; }
+
+    .hubs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .hub-card { background: #ffffff; padding: 24px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; }
+    .hub-card:hover { transform: translateY(-4px); }
+    .hub-card i { font-size: 2.2rem; color: var(--gov-orange); margin-bottom: 12px; }
+    .hub-card h4 { font-size: 1.05rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 6px; }
+    .hub-card p { font-size: 0.82rem; color: #64748b; }
+
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .course-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+    .video-frame { position: relative; width: 100%; height: 190px; background: #000; }
+    .video-frame iframe { width: 100%; height: 100%; border: none; }
+    .course-body { padding: 18px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); background: #e0f2fe; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+    .course-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+
+    /* Guaranteed High Z-Index Modal Overlay */
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(0,0,0,0.75); 
+      backdrop-filter: blur(4px); 
+      z-index: 99999 !important; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .modal-box { 
+      background: white; 
+      border-radius: 12px; 
+      width: 95%; 
+      max-width: 520px; 
+      padding: 30px; 
+      position: relative; 
+      max-height: 90vh; 
+      overflow-y: auto; 
+      z-index: 100000 !important; 
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #64748b; font-weight: bold; }
+
+    .stepper { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
+    .step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+    .step-active { background: #f59e0b; color: white; }
+    .step-inactive { background: #cbd5e1; color: white; }
+    .step-line { flex: 1; height: 3px; background: #1e3a8a; }
+
+    .radio-group { display: flex; gap: 12px; margin-bottom: 16px; }
+    .radio-pill { flex: 1; border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .radio-pill.active { border-color: var(--primary-blue); background: #eff6ff; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
+    .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; background: white; }
+
+    footer { background: #06182c; color: #94a3b8; padding: 40px 5%; font-size: 0.85rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px; margin-bottom: 30px; }
+    .footer-grid h4 { color: white; font-size: 1rem; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="national-banner">
+    <div><i class="fa-solid fa-landmark"></i> Government of India | National Programme for Civil Services Capacity Building (NPCSCB)</div>
+    <div>Mission Karmayogi Bharat</div>
+  </div>
+
+  <header class="navbar">
+    <a href="#" class="brand"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#pillars">Framework</a>
+      <a href="#hubs">Hubs</a>
+      <a href="#courses">Courses</a>
+    </div>
+    <div class="nav-actions" id="authNav">
+      <button class="btn btn-outline" onclick="showModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
+      <button class="btn btn-orange" onclick="showModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Register</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="hero-tag"><i class="fa-solid fa-graduation-cap"></i> Transforming Indian Civil Services</span>
+    <h1>Integrated Government Online Training</h1>
+    <p>A digital ecosystem engineered to enable continuous, competency-driven learning for civil servants across Central and State ministries, departments, and public organisations.</p>
+    <div class="hero-cta">
+      <button class="btn btn-orange" style="padding:12px 28px; font-size:1rem;" onclick="showModal('registerModal')">Register as Official</button>
+      <a href="#courses" class="btn btn-outline" style="padding:12px 28px; font-size:1rem; text-decoration:none;">Explore Courses</a>
+    </div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <h2>38,50,000+</h2>
+      <p>Civil Servants Onboarded</p>
+    </div>
+    <div class="stat-item">
+      <h2>1,400+</h2>
+      <p>Accredited Courses</p>
+    </div>
+    <div class="stat-item">
+      <h2>85+</h2>
+      <p>Ministries & Departments</p>
+    </div>
+    <div class="stat-item">
+      <h2>1.2 Crore+</h2>
+      <p>Course Completions</p>
+    </div>
+  </div>
+
+  <section class="section-wrap" id="about" style="background: white;">
+    <div class="section-header">
+      <div class="section-title">What is Mission Karmayogi?</div>
+      <div class="section-subtitle">A comprehensive capacity-building initiative shifting from 'Rule-based' to 'Role-based' human resource management.</div>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-brain"></i></div>
+        <h3>Behavioural Competencies</h3>
+        <p>Inculcates ethics, citizen-centric service delivery, empathy, transparency, and integrity across all administrative operations.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-gears"></i></div>
+        <h3>Functional Competencies</h3>
+        <p>Equips officers with essential operational capabilities including General Financial Rules (GFR), GeM procurement, and RTI handling.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon"><i class="fa-solid fa-laptop-code"></i></div>
+        <h3>Domain & Tech Competencies</h3>
+        <p>Specialized domain skills across engineering, healthcare, internal security, taxation, digital infrastructure, and AI in governance.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="hubs">
+    <div class="section-header">
+      <div class="section-title">Core Ecosystem Hubs</div>
+      <div class="section-subtitle">Integrated portals designed to facilitate continuous learning, assessment, and career development.</div>
+    </div>
+    <div class="hubs-grid">
+      <div class="hub-card">
+        <i class="fa-solid fa-book-bookmark"></i>
+        <h4>Learn Hub</h4>
+        <p>Role-mapped modules and micro-learning courses available 24x7 across web and mobile.</p>
+      </div>
+      <div class="hub-card">
+        <i class="fa-solid fa-users-viewfinder"></i>
+        <h4>Career Hub</h4>
+        <p>Direct mapping of competencies with vacancies, deputations, and role appointments.</p>
+      </div>
+      <div class="hub-card">
+        <i class="fa-solid fa-network-wired"></i>
+        <h4>Network Hub</h4>
+        <p>Peer-to-peer civil servant forums, discussion rooms, and cross-departmental collaboration.</p>
+      </div>
+      <div class="hub-card">
+        <i class="fa-solid fa-chart-line"></i>
+        <h4>Discuss Hub</h4>
+        <p>Real-time analytics and institutional capacity scoring by the Capacity Building Commission.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="courses" style="background: white;">
+    <div class="section-header">
+      <div class="section-title" id="courseSectionTitle">Accredited Video Modules</div>
+      <div class="section-subtitle" id="courseSectionSubtitle">Official e-learning lectures streamable directly inside the platform</div>
+      <div id="userBadge" style="display:none; margin:15px auto 0; width:max-content; padding:6px 16px; background:#dcfce7; color:#15803d; border-radius:20px; font-weight:700; font-size:0.85rem;"></div>
+    </div>
+    <div class="course-grid" id="courseContainer"></div>
+  </section>
+
+  <!-- Register Modal -->
+  <div class="modal-overlay" id="registerModal" onclick="checkModalOverlayClick(event, 'registerModal')">
+    <div class="modal-box">
+      <span class="close-modal" onclick="hideModal('registerModal')">&times;</span>
+      <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 15px;"><i class="fa-solid fa-arrow-left" style="cursor:pointer; margin-right:8px;" onclick="hideModal('registerModal')"></i> Register</h3>
+      
+      <div class="stepper">
+        <div style="text-align:center;"><div class="step-circle step-active">1</div><div style="font-size:0.75rem; font-weight:700; color:#f59e0b; margin-top:4px;">Step - 1</div></div>
+        <div class="step-line"></div>
+        <div style="text-align:center;"><div class="step-circle step-inactive">2</div><div style="font-size:0.75rem; font-weight:600; color:#94a3b8; margin-top:4px;">Step - 2</div></div>
+      </div>
+
+      <form id="igotRegForm" onsubmit="handleRegisterSubmit(event)">
+        <label style="font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; display: block;">Center/State *</label>
+        <div class="radio-group">
+          <label class="radio-pill active" id="centerPill" onclick="selectGovType('Center')">
+            <input type="radio" name="govType" value="Center" checked style="accent-color: #1d4ed8;"> Center
+          </label>
+          <label class="radio-pill" id="statePill" onclick="selectGovType('State')">
+            <input type="radio" name="govType" value="State" style="accent-color: #1d4ed8;"> State
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Ministry/Department *</label>
+          <select id="regMinistry" class="form-control" onchange="onMinistryChange()" required>
+            <option value="">Select ministry</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Organisation *</label>
+          <select id="regOrganisation" class="form-control" onchange="onOrgChange()" required>
+            <option value="">Select organisation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Designation *</label>
+          <select id="regDesignation" class="form-control" required>
+            <option value="">Select designation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="regName" class="form-control" placeholder="Enter full name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Official Email Address *</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="name@gov.in / name@nic.in" required>
+        </div>
+
+        <div class="form-group">
+          <label>Password *</label>
+          <input type="password" id="regPassword" class="form-control" placeholder="Create password" required>
+        </div>
+
+        <button type="submit" class="btn btn-blue" style="width:100%; padding:12px; margin-top:15px; border-radius:24px; font-weight:700;">Complete Registration</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal" onclick="checkModalOverlayClick(event, 'loginModal')">
+    <div class="modal-box" style="max-width:420px;">
+      <span class="close-modal" onclick="hideModal('loginModal')">&times;</span>
+      <h3 style="font-weight: 800; margin-bottom: 15px; color:var(--gov-navy);">iGOT Portal Login</h3>
+      <form id="igotLoginForm" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label>Official Email</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="officer@gov.in" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-orange" style="width:100%; padding:10px; margin-top:10px;">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4 style="font-size:1.2rem; font-weight:800; color:white;">iGOT Karmayogi Bharat</h4>
+        <p>National Programme for Civil Services Capacity Building (NPCSCB), Government of India.</p>
+      </div>
+      <div>
+        <h4>Key Links</h4>
+        <p>Capacity Building Commission</p>
+        <p>DoPT Official Portal</p>
+        <p>GeM e-Marketplace</p>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <p>Help Desk: 1800-111-555</p>
+        <p>Email: support-igot@gov.in</p>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:20px; text-align:center;">
+      &copy; 2026 iGOT Karmayogi Bharat. Managed by Capacity Building Commission.
+    </div>
+  </footer>
+
+  <script>
+    const API_BASE = "https://sih101.onrender.com";
+
+    const igotHierarchy = {
+      Center: {
+        "Ministry of Personnel, Public Grievances and Pensions": {
+          "Department of Personnel and Training (DoPT)": [
+            "Secretary (Personnel)", "Additional Secretary", "Joint Secretary", "Director", 
+            "Deputy Secretary", "Under Secretary", "Section Officer", "Assistant Section Officer (ASO)", "Senior Secretariat Assistant (SSA)"
+          ],
+          "Department of Administrative Reforms & PG (DARPG)": [
+            "Director (e-Governance)", "Deputy Secretary", "Under Secretary", "Research Officer", "Senior Analyst"
+          ]
+        },
+        "Ministry of Railways": {
+          "Railway Board": [
+            "Chairman & CEO Railway Board", "Member (Infrastructure)", "Member (Traction & Rolling Stock)", "Principal Executive Director", "Executive Director", "Director"
+          ],
+          "Zonal Railways (Operations & Engineering)": [
+            "General Manager (GM)", "Divisional Railway Manager (DRM)", "Senior Divisional Commercial Manager (Sr. DCM)", 
+            "Senior Section Engineer (SSE)", "Junior Engineer (JE)", "Station Master", "Traffic Inspector"
+          ]
+        },
+        "Ministry of Finance": {
+          "Department of Revenue (CBDT & CBIC)": [
+            "Principal Chief Commissioner", "Commissioner of Income Tax", "Additional Commissioner", "Assistant Commissioner of Income Tax", 
+            "Superintendent (GST & Customs)", "Income Tax Officer (ITO)", "Inspector of Central Excise / Tax"
+          ],
+          "Department of Expenditure": [
+            "Controller General of Accounts (CGA)", "Chief Controller of Accounts", "Senior Accounts Officer", "Accounts Officer", "Assistant Accounts Officer (AAO)", "Auditor"
+          ]
+        },
+        "Ministry of Electronics and Information Technology (MeitY)": {
+          "National Informatics Centre (NIC)": [
+            "Director General (NIC)", "Deputy Director General", "Scientist-F", "Scientist-E", "Scientist-D", "Scientist / Technical Officer", "Cyber Security Analyst", "IT Project Lead"
+          ],
+          "CERT-In": [
+            "Director General (CERT-In)", "Incident Response Commander", "Senior Vulnerability Analyst", "Cyber Threat Intelligence Officer"
+          ]
+        },
+        "Ministry of Home Affairs": {
+          "Internal Security Division": [
+            "Special Secretary (Internal Security)", "Joint Secretary", "Director (Border Management)", "Under Secretary"
+          ],
+          "Intelligence & Enforcement": [
+            "Deputy Director", "Assistant Director", "Intelligence Officer", "Assistant Central Intelligence Officer (ACIO)"
+          ]
+        },
+        "Ministry of Health and Family Welfare": {
+          "Directorate General of Health Services (DGHS)": [
+            "Director General of Health Services", "Chief Medical Officer (CMO)", "Senior Medical Officer", "Public Health Program Coordinator", "Hospital Superintendent"
+          ],
+          "National Health Authority (NHA)": [
+            "Chief Executive Officer", "Director (Digital Health Mission)", "Health Systems Consultant", "Nursing Superintendent", "Staff Nurse"
+          ]
+        },
+        "Ministry of Defence": {
+          "Department of Defence Production": [
+            "Joint Secretary (Production)", "General Manager (Ordnance)", "Quality Assurance Officer", "Works Manager"
+          ]
+        }
+      },
+      State: {
+        "Department of Home & Police Services (State)": {
+          "State Police Headquarters": [
+            "Director General of Police (DGP)", "Inspector General of Police (IGP)", "Superintendent of Police (SP)", 
+            "Deputy Superintendent of Police (DSP)", "Circle Inspector", "Sub-Inspector (SI)", "Assistant Sub-Inspector", "Head Constable"
+          ]
+        },
+        "Department of Revenue & Land Administration (State)": {
+          "District Administration & Revenue": [
+            "District Magistrate / Collector", "Joint Collector / Sub-Collector", "Revenue Divisional Officer (RDO)", 
+            "Tahsildar", "Deputy Tahsildar", "Revenue Inspector (RI)", "Village Administrative Officer (VAO)"
+          ]
+        },
+        "Department of Rural Development & Panchayati Raj (State)": {
+          "Block & Gram Panchayat Administration": [
+            "Project Director (DRDA)", "Block Development Officer (BDO)", "Assistant Development Officer", "Gram Panchayat Secretary"
+          ]
+        },
+        "Department of Municipal Administration (State)": {
+          "Municipal Corporations & Municipalities": [
+            "Municipal Commissioner", "Town Planning Officer", "Municipal Executive Engineer", "Sanitary Inspector"
+          ]
+        }
+      }
+    };
+
+    const courseCatalog = [
+      { id: 1, title: "Code of Conduct & Ethics for Civil Servants", category: "Behavioural", duration: "1 hr 30 mins", roles: ["All"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
+      { id: 2, title: "GFR 2017 & Public Procurement on GeM Portal", category: "Domain", duration: "2 hrs 15 mins", roles: ["Under Secretary", "Section Officer", "Accounts Officer", "Auditor", "Assistant Accounts Officer (AAO)", "Assistant Commissioner of Income Tax", "Income Tax Officer (ITO)", "Senior Accounts Officer"], videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" },
+      { id: 3, title: "Cyber Security & Information Assurance in e-Gov", category: "Functional", duration: "1 hr 45 mins", roles: ["Scientist-F", "Scientist-E", "Scientist-D", "Scientist / Technical Officer", "Cyber Security Analyst", "IT Project Lead", "Incident Response Commander", "Senior Vulnerability Analyst"], videoUrl: "https://www.youtube.com/embed/sdpxddDzXfE" },
+      { id: 4, title: "Railway Safety Standards & Track Signalling Protocols", category: "Domain", duration: "3 hrs 00 mins", roles: ["Divisional Railway Manager (DRM)", "Senior Section Engineer (SSE)", "Junior Engineer (JE)", "Station Master", "Traffic Inspector"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
+      { id: 5, title: "Public Health Emergency Management & Epidemics", category: "Domain", duration: "2 hrs 30 mins", roles: ["Chief Medical Officer (CMO)", "Senior Medical Officer", "Public Health Program Coordinator", "Hospital Superintendent", "Nursing Superintendent", "Staff Nurse"], videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" },
+      { id: 6, title: "AI & Emerging Technologies for Decision Making", category: "Emerging Tech", duration: "2 hrs 00 mins", roles: ["Secretary (Personnel)", "Additional Secretary", "Joint Secretary", "Director", "Executive Director", "Director General (NIC)", "District Magistrate / Collector"], videoUrl: "https://www.youtube.com/embed/sdpxddDzXfE" },
+      { id: 7, title: "District Land Records Administration & Dispute Resolution", category: "State Domain", duration: "2 hrs 10 mins", roles: ["District Magistrate / Collector", "Joint Collector / Sub-Collector", "Revenue Divisional Officer (RDO)", "Tahsildar", "Deputy Tahsildar", "Revenue Inspector (RI)", "Village Administrative Officer (VAO)"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
+      { id: 8, title: "Law and Order Maintenance & First Response Protocols", category: "State Domain", duration: "3 hrs 15 mins", roles: ["Superintendent of Police (SP)", "Deputy Superintendent of Police (DSP)", "Circle Inspector", "Sub-Inspector (SI)", "Assistant Sub-Inspector", "Head Constable"], videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" }
+    ];
+
+    let currentGovType = "Center";
+
+    function showModal(id) {
+      document.getElementById(id).style.display = "flex";
+    }
+
+    function hideModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    function checkModalOverlayClick(e, id) {
+      if (e.target.id === id) {
+        hideModal(id);
+      }
+    }
+
+    function selectGovType(type) {
+      currentGovType = type;
+      document.getElementById("centerPill").classList.toggle("active", type === "Center");
+      document.getElementById("statePill").classList.toggle("active", type === "State");
+      populateMinistries();
+    }
+
+    function populateMinistries() {
+      const minSelect = document.getElementById("regMinistry");
+      minSelect.innerHTML = "<option value=''>Select ministry</option>";
+      Object.keys(igotHierarchy[currentGovType]).forEach(min => {
+        minSelect.innerHTML += <option value=""></option>;
+      });
+      onMinistryChange();
+    }
+
+    function onMinistryChange() {
+      const min = document.getElementById("regMinistry").value;
+      const orgSelect = document.getElementById("regOrganisation");
+      orgSelect.innerHTML = "<option value=''>Select organisation</option>";
+      if (min && igotHierarchy[currentGovType][min]) {
+        Object.keys(igotHierarchy[currentGovType][min]).forEach(org => {
+          orgSelect.innerHTML += <option value=""></option>;
+        });
+      }
+      onOrgChange();
+    }
+
+    function onOrgChange() {
+      const min = document.getElementById("regMinistry").value;
+      const org = document.getElementById("regOrganisation").value;
+      const desSelect = document.getElementById("regDesignation");
+      desSelect.innerHTML = "<option value=''>Select designation</option>";
+      if (min && org && igotHierarchy[currentGovType][min][org]) {
+        igotHierarchy[currentGovType][min][org].forEach(des => {
+          desSelect.innerHTML += <option value=""></option>;
+        });
+      }
+    }
+
+    function renderCourses(userRole = null) {
+      const container = document.getElementById("courseContainer");
+      container.innerHTML = "";
+      const filtered = userRole
+        ? courseCatalog.filter(c => c.roles.includes("All") || c.roles.includes(userRole))
+        : courseCatalog;
+
+      filtered.forEach(c => {
+        container.innerHTML += 
+          <div class="course-card">
+            <div class="video-frame">
+              <iframe src="" allowfullscreen></iframe>
+            </div>
+            <div class="course-body">
+              <div>
+                <span class="course-tag"></span>
+                <div class="course-title"></div>
+              </div>
+              <div style="font-size:0.8rem; color:#64748b; margin-top:10px;"><i class="fa-regular fa-clock"></i> </div>
+            </div>
+          </div>
+        ;
+      });
+    }
+
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("regName").value,
+        email: document.getElementById("regEmail").value,
+        password: document.getElementById("regPassword").value,
+        department: document.getElementById("regMinistry").value + " - " + document.getElementById("regOrganisation").value,
+        designation: document.getElementById("regDesignation").value
+      };
+
+      try {
+        await fetch(${API_BASE}/api/register, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {}
+      applyUser(payload);
+      hideModal('registerModal');
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch(${API_BASE}/api/login, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        applyUser(data.name ? data : { name: "Civil Services Officer", designation: "Under Secretary", department: "DoPT" });
+      } catch (err) {
+        applyUser({ name: "Civil Services Officer", designation: "Under Secretary", department: "DoPT" });
+      }
+      hideModal('loginModal');
+    }
+
+    function applyUser(user) {
+      document.getElementById("authNav").innerHTML = 
+        <span style="font-size:0.9rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> </span>
+        <button class="btn btn-outline" onclick="location.reload()">Logout</button>
+      ;
+      const badge = document.getElementById("userBadge");
+      badge.style.display = "block";
+      badge.innerHTML = <i class="fa-solid fa-shield"></i>  ();
+      document.getElementById("courseSectionTitle").textContent = Role-Mapped Training for ;
+      document.getElementById("courseSectionSubtitle").textContent = Custom curriculum assigned by Capacity Building Commission for your designation;
+      renderCourses(user.designation);
+      document.getElementById("courses").scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Init dropdowns and default courses
+    populateMinistries();
+    renderCourses();
+  </script>
+</body>
+</html>
