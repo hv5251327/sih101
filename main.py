@@ -1,11 +1,8 @@
 ﻿import os
-import io
-import json
-import re
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
@@ -59,9 +56,13 @@ class RegisterRequest(BaseModel):
     name: str
     email: str
     password: str
-    department: str
-    designation: str
+    department: Optional[str] = "National Accounts Division (NAD)"
+    designation: Optional[str] = "Deputy Director / Assistant Director (ISS)"
     cadre: Optional[str] = "Indian Statistical Service (ISS)"
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
@@ -90,8 +91,8 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             name=req.name.strip(),
             email=clean_email,
             password=req.password.strip(),
-            department=req.department.strip(),
-            designation=req.designation.strip(),
+            department=req.department.strip() if req.department else "National Accounts Division (NAD)",
+            designation=req.designation.strip() if req.designation else "Deputy Director / Assistant Director (ISS)",
             cadre=req.cadre.strip() if req.cadre else "Indian Statistical Service (ISS)",
             role="admin" if clean_email == "123@gov.ac.in" else "employee",
             competency_score="75%",
@@ -119,3 +120,39 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database sync failed: {str(e)}")
+
+@app.post("/api/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+    if not user or user.password != req.password.strip():
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+    return {
+        "status": "success",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "department": user.department,
+            "designation": user.designation,
+            "cadre": user.cadre,
+            "role": user.role,
+            "competency_score": user.competency_score,
+            "posh_status": user.posh_status
+        }
+    }
+
+@app.get("/api/admin/users")
+def get_all_users(db: Session = Depends(get_db)):
+    users = db.query(UserRecord).all()
+    return [{
+        "id": u.id,
+        "name": u.name,
+        "email": u.email,
+        "cadre": u.cadre,
+        "designation": u.designation,
+        "department": u.department,
+        "competency": u.competency_score,
+        "posh": u.posh_status,
+        "role": u.role
+    } for u in users]
