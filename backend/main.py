@@ -45,8 +45,13 @@ ai_client = OpenAI(
 AI_MODEL = "llama-3.3-70b-versatile" if IS_GROQ else "grok-beta"
 
 # ----------------- DATABASE SCHEMA -----------------
-DATABASE_URL = "sqlite:///./sih101.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+RAW_DB_URL = os.environ.get("DATABASE_URL", "sqlite:///./sih101.db")
+if RAW_DB_URL.startswith("postgres://"):
+    RAW_DB_URL = RAW_DB_URL.replace("postgres://", "postgresql://", 1)
+
+DATABASE_URL = RAW_DB_URL
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

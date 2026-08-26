@@ -2,6 +2,7 @@ fastapi
 uvicorn[standard]
 pydantic
 sqlalchemy
+psycopg2-binary
 python-multipart
 pypdf
 passlib[bcrypt]
