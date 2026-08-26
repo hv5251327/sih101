@@ -121,6 +121,87 @@
     .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
     .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
 
+    /* Floating Chat Tutor */
+    #tutorToggleBtn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--primary-blue);
+      color: white;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(29,78,216,0.35);
+      z-index: 9999;
+      transition: transform 0.2s;
+    }
+    #tutorToggleBtn:hover { transform: scale(1.06); }
+
+    #tutorChatWindow {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      width: 380px;
+      height: 520px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border: 1px solid #e2e8f0;
+      display: none;
+      flex-direction: column;
+      z-index: 9999;
+      overflow: hidden;
+    }
+    .chat-header {
+      background: var(--gov-navy);
+      color: white;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .chat-body {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #f8fafc;
+    }
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      max-width: 85%;
+    }
+    .chat-bot {
+      background: white;
+      border: 1px solid #e2e8f0;
+      align-self: flex-start;
+      color: #1e293b;
+    }
+    .chat-user {
+      background: var(--primary-blue);
+      color: white;
+      align-self: flex-end;
+    }
+    .chat-footer {
+      padding: 10px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 8px;
+    }
+
     .modal-overlay { 
       display: none; 
       position: fixed; 
@@ -356,6 +437,23 @@
     </div>
   </div>
 
+  <!-- Floating Grok Tutor Elements -->
+  <div id="tutorToggleBtn" onclick="toggleTutorChat()"><i class="fa-solid fa-comments"></i></div>
+
+  <div id="tutorChatWindow">
+    <div class="chat-header">
+      <div><i class="fa-solid fa-robot" style="color:var(--gov-orange);"></i> NSSTA Statistical Tutor</div>
+      <span style="cursor:pointer; font-size:1.2rem;" onclick="toggleTutorChat()">&times;</span>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-bubble chat-bot">Namaste Officer. I am your Grok AI Statistical Tutor. Ask me anything regarding SNA 2008, Sampling Design, CPI/IIP formulas, or Python/R microdata pipelines.</div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="chatInput" class="form-control" placeholder="Ask statistical methodology question..." onkeydown="if(event.key==='Enter') sendTutorMessage()">
+      <button class="btn btn-blue" onclick="sendTutorMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
   <!-- Register Modal -->
   <div class="modal-overlay" id="registerModal" onclick="overlayClose(event, 'registerModal')">
     <div class="modal-box">
@@ -468,6 +566,8 @@
   <script>
     const API_BASE = "https://sih101.onrender.com";
 
+    let activeUserRole = "Deputy Director / Assistant Director (ISS)";
+
     const officialCourses = [
       { id: 1, title: "National Accounts Statistics & GDP Compilation (SNA 2008)", category: "Statistical Domain", duration: "3 hrs 30 mins", roles: ["Director General (Statistics)", "Deputy Director General (DDG)", "Director / Joint Director (ISS)", "Deputy Director / Assistant Director (ISS)"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
       { id: 2, title: "Survey Sampling Design & Total Survey Error (TSE)", category: "Statistical Domain", duration: "2 hrs 45 mins", roles: ["Director / Joint Director (ISS)", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)"], videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" },
@@ -492,6 +592,35 @@
     function openAdminModal() { document.getElementById("adminModal").style.display = "flex"; }
     function closeAdminModal() { document.getElementById("adminModal").style.display = "none"; }
     function overlayClose(e, id) { if (e.target.id === id) { document.getElementById(id).style.display = "none"; } }
+
+    function toggleTutorChat() {
+      const win = document.getElementById("tutorChatWindow");
+      win.style.display = win.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function sendTutorMessage() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const body = document.getElementById("chatBody");
+      body.innerHTML += `<div class="chat-bubble chat-user">${text}</div>`;
+      input.value = "";
+      body.scrollTop = body.scrollHeight;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/ai/grok-tutor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, designation: activeUserRole })
+        });
+        const data = await res.json();
+        body.innerHTML += `<div class="chat-bubble chat-bot">${data.reply}</div>`;
+      } catch (err) {
+        body.innerHTML += `<div class="chat-bubble chat-bot">NSSTA Tutor service offline. Checking local reference notes...</div>`;
+      }
+      body.scrollTop = body.scrollHeight;
+    }
 
     function renderPublicCourses() {
       const c = document.getElementById("publicCourseContainer");
@@ -668,6 +797,7 @@
         department: document.getElementById("regDept").value,
         designation: document.getElementById("regDesignation").value
       };
+      activeUserRole = user.designation;
       closeRegisterModal();
       activateDashboard(user);
     }
@@ -683,12 +813,14 @@
         return;
       }
 
-      closeLoginModal();
-      activateDashboard({
+      const defaultUser = {
         name: email.split("@")[0].toUpperCase() + " (ISS)",
         designation: "Deputy Director / Assistant Director (ISS)",
         department: "MoSPI - Price Statistics Division"
-      });
+      };
+      activeUserRole = defaultUser.designation;
+      closeLoginModal();
+      activateDashboard(defaultUser);
     }
 
     function handleAdminLogin(e) {
@@ -719,6 +851,8 @@
       `;
 
       document.getElementById("dashboardView").style.display = "block";
+      document.getElementById("tutorToggleBtn").style.display = "flex";
+
       renderOfficerTracks(user.designation);
       loadSkillGaps(user.designation);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -728,6 +862,7 @@
       document.getElementById("publicView").style.display = "none";
       document.getElementById("dashboardView").style.display = "none";
       document.getElementById("navLinks").style.display = "none";
+      document.getElementById("tutorToggleBtn").style.display = "none";
       document.getElementById("adminView").style.display = "block";
 
       document.getElementById("authNav").innerHTML = `
