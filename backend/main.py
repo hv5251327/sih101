@@ -45,7 +45,10 @@ ai_client = OpenAI(
 AI_MODEL = "llama-3.3-70b-versatile" if IS_GROQ else "grok-beta"
 
 # ----------------- DATABASE SCHEMA -----------------
-RAW_DB_URL = os.environ.get("DATABASE_URL", "sqlite:///./sih101.db")
+import os
+from urllib.parse import unquote
+
+RAW_DB_URL = os.environ.get("DATABASE_URL", "sqlite:///./sih101.db").strip().strip('"').strip("'")
 if RAW_DB_URL.startswith("postgres://"):
     RAW_DB_URL = RAW_DB_URL.replace("postgres://", "postgresql://", 1)
 
@@ -492,3 +495,4 @@ async def generate_quiz_pdf(
         ))
     db.commit()
     return {"message": f"Successfully added {len(questions)} questions to {course_id}!"}
+
