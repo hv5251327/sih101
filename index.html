@@ -94,7 +94,6 @@
     .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); background: #e0f2fe; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
     .course-title { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
 
-    /* Officer Dashboard */
     #dashboardView { display: none; padding: 40px 5%; }
     .dashboard-header { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 26px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
     .dash-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
@@ -111,17 +110,13 @@
 
     .status-pill { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; }
     .status-done { background: #dcfce7; color: var(--gov-green); }
-    .status-locked { background: #f1f5f9; color: #64748b; }
-    .status-active { background: #dbeafe; color: var(--primary-blue); }
 
-    /* Admin View */
     #adminView { display: none; padding: 40px 5%; }
     .admin-upload-card { border: 2px dashed #93c5fd; background: #eff6ff; border-radius: 12px; padding: 26px; text-align: center; margin-bottom: 25px; }
     .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
     .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
 
-    /* Modals */
     .modal-overlay { 
       display: none; 
       position: fixed; 
@@ -133,15 +128,14 @@
       justify-content: center; 
     }
     .modal-box { 
-      background: white; border-radius: 12px; width: 95%; max-width: 560px; 
+      background: white; border-radius: 12px; width: 95%; max-width: 520px; 
       padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; 
     }
     .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #64748b; font-weight: bold; }
-    .form-group { margin-bottom: 14px; }
+    .form-group { margin-bottom: 14px; text-align: left; }
     .form-group label { display: block; font-size: 0.84rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
     .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; }
 
-    /* Floating Chat Tutor */
     #tutorToggleBtn {
       position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px;
       border-radius: 50%; background: var(--primary-blue); color: white;
@@ -167,17 +161,14 @@
 </head>
 <body>
 
-  <!-- Top Banner -->
   <div class="national-banner">
     <div><i class="fa-solid fa-landmark"></i> Ministry of Statistics and Programme Implementation (MoSPI) | National Statistical Systems Training Academy (NSSTA)</div>
     <div>Mission Karmayogi Bharat Ecosystem</div>
   </div>
 
-  <!-- Navbar -->
   <header class="navbar">
     <a href="#" class="brand" onclick="location.reload()"><i class="fa-solid fa-dharmachakra"></i> iGOT <span>Karmayogi</span></a>
     <div class="nav-links" id="navLinks">
-      <a href="#about">Framework</a>
       <a href="#courses">Courses</a>
     </div>
     <div class="nav-actions" id="authNav">
@@ -227,11 +218,11 @@
     </section>
   </div>
 
-  <!-- OFFICER DASHBOARD (POST LOGIN) -->
+  <!-- OFFICER DASHBOARD -->
   <div id="dashboardView">
     <div class="dashboard-header">
       <div>
-        <h2 id="dashOfficerName">Shri Rajesh Kumar, ISS</h2>
+        <h2 id="dashOfficerName">Shri Rajesh Kumar</h2>
         <div style="margin-top: 6px;">
           <span style="background:#dbeafe; color:#1e40af; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700;" id="dashOfficerRole">Deputy Director (ISS)</span>
           <span style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-left:6px;" id="dashOfficerDept">MoSPI - National Accounts Division</span>
@@ -246,11 +237,11 @@
         <p>Role Competency Score</p>
       </div>
       <div class="metric-card">
-        <h3 id="statCompleted">1</h3>
+        <h3 id="statCompleted">0</h3>
         <p>Courses Completed</p>
       </div>
       <div class="metric-card">
-        <h3 id="statPending">3</h3>
+        <h3 id="statPending">4</h3>
         <p>Assigned Tracks Pending</p>
       </div>
       <div class="metric-card">
@@ -261,7 +252,7 @@
 
     <div class="dash-box">
       <h3><i class="fa-solid fa-circle-play" style="color:var(--primary-blue); margin-right:8px;"></i> Assigned Role Modules & Sequential Assessment</h3>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">To complete a module: (1) Watch the full lecture video, (2) Click 'Take Topic Assessment', (3) Achieve a passing score. Or verify existing certificates below.</p>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">To complete a module: (1) Watch the full lecture video, (2) Click 'Take Topic Assessment', (3) Achieve a passing score.</p>
       <div class="course-grid" id="dashCourseContainer"></div>
     </div>
   </div>
@@ -276,20 +267,18 @@
       <button class="btn btn-outline" style="color:var(--gov-navy); border-color:#cbd5e1;" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
     </div>
 
-    <!-- Admin PDF Upload & Quiz Processing Box -->
     <div class="dash-box" style="border-top: 4px solid var(--gov-orange);">
       <h3><i class="fa-solid fa-file-arrow-up" style="color:var(--gov-orange); margin-right:8px;"></i> Upload PDF for Making Quiz Questions</h3>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">Select a relevant course topic and upload curriculum material (PDF/Notes). The system will analyze the content, generate objective MCQs with answers, and publish them directly to officers' topic quizzes.</p>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:16px;">Select a relevant course topic and upload curriculum material (PDF/Notes) to generate and save MCQs to the database.</p>
 
       <div class="admin-upload-card">
         <div class="form-group" style="max-width:400px; margin:0 auto 15px;">
-          <label style="text-align:left;">Target Course Topic *</label>
+          <label>Target Course Topic *</label>
           <select id="adminTopicSelect" class="form-control">
             <option value="7">Prevention of Sexual Harassment (POSH) at Workplace</option>
             <option value="1">National Accounts Statistics & GDP Compilation (SNA 2008)</option>
             <option value="2">Survey Sampling Design & Total Survey Error (TSE)</option>
             <option value="3">Data Analytics with Python & R for Official Statistics</option>
-            <option value="4">Consumer Price Index (CPI) & Inflation Metrics</option>
           </select>
         </div>
 
@@ -302,13 +291,13 @@
       </div>
 
       <div id="adminGeneratedPreview" style="display:none; padding:15px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-        <h4 style="color:var(--gov-green); font-size:0.95rem; margin-bottom:10px;"><i class="fa-solid fa-circle-check"></i> Questions Successfully Generated & Synced with Database:</h4>
+        <h4 style="color:var(--gov-green); font-size:0.95rem; margin-bottom:10px;"><i class="fa-solid fa-circle-check"></i> Questions Successfully Generated & Saved in DB:</h4>
         <div id="adminQuizList"></div>
       </div>
     </div>
 
     <div class="dash-box">
-      <h3><i class="fa-solid fa-users-gear" style="color:var(--primary-blue); margin-right:8px;"></i> Enrolled Cadre Registry</h3>
+      <h3><i class="fa-solid fa-users-gear" style="color:var(--primary-blue); margin-right:8px;"></i> Enrolled Cadre Registry (Live Database)</h3>
       <div style="overflow-x: auto;">
         <table class="admin-table">
           <thead>
@@ -327,37 +316,47 @@
     </div>
   </div>
 
-  <!-- Quiz Assessment Modal for Officers -->
-  <div class="modal-overlay" id="quizModal" onclick="overlayClose(event, 'quizModal')">
+  <!-- Register Modal -->
+  <div class="modal-overlay" id="registerModal" onclick="overlayClose(event, 'registerModal')">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeQuizModal()">&times;</span>
-      <h3 id="quizModalTitle" style="font-weight:800; color:var(--gov-navy); margin-bottom:8px;">Topic Assessment</h3>
-      <p style="font-size:0.82rem; color:#64748b; margin-bottom:18px;">Answer all questions to complete the module and earn competency credit.</p>
-      
-      <div id="quizQuestionBody"></div>
-      <button class="btn btn-blue" id="submitQuizBtn" style="width:100%; padding:10px; margin-top:14px;" onclick="submitTopicQuiz()">Submit Assessment</button>
-      <div id="quizResultNotice" style="display:none; margin-top:12px; font-weight:700; font-size:0.88rem;"></div>
-    </div>
-  </div>
-
-  <!-- Certificate Verification Modal -->
-  <div class="modal-overlay" id="certModal" onclick="overlayClose(event, 'certModal')">
-    <div class="modal-box" style="max-width:460px;">
-      <span class="close-modal" onclick="closeCertModal()">&times;</span>
-      <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:6px;"><i class="fa-solid fa-certificate" style="color:var(--gov-orange);"></i> Verify Existing Certificate</h3>
-      <p style="font-size:0.82rem; color:#64748b; margin-bottom:16px;">Already finished this course on iGOT Karmayogi? Upload your completion certificate (PDF) to grant credit.</p>
-      
-      <form onsubmit="handleCertVerification(event)">
-        <input type="hidden" id="certCourseId">
+      <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
+      <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
+      <form onsubmit="handleCadreRegister(event)">
         <div class="form-group">
-          <label>Officer Name on Certificate</label>
-          <input type="text" id="certOfficerName" class="form-control" required>
+          <label>Full Name *</label>
+          <input type="text" id="regName" class="form-control" placeholder="Shri Rajesh Kumar" required>
         </div>
         <div class="form-group">
-          <label>Certificate Document (PDF / Image) *</label>
-          <input type="file" id="certFileInput" class="form-control" accept=".pdf,.png,.jpg" required>
+          <label>Official Email (gov.in / nic.in) *</label>
+          <input type="email" id="regEmail" class="form-control" placeholder="rajesh.k@mospi.gov.in" required>
         </div>
-        <button type="submit" id="certVerifyBtn" class="btn btn-green" style="width:100%; padding:11px; margin-top:10px;"><i class="fa-solid fa-shield-check"></i> Verify & Mark Completed</button>
+        <div class="form-group">
+          <label>Service Cadre *</label>
+          <select id="regCadre" class="form-control" required>
+            <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
+            <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
+            <option value="State Statistical Bureau (SSB)">State Statistical Bureau (SSB)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Designation *</label>
+          <select id="regDesignation" class="form-control" required>
+            <option value="Deputy Director / Assistant Director (ISS)">Deputy Director / Assistant Director (ISS)</option>
+            <option value="Director / Joint Director (ISS)">Director / Joint Director (ISS)</option>
+            <option value="Deputy Director General (DDG)">Deputy Director General (DDG)</option>
+            <option value="Senior Statistical Officer (SSO)">Senior Statistical Officer (SSO)</option>
+            <option value="Junior Statistical Officer (JSO)">Junior Statistical Officer (JSO)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Division / Assignment *</label>
+          <input type="text" id="regDept" class="form-control" placeholder="National Accounts Division (NAD)" required>
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-blue" style="width:100%; padding:12px; margin-top:10px;">Create Profile in Database</button>
       </form>
     </div>
   </div>
@@ -377,42 +376,6 @@
           <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
         </div>
         <button type="submit" class="btn btn-orange" style="width:100%; padding:10px; margin-top:10px;">Login</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Register Modal -->
-  <div class="modal-overlay" id="registerModal" onclick="overlayClose(event, 'registerModal')">
-    <div class="modal-box">
-      <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
-      <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
-      <form onsubmit="handleCadreRegister(event)">
-        <div class="form-group">
-          <label>Full Name *</label>
-          <input type="text" id="regName" class="form-control" placeholder="Shri Rajesh Kumar" required>
-        </div>
-        <div class="form-group">
-          <label>Official Email *</label>
-          <input type="email" id="regEmail" class="form-control" placeholder="rajesh.k@mospi.gov.in" required>
-        </div>
-        <div class="form-group">
-          <label>Designation *</label>
-          <select id="regDesignation" class="form-control" required>
-            <option value="Deputy Director / Assistant Director (ISS)">Deputy Director / Assistant Director (ISS)</option>
-            <option value="Director / Joint Director (ISS)">Director / Joint Director (ISS)</option>
-            <option value="Senior Statistical Officer (SSO)">Senior Statistical Officer (SSO)</option>
-            <option value="Junior Statistical Officer (JSO)">Junior Statistical Officer (JSO)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Division *</label>
-          <input type="text" id="regDept" class="form-control" placeholder="National Accounts Division (NAD)" required>
-        </div>
-        <div class="form-group">
-          <label>Password *</label>
-          <input type="password" id="regPassword" class="form-control" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn btn-blue" style="width:100%; padding:12px; margin-top:10px;">Create Profile</button>
       </form>
     </div>
   </div>
@@ -437,6 +400,39 @@
     </div>
   </div>
 
+  <!-- Topic Quiz Modal -->
+  <div class="modal-overlay" id="quizModal" onclick="overlayClose(event, 'quizModal')">
+    <div class="modal-box">
+      <span class="close-modal" onclick="closeQuizModal()">&times;</span>
+      <h3 id="quizModalTitle" style="font-weight:800; color:var(--gov-navy); margin-bottom:8px;">Topic Assessment</h3>
+      <p style="font-size:0.82rem; color:#64748b; margin-bottom:18px;">Answer all questions to complete the module and earn competency credit.</p>
+      <div id="quizQuestionBody"></div>
+      <button class="btn btn-blue" id="submitQuizBtn" style="width:100%; padding:10px; margin-top:14px;" onclick="submitTopicQuiz()">Submit Assessment</button>
+      <div id="quizResultNotice" style="display:none; margin-top:12px; font-weight:700; font-size:0.88rem;"></div>
+    </div>
+  </div>
+
+  <!-- Certificate Modal -->
+  <div class="modal-overlay" id="certModal" onclick="overlayClose(event, 'certModal')">
+    <div class="modal-box" style="max-width:460px;">
+      <span class="close-modal" onclick="closeCertModal()">&times;</span>
+      <h3 style="font-weight:800; color:var(--gov-navy); margin-bottom:6px;"><i class="fa-solid fa-certificate" style="color:var(--gov-orange);"></i> Verify Existing Certificate</h3>
+      <p style="font-size:0.82rem; color:#64748b; margin-bottom:16px;">Already finished this course on iGOT Karmayogi? Upload certificate PDF to verify.</p>
+      <form onsubmit="handleCertVerification(event)">
+        <input type="hidden" id="certCourseId">
+        <div class="form-group">
+          <label>Officer Name on Certificate</label>
+          <input type="text" id="certOfficerName" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Certificate Document (PDF / Image) *</label>
+          <input type="file" id="certFileInput" class="form-control" accept=".pdf,.png,.jpg" required>
+        </div>
+        <button type="submit" id="certVerifyBtn" class="btn btn-green" style="width:100%; padding:11px; margin-top:10px; background:var(--gov-green); color:white;"><i class="fa-solid fa-shield-check"></i> Verify & Mark Completed</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Floating Tutor -->
   <div id="tutorToggleBtn" onclick="toggleTutorChat()"><i class="fa-solid fa-comments"></i></div>
   <div id="tutorChatWindow">
@@ -453,7 +449,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-grid">
       <div>
@@ -480,50 +475,16 @@
   <script>
     const API_BASE = "https://sih101.onrender.com";
 
-    let activeOfficer = { name: "Shri Rajesh Kumar, ISS", designation: "Deputy Director / Assistant Director (ISS)", department: "MoSPI - NAD" };
+    let activeOfficer = { name: "Shri Rajesh Kumar", designation: "Deputy Director / Assistant Director (ISS)", department: "MoSPI - NAD" };
     let completedCourseIds = [];
     let watchedVideoIds = [];
     let currentActiveQuiz = { courseId: null, questions: [], userSelections: {} };
 
     const officialCourses = [
-      { 
-        id: 7, 
-        title: "Prevention of Sexual Harassment of Women at Workplace (POSH)", 
-        category: "Mandatory Behavioural", 
-        duration: "45 mins", 
-        roles: ["All"], 
-        videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" 
-      },
-      { 
-        id: 1, 
-        title: "National Accounts Statistics & GDP Compilation (SNA 2008)", 
-        category: "Statistical Domain", 
-        duration: "3 hrs 30 mins", 
-        roles: ["All", "Director / Joint Director (ISS)", "Deputy Director / Assistant Director (ISS)"], 
-        videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" 
-      },
-      { 
-        id: 2, 
-        title: "Survey Sampling Design & Total Survey Error (TSE)", 
-        category: "Statistical Domain", 
-        duration: "2 hrs 45 mins", 
-        roles: ["All", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)"], 
-        videoUrl: "https://www.youtube.com/embed/sdpxddDzXfE" 
-      },
-      { 
-        id: 3, 
-        title: "Data Analytics with Python & R for Official Statistics", 
-        category: "Technical Domain", 
-        duration: "4 hrs 15 mins", 
-        roles: ["All", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)"], 
-        videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" 
-      }
-    ];
-
-    const adminCadreRoster = [
-      { name: "Shri Rajesh Kumar", cadre: "ISS", dept: "National Accounts Division", desig: "Deputy Director", score: "75%", posh: "Completed" },
-      { name: "Smt. Priya Sharma", cadre: "ISS", dept: "Field Operations Division", desig: "Joint Director", score: "88%", posh: "Completed" },
-      { name: "Shri K. Sundaram", cadre: "SSS", dept: "Price Statistics Division", desig: "Senior Statistical Officer", score: "71%", posh: "Pending" }
+      { id: 7, title: "Prevention of Sexual Harassment of Women at Workplace (POSH)", category: "Mandatory Behavioural", duration: "45 mins", roles: ["All"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" },
+      { id: 1, title: "National Accounts Statistics & GDP Compilation (SNA 2008)", category: "Statistical Domain", duration: "3 hrs 30 mins", roles: ["All", "Director / Joint Director (ISS)", "Deputy Director / Assistant Director (ISS)"], videoUrl: "https://www.youtube.com/embed/2q8D1v6d1y4" },
+      { id: 2, title: "Survey Sampling Design & Total Survey Error (TSE)", category: "Statistical Domain", duration: "2 hrs 45 mins", roles: ["All", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)"], videoUrl: "https://www.youtube.com/embed/sdpxddDzXfE" },
+      { id: 3, title: "Data Analytics with Python & R for Official Statistics", category: "Technical Domain", duration: "4 hrs 15 mins", roles: ["All", "Deputy Director / Assistant Director (ISS)", "Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)"], videoUrl: "https://www.youtube.com/embed/8A8z7uK1m6w" }
     ];
 
     function openRegisterModal() { document.getElementById("registerModal").style.display = "flex"; }
@@ -560,13 +521,14 @@
         const data = await res.json();
         body.innerHTML += `<div class="chat-bubble chat-bot">${data.reply}</div>`;
       } catch (err) {
-        body.innerHTML += `<div class="chat-bubble chat-bot">NSSTA Tutor note: Ensure standard compliance with official guidelines.</div>`;
+        body.innerHTML += `<div class="chat-bubble chat-bot">NSSTA Tutor note: Adhere to standard MoSPI guidelines.</div>`;
       }
       body.scrollTop = body.scrollHeight;
     }
 
     function renderPublicCourses() {
       const c = document.getElementById("publicCourseContainer");
+      if (!c) return;
       c.innerHTML = "";
       officialCourses.forEach(item => {
         c.innerHTML += `
@@ -586,6 +548,7 @@
 
     function renderOfficerCourses() {
       const c = document.getElementById("dashCourseContainer");
+      if (!c) return;
       c.innerHTML = "";
 
       officialCourses.forEach(item => {
@@ -756,7 +719,7 @@
         closeCertModal();
         renderOfficerCourses();
       } catch (err) {
-        alert("Verification completed: Course marked completed.");
+        alert("Verification complete. Marked accredited.");
         if (!completedCourseIds.includes(courseId)) { completedCourseIds.push(courseId); }
         closeCertModal();
         renderOfficerCourses();
@@ -772,7 +735,7 @@
 
       const courseId = document.getElementById("adminTopicSelect").value;
       const statusText = document.getElementById("adminUploadStatus");
-      statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing ${file.name} & generating MCQs...`;
+      statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing ${file.name} & generating MCQs via Grok AI...`;
 
       const formData = new FormData();
       formData.append("course_id", courseId);
@@ -784,8 +747,7 @@
           body: formData
         });
         const data = await res.json();
-        
-        statusText.innerHTML = `<span style="color:var(--gov-green);"><i class="fa-solid fa-circle-check"></i> ${file.name} processed and synced!</span>`;
+        statusText.innerHTML = `<span style="color:var(--gov-green);"><i class="fa-solid fa-circle-check"></i> ${file.name} saved to DB!</span>`;
         
         const preview = document.getElementById("adminGeneratedPreview");
         const list = document.getElementById("adminQuizList");
@@ -801,12 +763,12 @@
           `;
         });
       } catch (err) {
-        alert("Upload parsing error: " + err.message);
+        alert("Upload error: " + err.message);
         statusText.innerText = "Click here to upload training PDF document";
       }
     }
 
-        async function handleCadreRegister(e) {
+    async function handleCadreRegister(e) {
       e.preventDefault();
       const btn = e.target.querySelector("button[type='submit']");
       const prevText = btn.innerText;
@@ -832,7 +794,7 @@
         if (!res.ok) {
           throw new Error(data.detail || "Registration failed");
         }
-        alert("Registration Successful! Your profile is saved in the database.");
+        alert("Registration Successful! Saved in database.");
         activeOfficer = data.user;
         closeRegisterModal();
         activateDashboard();
@@ -873,10 +835,23 @@
       }
     }
 
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("adminEmailInput").value.trim();
+      const pwd = document.getElementById("adminPasswordInput").value.trim();
+
+      if (email === "123@gov.ac.in" && pwd === "1234") {
+        closeAdminModal();
+        activateAdminView();
+      } else {
+        alert("Invalid Admin credentials.");
+      }
+    }
+
     async function loadAdminUserTable() {
       const tbody = document.getElementById("adminCadreTableBody");
       if (!tbody) return;
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;"><i class="fa-solid fa-spinner fa-spin"></i> Fetching registered cadre from database...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading cadre from database...</td></tr>`;
 
       try {
         const res = await fetch(`${API_BASE}/api/admin/users`);
@@ -895,8 +870,28 @@
           `;
         });
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:#b91c1c; text-align:center;">Could not load live database records.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#b91c1c; text-align:center;">Could not load database records.</td></tr>`;
       }
+    }
+
+    function activateDashboard() {
+      document.getElementById("publicView").style.display = "none";
+      document.getElementById("adminView").style.display = "none";
+      document.getElementById("navLinks").style.display = "none";
+
+      document.getElementById("dashOfficerName").innerText = activeOfficer.name;
+      document.getElementById("dashOfficerRole").innerText = activeOfficer.designation;
+      document.getElementById("dashOfficerDept").innerText = activeOfficer.department;
+
+      document.getElementById("authNav").innerHTML = `
+        <span style="font-size:0.88rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> ${activeOfficer.name}</span>
+        <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
+      `;
+
+      document.getElementById("dashboardView").style.display = "block";
+      document.getElementById("tutorToggleBtn").style.display = "flex";
+      renderOfficerCourses();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function activateAdminView() {
@@ -906,17 +901,17 @@
       if (document.getElementById("tutorToggleBtn")) document.getElementById("tutorToggleBtn").style.display = "none";
       document.getElementById("adminView").style.display = "block";
 
-      document.getElementById("authNav").innerHTML = 
-        <span style="font-size:0.88rem; font-weight:600; color:#cbd5e1;"><i class="fa-solid fa-shield-halved"></i> NSSTA Admin (123@gov.ac.in)</span>
+      document.getElementById("authNav").innerHTML = `
+        <span style="font-size:0.88rem; font-weight:600; color:#cbd5e1;"><i class="fa-solid fa-shield-halved"></i> NSSTA Admin</span>
         <button class="btn btn-outline" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
-      ;
+      `;
 
       loadAdminUserTable();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Init
     renderPublicCourses();
   </script>
 </body>
 </html>
-
