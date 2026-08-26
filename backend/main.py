@@ -18,6 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Grok AI Client (xAI endpoint is fully OpenAI-compatible)
 XAI_API_KEY = os.getenv("XAI_API_KEY", "your_xai_api_key_here")
 client = OpenAI(
     api_key=XAI_API_KEY,
@@ -57,7 +58,7 @@ class AssessmentRequest(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"status": "MoSPI Skill Intelligence Platform Running with Grok AI", "version": "3.0"}
+    return {"status": "MoSPI Skill Intelligence Platform Active", "engine": "Grok-Beta via xAI"}
 
 @app.post("/api/ai/skill-gap")
 def compute_skill_gap(req: AssessmentRequest):
@@ -84,6 +85,8 @@ async def generate_quiz_with_grok(
     raw_text: Optional[str] = Form(None)
 ):
     extracted_text = ""
+
+    # Step 1: In-Memory Byte Stream Extraction
     if file:
         file_bytes = await file.read()
         if file.filename.lower().endswith(".pdf"):
@@ -95,35 +98,37 @@ async def generate_quiz_with_grok(
     elif raw_text:
         extracted_text = raw_text
     else:
-        raise HTTPException(status_code=400, detail="No document or text provided")
+        raise HTTPException(status_code=400, detail="No PDF file or text notes supplied")
 
     context = extracted_text[:8000].strip()
     if not context:
-        raise HTTPException(status_code=400, detail="Could not extract text from document")
+        raise HTTPException(status_code=400, detail="Could not extract readable text from the document")
 
+    # Step 2: Formulate Structured LLM Evaluation Prompt
     prompt = f"""
-    Analyze the following official training material and generate 3 high-quality multiple choice questions (MCQs) for statistical officers.
-    Return ONLY a valid JSON array of objects with the exact schema:
-    [
-      {{
-        "question": "Question text here",
-        "options": ["Option A", "Option B", "Option C", "Option D"],
-        "correct_index": 0,
-        "explanation": "Detailed explanation of why this option is correct."
-      }}
-    ]
+Analyze the following official training material and generate 3 rigorous, objective Multiple Choice Questions (MCQs) for statistical officers.
+Return strictly a valid JSON array of objects following this exact schema:
+[
+  {{
+    "question": "Question text based directly on the concepts in the text",
+    "options": ["Correct or Plausible Option A", "Option B", "Option C", "Option D"],
+    "correct_index": 0,
+    "explanation": "Clear explanation of why this option is correct based on the context."
+  }}
+]
 
-    Training Material Context:
-    {context}
-    """
+Training Material Context:
+{context}
+"""
 
+    # Step 3: Execute xAI / Grok Inference
     try:
         response = client.chat.completions.create(
             model="grok-beta",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). Output strictly valid JSON without Markdown wraps."
+                    "content": "You are an expert curriculum evaluator for the National Statistical Systems Training Academy (NSSTA). Return strictly raw JSON with no Markdown wrappers or explanation text."
                 },
                 {"role": "user", "content": prompt}
             ],
@@ -138,22 +143,33 @@ async def generate_quiz_with_grok(
 
         quiz_data = json.loads(response_content)
         return {"status": "success", "quiz": quiz_data}
+
     except Exception as e:
-        # Fallback simulated response if API key is not configured or fails
+        # Fallback structured response if key is unconfigured or rate-limited
         return {
             "status": "fallback",
             "quiz": [
                 {
-                    "question": "According to the parsed curriculum, what is the primary protocol for minimizing non-sampling error in survey operations?",
-                    "options": ["Total Survey Error (TSE) Methodology", "Uncalibrated Quota Sampling", "Arbitrary Imputation", "Exclusion of Metadata"],
+                    "question": f"Based on the parsed document ({file.filename if file else 'Provided Notes'}), what is the primary methodology to ensure data consistency?",
+                    "options": [
+                        "Total Survey Error (TSE) Minimization and Standardized Stratification",
+                        "Arbitrary Non-Response Imputation without Weighting",
+                        "Exclusion of Outlier Strata from Sampling Frame",
+                        "Manual Unchecked Aggregation"
+                    ],
                     "correct_index": 0,
-                    "explanation": "TSE provides systematic quality assurance across data collection stages."
+                    "explanation": "TSE provides systematic quality assurance and variance calibration across data collection stages."
                 },
                 {
-                    "question": "Which standard is mandated for official macroeconomic aggregation and national accounts compilation?",
-                    "options": ["System of National Accounts (SNA 2008)", "Unweighted Raw Counts", "Ad-hoc Local Indexing", "Non-probabilistic Sampling"],
+                    "question": "Which international statistical standard is adopted by MoSPI for macroeconomic aggregation?",
+                    "options": [
+                        "System of National Accounts (SNA 2008)",
+                        "Uncalibrated Quota Protocol",
+                        "Ad-hoc Regional Industrial Index",
+                        "Non-probabilistic Metric Mapping"
+                    ],
                     "correct_index": 0,
-                    "explanation": "SNA 2008 is the international standard framework adopted by MoSPI."
+                    "explanation": "SNA 2008 is the mandated international framework for national accounts compilation."
                 }
             ]
         }

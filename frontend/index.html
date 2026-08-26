@@ -57,7 +57,6 @@
     .btn-blue { background: var(--primary-blue); color: white; }
     .btn-admin { background: #334155; color: white; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* Hero */
     .hero {
       background: linear-gradient(135deg, #0b2545 0%, #133c55 50%, #001f3f 100%);
       color: white;
@@ -101,7 +100,6 @@
     .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); background: #e0f2fe; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
     .course-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
 
-    /* Officer Dashboard */
     #dashboardView { display: none; padding: 40px 5%; }
     .dashboard-header { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 26px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
     .dash-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
@@ -113,18 +111,16 @@
     .dash-box { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 22px; margin-bottom: 25px; }
     .dash-box h3 { font-size: 1.15rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 15px; }
 
-    /* AI Assessment / Document Upload Box */
-    .ai-upload-box { border: 2px dashed #93c5fd; background: #eff6ff; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; }
+    .ai-upload-box { border: 2px dashed #93c5fd; background: #eff6ff; border-radius: 10px; padding: 22px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
+    .ai-upload-box:hover { background: #dbeafe; }
     .skill-chip { display: inline-block; background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin: 4px 4px 4px 0; }
     .skill-acquired { background: #dcfce7; color: #166534; }
 
-    /* Admin View */
     #adminView { display: none; padding: 40px 5%; }
     .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
     .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
 
-    /* Modals */
     .modal-overlay { 
       display: none; 
       position: fixed; 
@@ -203,7 +199,6 @@
       </div>
     </div>
 
-    <!-- Competency Framework Grid -->
     <section class="section-wrap" id="competencies" style="background: white;">
       <div class="section-header">
         <div class="section-title">Official Statistics Competency Matrix</div>
@@ -233,7 +228,6 @@
       </div>
     </section>
 
-    <!-- Public Preview Courses -->
     <section class="section-wrap" id="tpac">
       <div class="section-header">
         <div class="section-title">NSSTA & iGOT Accreditations</div>
@@ -243,14 +237,14 @@
     </section>
   </div>
 
-  <!-- OFFICER DASHBOARD (POST LOGIN) -->
+  <!-- OFFICER DASHBOARD -->
   <div id="dashboardView">
     <div class="dashboard-header">
       <div>
         <h2 id="dashOfficerName">Shri Rajesh Kumar, ISS</h2>
         <div style="margin-top: 6px;">
           <span style="background:#dbeafe; color:#1e40af; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700;" id="dashOfficerRole">Deputy Director (ISS)</span>
-          <span style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-left:6px;" id="dashOfficerDept">MoSPI - National Accounts Division</span>
+          <span style="background:#fef3c7; color:#b45309; padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; margin-left:6px;" id="dashOfficerDept">MoSPI - NAD</span>
         </div>
       </div>
       <button class="btn btn-outline" style="color:var(--gov-navy); border-color:#cbd5e1;" onclick="location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
@@ -276,39 +270,34 @@
     </div>
 
     <div class="dash-layout">
-      <!-- Left Column: Skill Gaps & Course Recommendations -->
       <div>
-        <!-- AI Skill Gap Analysis Card -->
         <div class="dash-box" style="border-left: 5px solid #ef4444;">
           <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444; margin-right:8px;"></i> Automated AI Skill-Gap Diagnosis</h3>
           <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">Based on your designation baseline and training history, these competencies require upskilling:</p>
           <div id="skillGapContainer"></div>
         </div>
 
-        <!-- Recommended Learning Modules -->
         <div class="dash-box">
           <h3><i class="fa-solid fa-graduation-cap" style="color:var(--primary-blue); margin-right:8px;"></i> Targeted TPAC & iGOT Learning Pathway</h3>
           <div class="course-grid" id="dashCourseContainer"></div>
         </div>
       </div>
 
-      <!-- Right Column: AI Document-to-Quiz Assessment Engine -->
       <div>
         <div class="dash-box" style="border-top: 4px solid var(--gov-orange);">
-          <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--gov-orange); margin-right:8px;"></i> AI Assessment Engine</h3>
-          <p style="font-size:0.85rem; color:#64748b; margin-bottom:14px;">Upload survey documentation, training PDFs, or paste notes to automatically generate objective MCQs and verify understanding.</p>
+          <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--gov-orange); margin-right:8px;"></i> Grok AI Assessment Engine</h3>
+          <p style="font-size:0.85rem; color:#64748b; margin-bottom:14px;">Upload survey documentation or training PDFs to parse in-memory and automatically generate objective MCQs using Grok LLM.</p>
 
-          <div class="ai-upload-box" onclick="document.getElementById('aiDocInput').click()">
+          <div class="ai-upload-box" id="uploadCard" onclick="document.getElementById('aiDocInput').click()">
             <i class="fa-solid fa-cloud-arrow-up" style="font-size:2rem; color:var(--primary-blue); margin-bottom:8px;"></i>
-            <div style="font-weight:700; font-size:0.88rem; color:var(--gov-navy);">Click to Upload Learning Material (PDF/TXT)</div>
-            <div style="font-size:0.75rem; color:#64748b;">Automated MCQ and explanation generation</div>
-            <input type="file" id="aiDocInput" style="display:none;" onchange="handleDocumentUpload(event)">
+            <div style="font-weight:700; font-size:0.88rem; color:var(--gov-navy);" id="uploadCardText">Click to Upload PDF / Notes</div>
+            <div style="font-size:0.75rem; color:#64748b;">In-memory parsing via PyPDF & Grok-Beta</div>
+            <input type="file" id="aiDocInput" style="display:none;" accept=".pdf,.txt" onchange="handleDocumentUpload(event)">
           </div>
 
           <textarea id="aiTextInput" class="form-control" rows="3" placeholder="Or paste official statistical methodology notes here..."></textarea>
-          <button class="btn btn-blue" style="width:100%; margin-top:10px;" onclick="generateQuizFromText()"><i class="fa-solid fa-bolt"></i> Generate Dynamic MCQs</button>
+          <button class="btn btn-blue" id="genTextBtn" style="width:100%; margin-top:10px;" onclick="generateQuizFromText()"><i class="fa-solid fa-bolt"></i> Generate via Grok AI</button>
 
-          <!-- Generated Quiz Output Area -->
           <div id="generatedQuizArea" style="margin-top:20px; display:none;">
             <hr style="border:0; border-top:1px solid #e2e8f0; margin-bottom:15px;">
             <div id="dynamicQuizContent"></div>
@@ -318,7 +307,7 @@
     </div>
   </div>
 
-  <!-- ADMIN CONSOLE VIEW -->
+  <!-- ADMIN CONSOLE -->
   <div id="adminView">
     <div class="dashboard-header" style="border-left: 5px solid #1d4ed8;">
       <div>
@@ -573,13 +562,16 @@
       }
     }
 
-        async function handleDocumentUpload(e) {
+    async function handleDocumentUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      const uploadBox = document.querySelector(".ai-upload-box");
-      const prevContent = uploadBox.innerHTML;
-      uploadBox.innerHTML = `<div><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary-blue);"></i><div style="font-weight:700; font-size:0.88rem; margin-top:8px;">Grok AI is parsing and generating MCQs from ${file.name}...</div></div>`;
+      const uploadCard = document.getElementById("uploadCard");
+      const prevHtml = uploadCard.innerHTML;
+      uploadCard.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; color:var(--primary-blue); margin-bottom:8px;"></i>
+        <div style="font-weight:700; font-size:0.88rem; color:var(--gov-navy);">Grok AI is extracting & generating MCQs from ${file.name}...</div>
+      `;
 
       const formData = new FormData();
       formData.append("file", file);
@@ -596,13 +588,17 @@
       } catch (err) {
         alert("Upload error: " + err.message);
       } finally {
-        uploadBox.innerHTML = prevContent;
+        uploadCard.innerHTML = prevHtml;
       }
     }
 
     async function generateQuizFromText() {
       const text = document.getElementById("aiTextInput").value.trim();
       if (!text) { alert("Please enter statistical text notes."); return; }
+
+      const btn = document.getElementById("genTextBtn");
+      btn.innerText = "Processing via Grok AI...";
+      btn.disabled = true;
 
       const formData = new FormData();
       formData.append("raw_text", text);
@@ -618,17 +614,10 @@
         }
       } catch (err) {
         alert("Grok API Error: " + err.message);
+      } finally {
+        btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Generate via Grok AI';
+        btn.disabled = false;
       }
-    }
-
-      renderGeneratedQuiz([
-        {
-          question: "Based on the provided statistical notes, which quality framework minimizes non-sampling errors?",
-          options: ["Total Survey Error (TSE) Methodology", "Uncalibrated quota imputation", "Deletion of outlier strata", "Exclusion of metadata tags"],
-          correct: 0,
-          explanation: "TSE provides a structured framework for minimizing errors across data collection stages."
-        }
-      ]);
     }
 
     function renderGeneratedQuiz(questions) {
@@ -639,17 +628,36 @@
 
       questions.forEach((q, idx) => {
         content.innerHTML += `
-          <div style="margin-bottom:16px;">
-            <div style="font-weight:700; font-size:0.9rem; color:var(--gov-navy); margin-bottom:8px;">Q${idx+1}: ${q.question}</div>
+          <div style="margin-bottom:18px; padding:14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="font-weight:700; font-size:0.9rem; color:var(--gov-navy); margin-bottom:10px;">Q${idx+1}: ${q.question}</div>
             ${q.options.map((opt, i) => `
-              <div style="padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem; margin-bottom:6px; cursor:pointer;" onclick="this.style.background='#dbeafe'; this.style.borderColor='#1d4ed8';">
+              <div style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.85rem; margin-bottom:6px; cursor:pointer; background:white;" onclick="checkAnswer(this, ${i}, ${q.correct_index || 0})">
                 ${String.fromCharCode(65 + i)}) ${opt}
               </div>
             `).join('')}
-            <div style="font-size:0.8rem; color:#15803d; font-weight:600; margin-top:4px;"><i class="fa-solid fa-circle-info"></i> Rationale: ${q.explanation}</div>
+            <div class="rationale-box" style="display:none; font-size:0.8rem; color:#15803d; font-weight:600; margin-top:8px; padding:8px; background:#dcfce7; border-radius:6px;">
+              <i class="fa-solid fa-circle-check"></i> Rationale: ${q.explanation}
+            </div>
           </div>
         `;
       });
+    }
+
+    function checkAnswer(elem, chosenIndex, correctIndex) {
+      const parent = elem.parentElement;
+      const rationale = parent.querySelector(".rationale-box");
+      const allOpts = parent.querySelectorAll("div[style*='border']");
+      
+      allOpts.forEach(o => { o.style.pointerEvents = "none"; });
+      
+      if (chosenIndex === correctIndex) {
+        elem.style.background = "#dcfce7";
+        elem.style.borderColor = "#16a34a";
+      } else {
+        elem.style.background = "#fee2e2";
+        elem.style.borderColor = "#dc2626";
+      }
+      if (rationale) { rationale.style.display = "block"; }
     }
 
     function handleCadreRegister(e) {
@@ -744,9 +752,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Init
     renderPublicCourses();
   </script>
 </body>
 </html>
-
