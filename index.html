@@ -396,6 +396,25 @@
     });
   });
 
+    function updateOfficerUI(user) {
+    activeOfficer = user;
+    localStorage.setItem("mospi_user", JSON.stringify(user));
+
+    // Update greeting / profile badge if elements exist
+    const badgeName = document.getElementById("officerBadgeName") || document.getElementById("profileName");
+    if (badgeName) badgeName.innerText = user.name;
+
+    // Smooth scroll directly to the courses section
+    const targetSection = document.getElementById("coursesSection") || 
+                          document.getElementById("courses") || 
+                          document.getElementById("catalog") || 
+                          document.querySelector(".courses-container") ||
+                          document.querySelector("main");
+    if (targetSection) {
+      targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
   async function handleCadreRegister(e) {
     e.preventDefault();
     const name = document.getElementById("regName")?.value.trim() || "Registered Officer";
@@ -424,8 +443,9 @@
         throw new Error(data.detail || "Registration failed.");
       }
 
-      alert(`Officer registration successful for ${data.user?.name || name}!`);
+      alert(`Welcome, ${data.user?.name || name}! Registration complete.`);
       closeAllModals();
+      updateOfficerUI(data.user);
     } catch (err) {
       console.error("Registration error:", err);
       alert("Registration error: " + err.message);
@@ -454,8 +474,9 @@
         throw new Error(data.detail || "Login failed.");
       }
 
-      alert(`Welcome back, ${data.user.name}! Logged in successfully.`);
+      alert(`Welcome back, ${data.user.name}!`);
       closeAllModals();
+      updateOfficerUI(data.user);
     } catch (err) {
       console.error("Login error:", err);
       alert("Login error: " + err.message);
@@ -477,6 +498,7 @@
 </script>
 </body>
 </html>
+
 
 
 
