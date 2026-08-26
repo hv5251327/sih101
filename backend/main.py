@@ -32,7 +32,7 @@ Base = declarative_base()
 
 class UserRecord(Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
@@ -43,20 +43,10 @@ class UserRecord(Base):
     competency_score = Column(String(10), default="75%")
     posh_status = Column(String(50), default="Pending")
 
-class TopicQuizRecord(Base):
-    __tablename__ = "topic_quizzes"
-    id = Column(Integer, primary_key=True, index=True)
-    course_id = Column(Integer, index=True)
-    question = Column(Text, nullable=False)
-    options_json = Column(Text, nullable=False)
-    correct_index = Column(Integer, default=0)
-    explanation = Column(Text, nullable=False)
-
-db_init_error = None
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
-    db_init_error = str(e)
+    print(f"Table sync notice: {e}")
 
 def get_db():
     db = SessionLocal()
@@ -73,10 +63,6 @@ class RegisterRequest(BaseModel):
     designation: str
     cadre: Optional[str] = "Indian Statistical Service (ISS)"
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
 @app.get("/")
 def read_root(db: Session = Depends(get_db)):
     try:
@@ -85,13 +71,11 @@ def read_root(db: Session = Depends(get_db)):
     except Exception as e:
         count = -1
         db_status = f"error: {str(e)}"
-    
     return {
         "status": "online",
         "database_engine": "PostgreSQL" if "postgresql" in DATABASE_URL else "SQLite",
         "database_status": db_status,
-        "users_count": count,
-        "init_error": db_init_error
+        "users_count": count
     }
 
 @app.post("/api/register")
@@ -135,45 +119,3 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database sync failed: {str(e)}")
-
-@app.post("/api/login")
-def login(req: LoginRequest, db: Session = Depends(get_db)):
-    clean_email = req.email.strip().lower()
-    try:
-        user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
-        if not user or user.password != req.password.strip():
-            raise HTTPException(status_code=401, detail="Invalid email or password.")
-        return {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "department": user.department,
-            "designation": user.designation,
-            "cadre": user.cadre,
-            "role": user.role,
-            "competency_score": user.competency_score,
-            "posh_status": user.posh_status
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database login error: {str(e)}")
-
-@app.get("/api/admin/users")
-def get_users(db: Session = Depends(get_db)):
-    try:
-        return [
-            {
-                "id": u.id,
-                "name": u.name,
-                "email": u.email,
-                "department": u.department,
-                "designation": u.designation,
-                "cadre": u.cadre,
-                "role": u.role,
-                "score": u.competency_score,
-                "posh": u.posh_status
-            } for u in db.query(UserRecord).all()
-        ]
-    except Exception as e:
-        return [{"error": f"Failed to retrieve cadre: {str(e)}"}]
