@@ -550,21 +550,50 @@
     }
 
     async function handleCadreRegister(e) {
-      e.preventDefault();
-      const payload = {
-        name: document.getElementById("regName").value.trim(),
-        email: document.getElementById("regEmail").value.trim(),
-        password: document.getElementById("regPassword").value.trim(),
-        department: document.getElementById("regDept").value.trim(),
-        designation: document.getElementById("regDesignation").value.trim(),
-        cadre: document.getElementById("regCadre").value.trim()
-      };
-      try {
-        const res = await fetch(`${API_BASE}/api/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+  e.preventDefault();
+  const name = document.getElementById("regName")?.value.trim() || "Registered Officer";
+  const email = document.getElementById("regEmail")?.value.trim() || "";
+  const password = document.getElementById("regPassword")?.value.trim() || "1234";
+  const cadre = document.getElementById("regCadre")?.value.trim() || "Indian Statistical Service (ISS)";
+  const department = document.getElementById("regDept")?.value.trim() || "National Accounts Division (NAD)";
+  const designation = document.getElementById("regDesignation")?.value.trim() || "Deputy Director / Assistant Director (ISS)";
+
+  if (!email) {
+    alert("Please enter a valid official email address.");
+    return;
+  }
+
+  const payload = {
+    name: name,
+    email: email,
+    password: password,
+    department: department,
+    designation: designation,
+    cadre: cadre
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || "Registration failed.");
+    }
+
+    alert(`Officer registration successful for ${data.user?.name || name}!`);
+    closeAllModals();
+    if (typeof loadAdminUsers === "function") {
+      loadAdminUsers();
+    }
+  } catch (err) {
+    console.error("Registration error:", err);
+    alert("Registration error: " + err.message);
+  }
+});
         if (res.ok) {
           const data = await res.json();
           activeOfficer = data.user;
@@ -658,4 +687,5 @@
   </script>
 </body>
 </html>
+
 
