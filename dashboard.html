@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MoSPI - Officer Learning & Certification Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -22,6 +22,44 @@
     .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.7); display:none; justify-content:center; align-items:center; z-index:1000; }
     .modal-box { background:white; padding:30px; border-radius:10px; width:100%; max-width:550px; max-height:90vh; overflow-y:auto; position:relative; }
   </style>
+<style id="mobile-responsive-rules">
+  @media screen and (max-width: 768px) {
+    body {
+      overflow-x: hidden !important;
+    }
+    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .grid, .row, .cards-grid, .stats-row, .d-flex {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      gap: 15px !important;
+    }
+    table {
+      display: block !important;
+      overflow-x: auto !important;
+      white-space: nowrap !important;
+      width: 100% !important;
+    }
+    .sidebar, aside {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    input, select, textarea, button {
+      font-size: 16px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .modal-content, .dialog {
+      width: 92% !important;
+      margin: 10px auto !important;
+    }
+  }
+</style>
 </head>
 <body>
   <header>
@@ -251,4 +289,5 @@
   </script>
 </body>
 </html>
+
 

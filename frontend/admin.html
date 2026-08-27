@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Admin Portal | iGOT & MoSPI Capacity Building</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -51,6 +51,44 @@
     .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
     .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
   </style>
+<style id="mobile-responsive-rules">
+  @media screen and (max-width: 768px) {
+    body {
+      overflow-x: hidden !important;
+    }
+    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .grid, .row, .cards-grid, .stats-row, .d-flex {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      gap: 15px !important;
+    }
+    table {
+      display: block !important;
+      overflow-x: auto !important;
+      white-space: nowrap !important;
+      width: 100% !important;
+    }
+    .sidebar, aside {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    input, select, textarea, button {
+      font-size: 16px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .modal-content, .dialog {
+      width: 92% !important;
+      margin: 10px auto !important;
+    }
+  }
+</style>
 </head>
 <body>
 
@@ -190,3 +228,4 @@
   </script>
 </body>
 </html>
+

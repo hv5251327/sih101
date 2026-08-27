@@ -1,10 +1,48 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Admin & Competency Analytics - MoSPI</title>
   <script src="https://cdn.tailwindcss.com"></script>
+<style id="mobile-responsive-rules">
+  @media screen and (max-width: 768px) {
+    body {
+      overflow-x: hidden !important;
+    }
+    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .grid, .row, .cards-grid, .stats-row, .d-flex {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      gap: 15px !important;
+    }
+    table {
+      display: block !important;
+      overflow-x: auto !important;
+      white-space: nowrap !important;
+      width: 100% !important;
+    }
+    .sidebar, aside {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    input, select, textarea, button {
+      font-size: 16px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .modal-content, .dialog {
+      width: 92% !important;
+      margin: 10px auto !important;
+    }
+  }
+</style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800">
   <header class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-lg sticky top-0 z-40">
