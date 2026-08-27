@@ -19,8 +19,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_headers=["*"]
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./igot_mospi.db")
@@ -109,19 +108,19 @@ def extract_all_pdf_text(content: bytes) -> str:
 def call_ai_api(prompt: str, system_instruction: str = "") -> str:
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
     if gemini_key:
-        models = ["gemini-1.5-flash", "gemini-2.5-flash"]
-        full_text = f"{system_instruction}\n\nUser Query: {prompt}" if system_instruction else prompt
-        payload = {"contents": [{"parts": [{"text": full_text}]}], "generationConfig": {"temperature": 0.2}}
+        models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"]
+        full_text = f"{system_instruction}\n\nUser Question: {prompt}" if system_instruction else prompt
+        payload = {"contents": [{"parts": [{"text": full_text}]}], "generationConfig": {"temperature": 0.3}}
         headers = {"Content-Type": "application/json"}
         for m in models:
             try:
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
-                res = requests.post(url, headers=headers, json=payload, timeout=25)
+                res = requests.post(url, headers=headers, json=payload, timeout=20)
                 if res.status_code == 200:
                     data = res.json()
                     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Gemini error with model {m}: {e}")
 
     grok_key = os.getenv("XAI_API_KEY", "").strip()
     if grok_key:
@@ -130,16 +129,16 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
             payload = {
                 "model": "grok-2-latest",
                 "messages": [
-                    {"role": "system", "content": system_instruction or "You are a MoSPI AI statistical assistant."},
+                    {"role": "system", "content": system_instruction or "You are an intelligent assistant."},
                     {"role": "user", "content": prompt}
                 ],
-                "temperature": 0.2
+                "temperature": 0.3
             }
-            res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=25)
+            res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
             if res.status_code == 200:
                 return res.json()["choices"][0]["message"]["content"].strip()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Grok error: {e}")
 
     return ""
 
@@ -356,25 +355,26 @@ def virtual_assistant_chat(req: ChatRequest):
     if not msg:
         raise HTTPException(status_code=400, detail="Empty query.")
 
-    system_prompt = """You are the official iGOT MoSPI AI Capacity Building Virtual Assistant.
-Provide authoritative, concise, and helpful assistance to Indian Statistical Service (ISS) officers and MoSPI cadre on:
-1. SNA 2008 Gross Value Added (GVA) compilation, National Accounts methodology, Intermediate Consumption calculations.
-2. PLFS PPS sampling, CPI Laspeyres index aggregation, ASI, and IIP diagnostic standards.
-3. NSSTA TPAC recommended training programmes, iGOT Karmayogi courses, and competency development."""
+    system_prompt = """You are the official iGOT MoSPI AI Virtual Assistant.
+Answer general queries accurately and concisely. For official statistical questions, provide expert guidance on SNA 2008 Gross Value Added (GVA), PLFS PPS sampling, CPI indexation, and NSSTA training tracks."""
 
     ai_reply = call_ai_api(msg, system_prompt)
     if ai_reply:
         return {"status": "success", "reply": ai_reply}
 
     lower = msg.lower()
-    if "sna" in lower or "gdp" in lower or "gva" in lower:
-        ans = "Under SNA 2008 compilation, Gross Value Added (GVA) at basic prices is calculated as Output minus Intermediate Consumption. The National Accounts Division (NAD) recommends completing Module #1 and the NSSTA SNA-2008 workshop."
+    if "capital" in lower and "delhi" in lower:
+        ans = "New Delhi is the capital of India and the administrative center of the National Capital Territory of Delhi."
+    elif "hi" == lower or "hello" in lower or "hey" in lower:
+        ans = "Namaste Officer! How can I assist you with official statistics, iGOT training pathways, or general knowledge today?"
+    elif "sna" in lower or "gdp" in lower or "gva" in lower:
+        ans = "Under SNA 2008 compilation, Gross Value Added (GVA) at basic prices is calculated as Output minus Intermediate Consumption."
     elif "plfs" in lower or "sampling" in lower:
-        ans = "PLFS uses Circular Systematic Sampling with Probability Proportional to Size (PPS) for selecting Primary Sampling Units (PSUs). Enroll in Course #3 for full digital CAPI data collection protocols."
+        ans = "PLFS applies Circular Systematic Sampling with Probability Proportional to Size (PPS) for Primary Sampling Units."
     elif "cpi" in lower or "inflation" in lower:
-        ans = "Consumer Price Index (CPI) is compiled by the Price Statistics Division using modified Laspeyres formula with base year 2012. You can take Module #2 to test your index aggregation skills."
+        ans = "CPI is compiled by the Price Statistics Division using modified Laspeyres formula with base year 2012."
     else:
-        ans = "Hello Officer. I am your iGOT MoSPI Skill Intelligence Assistant. You can ask me about SNA 2008 frameworks, PLFS methodologies, CPI compilation, or recommended NSSTA training tracks."
+        ans = f"I am your iGOT MoSPI Assistant. I can assist with both general inquiries and official statistical modules (SNA 2008, PLFS, CPI, NSSTA)."
 
     return {"status": "success", "reply": ans}
 
