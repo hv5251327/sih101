@@ -143,8 +143,8 @@
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-admin" onclick="openModal('adminModal')"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
-      <button class="btn btn-navy" onclick="openModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Officer Login</button>
-      <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Register Cadre</button>
+      <button class="btn btn-navy" onclick="openModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i>Employee Login</button>
+      <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i>New Registration</button>
     </div>
   </header>
 
@@ -153,7 +153,7 @@
     <p style="max-width:750px; margin:0 auto 25px; color:#e2e8f0;">Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
     <div style="display:flex; justify-content:center; gap:12px;">
       <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-id-card"></i> Register As Officer</button>
-      <button class="btn btn-navy" style="border:1px solid #94a3b8;" onclick="openModal('loginModal')"><i class="fa-solid fa-user-check"></i> Officer Login</button>
+      <button class="btn btn-navy" style="border:1px solid #94a3b8;" onclick="openModal('loginModal')"><i class="fa-solid fa-user-check"></i>Employee Login</button>
     </div>
   </div>
 
@@ -182,7 +182,7 @@
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
       <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i> Officer Login</h3>
+      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i>Employee Login</h3>
       <form id="officerLoginForm">
         <div class="form-group"><label>Official Email *</label><input type="email" id="loginEmail" required></div>
         <div class="form-group"><label>Password *</label><input type="password" id="loginPass" required></div>
@@ -345,6 +345,7 @@
   </script>
 </body>
 </html>
+
 
 
 
