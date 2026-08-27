@@ -222,37 +222,53 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
 
     return {"status": "success", "completed_modules": completed, "competency_score": user.competency_score}
 
-# High-Precision Background Grok Certificate Evaluator
+# Strict Background Grok Certificate Evaluator
 def verify_certificate_with_grok(extracted_text: str, course_name: str, officer_name: str, officer_email: str) -> dict:
     api_key = os.getenv("XAI_API_KEY", "").strip()
-    if not api_key:
-        return {"valid": True, "reason": "Verified via standard completion parser."}
-
-    if not extracted_text or len(extracted_text.strip()) < 30:
+    
+    if not extracted_text or len(extracted_text.strip()) < 40:
         return {
             "valid": False,
-            "reason": "The uploaded file contains insufficient text or is an empty/unreadable scan. Please upload an authentic training certificate PDF."
+            "reason": "Uploaded file is empty or unreadable. Please upload a valid, official course completion certificate PDF."
+        }
+
+    # Immediate rejection for common non-certificate documents
+    lower_text = extracted_text.lower()
+    invalid_keywords = ["syllabus", "curriculum", "question paper", "admit card", "hall ticket", "resume", "curriculum vitae", "table of contents", "scheme of examination"]
+    for kw in invalid_keywords:
+        if kw in lower_text and "certificate of completion" not in lower_text and "successfully completed" not in lower_text:
+            return {
+                "valid": False,
+                "reason": f"Uploaded document appears to be a '{kw.title()}'. Please upload an actual official Completion Certificate for {course_name}."
+            }
+
+    if not api_key:
+        # Strict fallback when no key is set
+        if ("certificate" in lower_text or "successfully completed" in lower_text or "completion" in lower_text) and any(w in lower_text for w in ["gdp", "national accounts", "cpi", "plfs", "statistics", "mospi"]):
+            return {"valid": True, "reason": "Certificate verified."}
+        return {
+            "valid": False,
+            "reason": f"Document is not an official completion certificate for {course_name}. Please upload the proper certificate."
         }
 
     prompt = f"""
-You are the Official Credential Verification Engine for the Ministry of Statistics & Programme Implementation (MoSPI) iGOT Platform.
-Evaluate this certificate text with high scrutiny.
+You are a strict credential validation officer for the Government of India (MoSPI).
+Your job is to determine whether an uploaded document is a genuine COURSE COMPLETION CERTIFICATE specifically for the course: "{course_name}".
 
-[VERIFICATION CRITERIA]
-1. Target Course: "{course_name}"
-2. Officer Claiming Completion: Name="{officer_name}", Email="{officer_email}"
-3. Extracted Certificate Content:
+Officer: Name="{officer_name}", Email="{officer_email}"
+
+Extracted Document Text:
 {extracted_text[:4000]}
 
-[RULES]
-- Return valid=true ONLY if the document demonstrates authentic completion, qualification, or assessment of the module "{course_name}" or directly equivalent domain topics (e.g., National Accounts, Price Statistics, PLFS, Survey Diagnostics).
-- Return valid=false if the document is completely unrelated, a blank form, an uncompleted application, or belongs to a clearly different individual.
+VALIDATION CRITERIA:
+1. The document MUST be an actual certificate or statement of completion (e.g., "Certificate of Completion", "has successfully completed", "awarded to", "passed the course").
+2. Syllabi, exam question papers, study materials, job descriptions, books, or generic outlines MUST BE REJECTED (valid=false).
+3. The certificate topic must reasonably match "{course_name}".
 
-Respond ONLY with a JSON object in this exact schema without markdown backticks:
+Respond strictly with a JSON object:
 {{
-  "valid": true,
-  "confidence": "high",
-  "reason": "Specific rationale confirming course completion and identity."
+  "valid": false,
+  "reason": "Please upload a proper official Completion Certificate for this course instead of a syllabus or unrelated document."
 }}
 """
     try:
@@ -261,23 +277,27 @@ Respond ONLY with a JSON object in this exact schema without markdown backticks:
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "grok-beta",
+            "model": "grok-2-latest",
             "messages": [
-                {"role": "system", "content": "You are a strict automated verification system. Respond ONLY in valid JSON."},
+                {"role": "system", "content": "You are a strict certificate verification engine. Never approve non-certificates. Respond ONLY in valid JSON."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.05
+            "temperature": 0.0
         }
         res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=25)
         if res.status_code == 200:
             content = res.json()["choices"][0]["message"]["content"].strip()
             content = re.sub(r"^```json\s*", "", content)
             content = re.sub(r"\s*```$", "", content)
-            return json.loads(content)
+            parsed = json.loads(content)
+            return parsed
     except Exception as e:
         print(f"Grok verification fallback: {e}")
-    
-    return {"valid": True, "reason": "Certificate verified."}
+
+    return {
+        "valid": False,
+        "reason": f"Could not verify this document as an official completion certificate for {course_name}. Please upload the correct file."
+    }
 
 @app.post("/api/officer/verify-certificate")
 async def verify_certificate(
@@ -315,7 +335,7 @@ async def verify_certificate(
         else:
             extracted_text = content[:2000].decode("utf-8", errors="ignore")
 
-        # Rigorous AI Evaluation
+        # Strict Verification Check
         verification = verify_certificate_with_grok(
             extracted_text=extracted_text,
             course_name=course_name,
@@ -324,12 +344,10 @@ async def verify_certificate(
         )
 
         if not verification.get("valid", False):
-            raise HTTPException(
-                status_code=400,
-                detail=verification.get("reason", "Certificate rejected: Document does not match this module's curriculum.")
-            )
+            reason_msg = verification.get("reason", f"Document rejected. Please upload an official completion certificate for {course_name}.")
+            raise HTTPException(status_code=400, detail=reason_msg)
 
-        # Module Completion & Competency Calculation
+        # Unlock module if genuine
         try:
             completed = json.loads(user.completed_modules) if user.completed_modules else []
         except Exception:
@@ -344,7 +362,7 @@ async def verify_certificate(
 
         return {
             "status": "success",
-            "message": f"Verified! Certificate for '{course_name}' validated.",
+            "message": f"Certificate verified for '{course_name}'. Module unlocked.",
             "completed_modules": completed,
             "competency_score": user.competency_score,
             "verification_note": verification.get("reason", "Verified successfully.")
@@ -389,26 +407,25 @@ def get_topic_quiz(course_id: int, db: Session = Depends(get_db)):
     ]
     return {"courseId": course_id, "questions": default_questions}
 
-# Background Grok Quiz Authoring
 def generate_questions_with_grok(extracted_text: str, filename: str) -> list:
     api_key = os.getenv("XAI_API_KEY", "").strip()
     if not api_key:
         return []
 
     prompt = f"""
-You are an expert curriculum evaluator for the Ministry of Statistics & Programme Implementation (MoSPI).
-Read the following material extracted from "{filename}" and generate 3 multiple-choice assessment questions.
+You are an expert curriculum evaluator for MoSPI.
+Read the material from "{filename}" and generate 3 multiple-choice questions.
 
 Material:
 {extracted_text[:4000]}
 
-Respond ONLY with a valid JSON array of objects in this exact structure without markdown backticks:
+Respond ONLY with a JSON array:
 [
   {{
-    "question": "Clear and relevant question text",
+    "question": "Question text",
     "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct_index": 0,
-    "explanation": "Brief reasoning based on the material."
+    "explanation": "Explanation."
   }}
 ]
 """
@@ -418,7 +435,7 @@ Respond ONLY with a valid JSON array of objects in this exact structure without 
             "Content-Type": "application/json"
         }
         payload = {
-            "model": "grok-beta",
+            "model": "grok-2-latest",
             "messages": [
                 {"role": "system", "content": "You are a professional assessment author. Output raw JSON array only."},
                 {"role": "user", "content": prompt}
