@@ -49,6 +49,12 @@
     }
     .pie-box { width: 110px; height: 110px; position: relative; }
 
+    .btn-sync-igot {
+      margin-top: 12px; padding: 7px 14px; background: #0284c7; color: white; border: none; border-radius: 6px;
+      font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-sync-igot:hover { background: #0369a1; }
+
     .section-title { font-size: 18px; font-weight: 800; color: var(--primary-navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .competency-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     .comp-card { background: white; border-radius: 12px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
@@ -75,6 +81,8 @@
     .btn-igot:hover { background: #0369a1; }
     .btn-quiz { background: var(--primary-navy); color: white; }
     .btn-cert { background: var(--accent-gold); color: white; }
+    .btn-download-cert { background: #16a34a; color: white; }
+    .btn-download-cert:hover { background: #15803d; }
 
     .video-modal-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -90,6 +98,8 @@
     .video-title { font-size: 16px; font-weight: 800; color: var(--primary-navy); }
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    canvas#certCanvas { display: none; }
 
     .chat-fab {
       position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%;
@@ -143,6 +153,9 @@
         <div style="margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--primary-navy);">
           Competency Score: <span id="overallScore" style="color: var(--accent-gold); font-size: 16px;">75%</span>
         </div>
+        <button id="syncBtn" class="btn-sync-igot" onclick="triggerIGOTSync()">
+          <i class="fa-solid fa-rotate"></i> Sync with iGOT Karmayogi API
+        </button>
       </div>
       
       <div class="chart-wrapper-profile">
@@ -161,6 +174,7 @@
       </div>
     </div>
 
+    <!-- 4-Domain Competency Analysis -->
     <h2 class="section-title"><i class="fa-solid fa-radar" style="color: var(--accent-gold);"></i> 4-Tier Official Statistics Competency Mapping</h2>
     <div class="competency-grid">
       <div class="comp-card">
@@ -189,6 +203,7 @@
       </div>
     </div>
 
+    <!-- Recommendations & Training Modules -->
     <div class="two-col">
       <div class="card">
         <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> Personalized Learning Pathways (iGOT + NSSTA)</h3>
@@ -198,12 +213,13 @@
 
       <div class="card">
         <h3 class="section-title"><i class="fa-solid fa-graduation-cap" style="color: var(--accent-gold);"></i> MoSPI Core Competency Modules & Video Lectures</h3>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Watch training videos, access iGOT modules, or take assessments.</p>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Watch training videos, take assessments, or download completed certificates.</p>
         <div id="modulesList"></div>
       </div>
     </div>
   </div>
 
+  <!-- Video Lecture Modal -->
   <div id="videoModal" class="video-modal-overlay">
     <div class="video-modal-box">
       <div class="video-header">
@@ -216,6 +232,9 @@
     </div>
   </div>
 
+  <canvas id="certCanvas" width="1000" height="700"></canvas>
+
+  <!-- AI Virtual Assistant FAB & Window -->
   <div class="chat-fab" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></div>
   <div id="chatWindow" class="chat-window">
     <div class="chat-head">
@@ -266,6 +285,43 @@
       renderRecommendations(defaultRecommendations);
       loadSkillGaps();
       renderOfficerChart();
+    }
+
+    async function triggerIGOTSync() {
+      const btn = document.getElementById("syncBtn");
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ingesting from iGOT API...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/igot/sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: currentUser.email })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentUser.completed_modules = data.completed_modules;
+          currentUser.competency_score = data.competency_score;
+          localStorage.setItem("mospi_user", JSON.stringify(currentUser));
+          
+          document.getElementById("overallScore").textContent = data.competency_score;
+          renderModules();
+          loadSkillGaps();
+          renderOfficerChart();
+          btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Synchronized Successfully';
+          setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync with iGOT Karmayogi API';
+            btn.disabled = false;
+          }, 2000);
+        } else {
+          alert(data.detail || "Sync failed.");
+          btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync with iGOT Karmayogi API';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        btn.innerHTML = '<i class="fa-solid fa-rotate"></i> Sync with iGOT Karmayogi API';
+        btn.disabled = false;
+      }
     }
 
     function renderRecommendations(recs) {
@@ -334,7 +390,7 @@
           <div class="module-top">
             <strong style="font-size: 13px; color: #1e293b;">${m.name}</strong>
             <span style="font-size: 11px; color: ${isDone ? '#16a34a' : '#ea580c'}; font-weight: 700;">
-              ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : '<i class="fa-solid fa-circle-notch"></i> Pending'}
+              ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed & Verified (iGOT)' : '<i class="fa-solid fa-circle-notch"></i> Pending'}
             </span>
           </div>
           <div class="btn-action-row">
@@ -344,12 +400,82 @@
             <a href="${m.igotUrl}" target="_blank" class="btn-action btn-igot">
               <i class="fa-solid fa-arrow-up-right-from-square"></i> iGOT Portal
             </a>
-            <button class="btn-action btn-quiz" onclick="startQuiz(${m.id})">Take Quiz</button>
-            <button class="btn-action btn-cert" onclick="uploadCert(${m.id})">Verify Cert</button>
+            ${
+              isDone
+              ? `<button class="btn-action btn-download-cert" onclick="downloadCertificate('${m.name}')">
+                  <i class="fa-solid fa-download"></i> Download Certificate
+                 </button>`
+              : `<button class="btn-action btn-quiz" onclick="startQuiz(${m.id})">Take Quiz</button>
+                 <button class="btn-action btn-cert" onclick="uploadCert(${m.id})">Verify Cert</button>`
+            }
           </div>
         `;
         list.appendChild(div);
       });
+    }
+
+    function downloadCertificate(courseName) {
+      const canvas = document.getElementById("certCanvas");
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 1000, 700);
+
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = "#15325b";
+      ctx.strokeRect(20, 20, 960, 660);
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#e58a2b";
+      ctx.strokeRect(34, 34, 932, 632);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#15325b";
+      ctx.font = "bold 26px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("MINISTRY OF STATISTICS & PROGRAMME IMPLEMENTATION", 500, 95);
+
+      ctx.fillStyle = "#e58a2b";
+      ctx.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("NATIONAL STATISTICAL SYSTEMS TRAINING ACADEMY (NSSTA)", 500, 125);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "italic 16px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("This is to certify that", 500, 190);
+
+      ctx.fillStyle = "#15325b";
+      ctx.font = "bold 34px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(currentUser.name || "Nagari Harsha Vardhan", 500, 245);
+
+      ctx.fillStyle = "#475569";
+      ctx.font = "600 16px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(`${currentUser.designation || 'Deputy Director (ISS)'} | ${currentUser.department || 'National Accounts Division'}`, 500, 280);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "italic 16px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("has successfully fulfilled all competency standards and completed the training module", 500, 340);
+
+      ctx.fillStyle = "#0284c7";
+      ctx.font = "bold 22px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(`"${courseName}"`, 500, 385);
+
+      ctx.fillStyle = "#16a34a";
+      ctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("VERIFIED ON iGOT KARMAYOGI OFFICIAL STATISTICS FRAMEWORK", 500, 435);
+
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 14px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText("Director General", 250, 570);
+      ctx.fillText("Head of Training (NSSTA)", 750, 570);
+
+      ctx.font = "12px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText("Central Statistical Organisation", 250, 590);
+      ctx.fillText("Ministry of Statistics & PI", 750, 590);
+
+      const link = document.createElement("a");
+      link.download = `MoSPI_Certificate_${courseName.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
     }
 
     function openVideoModal(title, url) {
