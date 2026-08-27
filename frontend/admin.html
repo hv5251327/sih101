@@ -74,37 +74,14 @@
     .tna-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; }
     .tna-item { background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
 
-    /* Login Modal Overlay */
-    #adminLoginOverlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(15, 23, 42, 0.95); display: none; align-items: center; justify-content: center; z-index: 999999;
-    }
-    .login-box {
-      background: white; border-radius: 16px; padding: 36px; width: 90%; max-width: 400px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center;
+    /* Login Box Container when not authenticated */
+    #adminAuthSection {
+      max-width: 440px; margin: 60px auto; background: white; border-radius: 16px; padding: 36px;
+      border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center;
     }
   </style>
 </head>
 <body>
-
-  <!-- Admin Login Overlay -->
-  <div id="adminLoginOverlay">
-    <div class="login-box">
-      <div style="display:flex; justify-content:center; margin-bottom:12px;">
-        <i class="fa-solid fa-shield-halved" style="font-size: 38px; color: var(--accent);"></i>
-      </div>
-      <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">NSSTA Admin Access</h2>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">MoSPI Capacity Building Intelligence Portal</p>
-      
-      <form onsubmit="handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 14px;">
-        <input type="email" id="adminEmailInput" placeholder="Official Admin Email" value="123@gov.ac.in" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;">
-        <input type="password" id="adminPassInput" placeholder="Password" value="1234" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;">
-        <button type="submit" id="btnAdminLogin" style="width: 100%; padding: 10px 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;">
-          Sign In to Admin Portal
-        </button>
-      </form>
-    </div>
-  </div>
 
   <div class="top-strip">
     <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Training Division</div>
@@ -116,13 +93,37 @@
       <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
       <span>MoSPI NSSTA Capacity Building Admin Center</span>
     </div>
-    <div style="display: flex; align-items: center; gap: 12px;">
+    <div id="adminHeaderUser" style="display: flex; align-items: center; gap: 12px;">
       <span id="adminNameDisplay" style="font-size: 12px; font-weight: 700; color: #334155;">123@gov.ac.in (Admin)</span>
       <button class="btn-logout" onclick="logout()">Log Out</button>
     </div>
   </div>
 
-  <div class="container">
+  <!-- Direct Login Form Section (Shown if unauthenticated) -->
+  <div id="adminAuthSection" style="display: none;">
+    <div style="display:flex; justify-content:center; margin-bottom:12px;">
+      <i class="fa-solid fa-shield-halved" style="font-size: 42px; color: var(--accent);"></i>
+    </div>
+    <h2 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 6px;">Administrator Sign In</h2>
+    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 24px;">National Statistical Systems Training Academy</p>
+    
+    <form onsubmit="handleAdminLogin(event)" style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">Official Admin Email</label>
+        <input type="email" id="adminEmailInput" value="123@gov.ac.in" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;">
+      </div>
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 4px; display: block;">Master Security Password</label>
+        <input type="password" id="adminPassInput" value="1234" required style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px;">
+      </div>
+      <button type="submit" id="btnAdminLogin" style="width: 100%; padding: 11px 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px;">
+        Access Administration Console
+      </button>
+    </form>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div class="container" id="adminDashboardContent">
     <!-- Visual Analytics: Charts Section -->
     <div class="grid-2">
       <div class="card">
@@ -282,9 +283,13 @@
     function checkAdminAuth() {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
       if (!user || user.role !== "admin") {
-        document.getElementById("adminLoginOverlay").style.display = "flex";
+        document.getElementById("adminAuthSection").style.display = "block";
+        document.getElementById("adminDashboardContent").style.display = "none";
+        document.getElementById("adminHeaderUser").style.display = "none";
       } else {
-        document.getElementById("adminLoginOverlay").style.display = "none";
+        document.getElementById("adminAuthSection").style.display = "none";
+        document.getElementById("adminDashboardContent").style.display = "block";
+        document.getElementById("adminHeaderUser").style.display = "flex";
         document.getElementById("adminNameDisplay").textContent = `${user.email} (${user.name || "Admin"})`;
         loadHeatmap();
         loadUsers();
@@ -315,12 +320,7 @@
             return;
           }
           localStorage.setItem("mospi_user", JSON.stringify(data.user));
-          document.getElementById("adminLoginOverlay").style.display = "none";
-          document.getElementById("adminNameDisplay").textContent = `${data.user.email} (${data.user.name || "Admin"})`;
-          loadHeatmap();
-          loadUsers();
-          loadAuditLogs();
-          initCharts();
+          checkAdminAuth();
         } else {
           alert(`Login failed: ${data.detail || "Invalid credentials."}`);
         }
@@ -328,7 +328,7 @@
         alert("Failed to connect to authentication server.");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = "Sign In to Admin Portal";
+        btn.innerHTML = "Access Administration Console";
       }
     }
 

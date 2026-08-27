@@ -396,7 +396,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     clean_pass = req.password.strip()
 
     if clean_email == "123@gov.ac.in" and clean_pass == "1234":
-        log_audit_event(db, "123@gov.ac.in", "ADMIN_AUTH_SUCCESS", "Chief Administrator logged in via master bypass")
+        log_audit_event(db, "123@gov.ac.in", "ADMIN_AUTH_SUCCESS", "Chief Administrator authenticated")
         return {
             "status": "success",
             "user": {
@@ -432,11 +432,11 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
-        log_audit_event(db, clean_email, "OFFICER_AUTO_PROVISION", "New officer profile auto-provisioned")
+        log_audit_event(db, clean_email, "OFFICER_AUTO_PROVISION", "New officer profile created")
     else:
         stored_pass = (user.password or user.hashed_password or "").strip()
         if stored_pass and stored_pass != clean_pass:
-            log_audit_event(db, clean_email, "AUTH_FAILURE", "Incorrect password attempt")
+            log_audit_event(db, clean_email, "AUTH_FAILURE", "Invalid password attempt")
             raise HTTPException(status_code=401, detail="Invalid password.")
 
     try:
@@ -504,7 +504,7 @@ def mock_complete_course_on_igot(req: MockCourseCompletionRequest, db: Session =
             record.last_completed_at = datetime.utcnow().isoformat()
             
     db.commit()
-    log_audit_event(db, clean_email, "MOCK_IGOT_UPDATE", f"External course #{req.course_id} completed on registry")
+    log_audit_event(db, clean_email, "MOCK_IGOT_UPDATE", f"External course #{req.course_id} completed")
     return {
         "status": "success",
         "message": f"Course #{req.course_id} recorded in central iGOT registry.",
@@ -540,7 +540,7 @@ def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_d
         new_score = min(100, 75 + len(merged) * 5)
         user.competency_score = f"{new_score}%"
         db.commit()
-        log_audit_event(db, clean_email, "IGOT_PULL_SYNC", f"Synchronized {len(new_additions)} external course completions")
+        log_audit_event(db, clean_email, "IGOT_PULL_SYNC", f"Synchronized {len(new_additions)} external records")
 
     return {
         "status": "success",
@@ -569,7 +569,7 @@ def sync_offline_queue(req: OfflineSyncBatch, db: Session = Depends(get_db)):
     user.competency_score = f"{min(100, 75 + len(updated) * 5)}%"
     db.commit()
 
-    log_audit_event(db, clean_email, "OFFLINE_CACHE_SYNC", f"Ingested {len(req.completed_module_ids)} queued offline modules")
+    log_audit_event(db, clean_email, "OFFLINE_CACHE_SYNC", f"Synced {len(req.completed_module_ids)} queued offline modules")
     return {"status": "success", "synced_count": len(req.completed_module_ids), "completed_modules": updated}
 
 @app.post("/api/igot/webhook")
