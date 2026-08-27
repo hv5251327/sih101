@@ -36,7 +36,7 @@
   <script>
     const API_BASE = "https://sih101.onrender.com";
     const session = localStorage.getItem("mospi_user");
-    if (!session) window.location.href = "login.html";
+    if (!session) window.location.href = "index.html";
     const user = JSON.parse(session);
     if (user.role !== "admin") {
       alert("Unauthorized access. Redirecting to employee dashboard.");
@@ -64,7 +64,7 @@
 
     function logout() {
       localStorage.removeItem("mospi_user");
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     }
 
     loadUsers();

@@ -50,7 +50,7 @@
   <script>
     const session = localStorage.getItem("mospi_user");
     if (!session) {
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     }
     const user = JSON.parse(session);
     document.getElementById("userNameHeader").innerText = user.name;
@@ -59,7 +59,7 @@
 
     function logout() {
       localStorage.removeItem("mospi_user");
-      window.location.href = "login.html";
+      window.location.href = "index.html";
     }
   </script>
 </body>

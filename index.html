@@ -17,13 +17,10 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
     body { background: var(--bg); color: var(--text); line-height: 1.5; }
 
-    /* Gov Header Bar */
     .top-gov-bar {
       background: #0f172a; color: #cbd5e1; font-size: 0.75rem; padding: 6px 40px;
       display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gov-orange);
     }
-
-    /* Main Navigation */
     header {
       background: white; padding: 15px 40px; display: flex; justify-content: space-between;
       align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100;
@@ -33,7 +30,6 @@
     .logo-container p { font-size: 0.75rem; color: #64748b; font-weight: 600; }
     .nav-actions { display: flex; gap: 10px; align-items: center; }
 
-    /* Buttons */
     .btn { padding: 9px 18px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-navy { background: var(--gov-navy); color: white; }
     .btn-navy:hover { background: var(--gov-blue); }
@@ -42,7 +38,6 @@
     .btn-admin { background: #334155; color: white; }
     .btn-admin:hover { background: #1e293b; }
 
-    /* Hero Section */
     .hero {
       background: linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%);
       color: white; padding: 60px 40px; text-align: center; position: relative;
@@ -50,11 +45,9 @@
     .hero h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
     .hero p { font-size: 1.05rem; max-width: 750px; margin: 0 auto 25px; color: #e2e8f0; }
 
-    /* Container & Sections */
     .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
     .section-title { font-size: 1.4rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
-    /* Course Cards */
     .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
     .course-card {
       background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
@@ -66,7 +59,6 @@
     .course-desc { font-size: 0.88rem; color: #64748b; margin-bottom: 15px; }
     .course-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; border-top: 1px solid #f1f5f9; padding-top: 12px; }
 
-    /* Modals */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none;
       justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px);
@@ -84,13 +76,11 @@
 </head>
 <body>
 
-  <!-- Gov Header -->
   <div class="top-gov-bar">
     <span><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics and Programme Implementation</span>
     <span>iGOT Karmayogi Bharat Integrated</span>
   </div>
 
-  <!-- Main Nav -->
   <header>
     <div class="logo-container">
       <i class="fa-solid fa-building-columns" style="font-size:2rem; color:var(--gov-navy);"></i>
@@ -106,7 +96,6 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
   <div class="hero">
     <h2>Empowering Statistical & Administrative Cadres</h2>
     <p>Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
@@ -116,11 +105,9 @@
     </div>
   </div>
 
-  <!-- Course Catalog -->
   <div class="container" id="coursesSection">
     <div class="section-title"><i class="fa-solid fa-book-open-reader"></i> Recommended Cadre Courses & Modules</div>
     <div class="course-grid">
-      
       <div class="course-card">
         <div>
           <div class="course-tag">National Accounts Division</div>
@@ -156,11 +143,10 @@
           <span><i class="fa-solid fa-award"></i> Level 3 SSS</span>
         </div>
       </div>
-
     </div>
   </div>
 
-  <!-- 1. OFFICER LOGIN MODAL -->
+  <!-- OFFICER LOGIN MODAL -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
       <span class="close-modal" onclick="closeAllModals()">&times;</span>
@@ -173,7 +159,7 @@
     </div>
   </div>
 
-  <!-- 2. CADRE REGISTRATION MODAL -->
+  <!-- CADRE REGISTRATION MODAL -->
   <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
       <span class="close-modal" onclick="closeAllModals()">&times;</span>
@@ -196,7 +182,7 @@
     </div>
   </div>
 
-  <!-- 3. ADMIN LOGIN MODAL -->
+  <!-- ADMIN LOGIN MODAL -->
   <div class="modal-overlay" id="adminModal">
     <div class="modal-box">
       <span class="close-modal" onclick="closeAllModals()">&times;</span>
