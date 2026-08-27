@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pypdf import PdfReader
 
-app = FastAPI(title="MoSPI iGOT Intelligence Platform with Decoupled Mock iGOT Registry")
+app = FastAPI(title="MoSPI iGOT Platform - Dynamic AI Recommendation & Registry Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,7 +34,6 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=Tr
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Local MoSPI Platform User Table
 class UserRecord(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -50,7 +49,6 @@ class UserRecord(Base):
     posh_status = Column(String(50), default="Pending")
     completed_modules = Column(Text, default="[]")
 
-# Decoupled Mock iGOT Central Registry Table (Simulates external Karmayogi database)
 class MockIGOTCentralRegistry(Base):
     __tablename__ = "mock_igot_central_registry"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -81,7 +79,6 @@ def get_db():
     finally:
         db.close()
 
-# Seed mock iGOT central records if empty
 def seed_mock_igot_registry():
     db = SessionLocal()
     try:
@@ -189,6 +186,50 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
 
     return ""
 
+def generate_dynamic_recommendations(officer: UserRecord, completed_ids: list, radar_scores: dict) -> list:
+    lowest_domain = min(radar_scores.items(), key=lambda x: x[1]["current"])
+    gap_domain_name = lowest_domain[0]
+    current_val = lowest_domain[1]["current"]
+
+    ai_prompt = f"""
+Act as the AI Training Officer for MoSPI (Ministry of Statistics & Programme Implementation).
+Recommend exactly 4 personalized learning pathways for an officer with the following profile:
+- Cadre: {officer.cadre}
+- Designation: {officer.designation}
+- Division/Department: {officer.department}
+- Identified Skill Gap Domain: "{gap_domain_name}" (Current Score: {current_val}%)
+- Completed Module IDs: {completed_ids}
+
+Output ONLY a JSON array with 4 course recommendation objects matching this exact structure:
+[
+  {{
+    "source": "iGOT Karmayogi or NSSTA TPAC Recommended",
+    "course": "Course Title Tailored for MoSPI",
+    "priority": "High Priority or Mandatory or Compliance or Medium Priority",
+    "target_gap": "{gap_domain_name}",
+    "est_hours": "X Hours",
+    "link": "https://igotkarmayogi.gov.in"
+  }}
+]
+"""
+    raw_response = call_ai_api(ai_prompt, "You are a specialized MoSPI Capacity Building Recommendation AI. Output raw JSON only.")
+    if raw_response:
+        try:
+            cleaned = re.sub(r"^```json\s*", "", raw_response)
+            cleaned = re.sub(r"\s*```$", "", cleaned).strip()
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, list) and len(parsed) >= 1:
+                return parsed[:4]
+        except Exception as e:
+            print(f"Error parsing AI recommendations: {e}")
+
+    return [
+        {"source": "iGOT Karmayogi", "course": f"Advanced {gap_domain_name.split('(')[0].strip()} for {officer.cadre}", "priority": "High Priority", "target_gap": gap_domain_name, "est_hours": "6 Hours", "link": "https://igotkarmayogi.gov.in"},
+        {"source": "NSSTA TPAC Recommended", "course": f"Official Data Analytics with Python & Big Data ({officer.department})", "priority": "Mandatory", "target_gap": "Technical & Data Analytics (Python/R/GIS/SQL)", "est_hours": "14 Hours", "link": "https://igotkarmayogi.gov.in"},
+        {"source": "iGOT Karmayogi", "course": "Digital Personal Data Protection (DPDP) & Secure Governance", "priority": "Compliance", "target_gap": "Digital Governance & Cyber Security (DPDP/SSO)", "est_hours": "4 Hours", "link": "https://igotkarmayogi.gov.in"},
+        {"source": "NSSTA TPAC Recommended", "course": f"Strategic Public Policy Leadership for {officer.designation}", "priority": "Medium Priority", "target_gap": "Managerial & Policy Decision Making (Leadership)", "est_hours": "8 Hours", "link": "https://igotkarmayogi.gov.in"}
+    ]
+
 class RegisterRequest(BaseModel):
     name: Optional[str] = "Registered Officer"
     email: str
@@ -224,7 +265,7 @@ class MockCourseCompletionRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "online", "platform": "iGOT MoSPI Intelligence", "registry": "Decoupled Mock iGOT Active"}
+    return {"status": "online", "platform": "iGOT MoSPI Intelligence", "recommendation_engine": "AI-Driven Dynamic Gap Engine Active"}
 
 @app.options("/{rest_of_path:path}")
 async def preflight_handler(rest_of_path: str):
@@ -233,10 +274,6 @@ async def preflight_handler(rest_of_path: str):
         "Access-Control-Allow-Methods": "*",
         "Access-Control-Allow-Headers": "*"
     })
-
-# ==========================================
-# AUTHENTICATION & REGISTRATION
-# ==========================================
 
 @app.post("/api/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
@@ -341,10 +378,6 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         }
     }
 
-# ==========================================
-# DECOUPLED MOCK iGOT SERVER REGISTRY
-# ==========================================
-
 @app.get("/api/mock-igot/records/{email}")
 def get_mock_igot_record(email: str, db: Session = Depends(get_db)):
     clean_email = email.strip().lower()
@@ -392,10 +425,6 @@ def mock_complete_course_on_igot(req: MockCourseCompletionRequest, db: Session =
         "message": f"Course #{req.course_id} recorded in central iGOT registry.",
         "registry_courses": json.loads(record.verified_courses_json)
     }
-
-# ==========================================
-# MoSPI LOCAL PLATFORM SYNC & INGESTION
-# ==========================================
 
 @app.post("/api/igot/sync")
 def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_db)):
@@ -519,19 +548,15 @@ def get_skill_gap_analysis(email: str, db: Session = Depends(get_db)):
         "Managerial & Policy Decision Making (Leadership)": {"current": mgmt_score, "target": 90, "gap": max(0, 90 - mgmt_score)}
     }
 
-    recommendations = [
-        {"source": "iGOT Karmayogi", "course": "National Accounts & GVA Frameworks (SNA 2008)", "priority": "High Priority", "target_gap": "Statistical Competencies", "est_hours": "6 Hours", "link": "https://igotkarmayogi.gov.in"},
-        {"source": "NSSTA TPAC Recommended", "course": "Official Statistics with Python, R & Big Data GIS", "priority": "Mandatory", "target_gap": "Technical & Data Analytics", "est_hours": "15 Hours", "link": "https://igotkarmayogi.gov.in"},
-        {"source": "iGOT Karmayogi", "course": "PLFS Digital CAPI/CATI Field Verification", "priority": "Medium Priority", "target_gap": "Technical & Survey Design", "est_hours": "8 Hours", "link": "https://igotkarmayogi.gov.in"},
-        {"source": "NSSTA TPAC Recommended", "course": "Data Protection & Digital Personal Data Privacy (DPDP)", "priority": "Compliance", "target_gap": "Digital Governance", "est_hours": "4 Hours", "link": "https://igotkarmayogi.gov.in"}
-    ]
+    dynamic_recs = generate_dynamic_recommendations(user, completed, radar_domains)
 
     return {
         "status": "success",
         "officer": user.name or "Officer",
         "cadre": user.cadre or "ISS",
+        "department": user.department or "National Accounts Division (NAD)",
         "radar": radar_domains,
-        "recommendations": recommendations
+        "recommendations": dynamic_recs
     }
 
 @app.post("/api/chat/assistant")
