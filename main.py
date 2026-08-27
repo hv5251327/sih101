@@ -3,6 +3,7 @@ import io
 import json
 import re
 import requests
+from datetime import datetime
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pypdf import PdfReader
 
-app = FastAPI(title="MoSPI iGOT Intelligence Platform")
+app = FastAPI(title="MoSPI iGOT Intelligence Platform with Decoupled Mock iGOT Registry")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,6 +34,7 @@ engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=Tr
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# Local MoSPI Platform User Table
 class UserRecord(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
@@ -47,6 +49,16 @@ class UserRecord(Base):
     competency_score = Column(String(10), default="75%")
     posh_status = Column(String(50), default="Pending")
     completed_modules = Column(Text, default="[]")
+
+# Decoupled Mock iGOT Central Registry Table (Simulates external Karmayogi database)
+class MockIGOTCentralRegistry(Base):
+    __tablename__ = "mock_igot_central_registry"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    officer_email = Column(String(255), unique=True, index=True, nullable=False)
+    officer_name = Column(String(255), nullable=False)
+    verified_courses_json = Column(Text, default="[]")
+    parichay_sso_token = Column(String(255), default="KY_PARICHAY_AUTH_SECURE_TOKEN")
+    last_completed_at = Column(String(100), nullable=True)
 
 class QuizRecord(Base):
     __tablename__ = "topic_quizzes"
@@ -68,6 +80,41 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Seed mock iGOT central records if empty
+def seed_mock_igot_registry():
+    db = SessionLocal()
+    try:
+        if db.query(MockIGOTCentralRegistry).count() == 0:
+            sample_records = [
+                MockIGOTCentralRegistry(
+                    officer_email="harsha@gov.in",
+                    officer_name="Nagari Harsha Vardhan",
+                    verified_courses_json=json.dumps([1, 2]),
+                    parichay_sso_token="KY_PARICHAY_AUTH_89412",
+                    last_completed_at="2026-08-25T14:30:00Z"
+                ),
+                MockIGOTCentralRegistry(
+                    officer_email="officer@gov.in",
+                    officer_name="Cadre Officer",
+                    verified_courses_json=json.dumps([1, 3]),
+                    parichay_sso_token="KY_PARICHAY_AUTH_55102",
+                    last_completed_at="2026-08-26T10:15:00Z"
+                ),
+                MockIGOTCentralRegistry(
+                    officer_email="123@gov.ac.in",
+                    officer_name="Chief Administrator",
+                    verified_courses_json=json.dumps([1, 2, 3]),
+                    parichay_sso_token="KY_PARICHAY_AUTH_99999",
+                    last_completed_at="2026-08-27T08:00:00Z"
+                )
+            ]
+            db.add_all(sample_records)
+            db.commit()
+    finally:
+        db.close()
+
+seed_mock_igot_registry()
 
 TOTAL_MODULES_COUNT = 5
 
@@ -119,8 +166,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
                 if res.status_code == 200:
                     data = res.json()
                     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Gemini error with {m}: {e}")
 
     grok_key = os.getenv("XAI_API_KEY", "").strip()
     if grok_key:
@@ -137,8 +184,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
             res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
             if res.status_code == 200:
                 return res.json()["choices"][0]["message"]["content"].strip()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Grok error: {e}")
 
     return ""
 
@@ -166,15 +213,18 @@ class IGOTWebhookPayload(BaseModel):
     officer_email: str
     course_id: int
     event: str = "COURSE_COMPLETED"
-    completion_timestamp: Optional[str] = None
     verification_source: str = "iGOT_Karmayogi_Bharat"
 
 class IGOTSyncRequest(BaseModel):
     email: str
 
+class MockCourseCompletionRequest(BaseModel):
+    officer_email: str
+    course_id: int
+
 @app.get("/")
 def root():
-    return {"status": "online", "platform": "iGOT MoSPI Intelligence"}
+    return {"status": "online", "platform": "iGOT MoSPI Intelligence", "registry": "Decoupled Mock iGOT Active"}
 
 @app.options("/{rest_of_path:path}")
 async def preflight_handler(rest_of_path: str):
@@ -183,6 +233,10 @@ async def preflight_handler(rest_of_path: str):
         "Access-Control-Allow-Methods": "*",
         "Access-Control-Allow-Headers": "*"
     })
+
+# ==========================================
+# AUTHENTICATION & REGISTRATION
+# ==========================================
 
 @app.post("/api/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
@@ -287,6 +341,127 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         }
     }
 
+# ==========================================
+# DECOUPLED MOCK iGOT SERVER REGISTRY
+# ==========================================
+
+@app.get("/api/mock-igot/records/{email}")
+def get_mock_igot_record(email: str, db: Session = Depends(get_db)):
+    clean_email = email.strip().lower()
+    record = db.query(MockIGOTCentralRegistry).filter(func.lower(MockIGOTCentralRegistry.officer_email) == clean_email).first()
+    if not record:
+        return {
+            "status": "not_found",
+            "officer_email": clean_email,
+            "verified_courses": [],
+            "message": "No central records found for this officer on iGOT Karmayogi."
+        }
+    return {
+        "status": "success",
+        "officer_email": record.officer_email,
+        "officer_name": record.officer_name,
+        "verified_courses": json.loads(record.verified_courses_json or "[]"),
+        "sso_token": record.parichay_sso_token,
+        "last_completed_at": record.last_completed_at
+    }
+
+@app.post("/api/mock-igot/complete-course")
+def mock_complete_course_on_igot(req: MockCourseCompletionRequest, db: Session = Depends(get_db)):
+    clean_email = req.officer_email.strip().lower()
+    record = db.query(MockIGOTCentralRegistry).filter(func.lower(MockIGOTCentralRegistry.officer_email) == clean_email).first()
+    
+    if not record:
+        record = MockIGOTCentralRegistry(
+            officer_email=clean_email,
+            officer_name="Cadre Officer",
+            verified_courses_json=json.dumps([req.course_id]),
+            parichay_sso_token=f"KY_PARICHAY_{clean_email[:5]}",
+            last_completed_at=datetime.utcnow().isoformat()
+        )
+        db.add(record)
+    else:
+        current_courses = json.loads(record.verified_courses_json or "[]")
+        if req.course_id not in current_courses:
+            current_courses.append(req.course_id)
+            record.verified_courses_json = json.dumps(sorted(current_courses))
+            record.last_completed_at = datetime.utcnow().isoformat()
+            
+    db.commit()
+    return {
+        "status": "success",
+        "message": f"Course #{req.course_id} recorded in central iGOT registry.",
+        "registry_courses": json.loads(record.verified_courses_json)
+    }
+
+# ==========================================
+# MoSPI LOCAL PLATFORM SYNC & INGESTION
+# ==========================================
+
+@app.post("/api/igot/sync")
+def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Officer not found on local platform.")
+
+    try:
+        local_completed = set(json.loads(user.completed_modules or "[]"))
+    except Exception:
+        local_completed = set()
+
+    record = db.query(MockIGOTCentralRegistry).filter(func.lower(MockIGOTCentralRegistry.officer_email) == clean_email).first()
+    
+    if not record:
+        remote_verified = set()
+        sso_token = "KY_PARICHAY_GUEST"
+    else:
+        remote_verified = set(json.loads(record.verified_courses_json or "[]"))
+        sso_token = record.parichay_sso_token
+
+    new_additions = remote_verified - local_completed
+    merged = sorted(list(local_completed.union(remote_verified)))
+
+    if new_additions:
+        user.completed_modules = json.dumps(merged)
+        new_score = min(100, 75 + len(merged) * 5)
+        user.competency_score = f"{new_score}%"
+        db.commit()
+
+    return {
+        "status": "success",
+        "sso_session": sso_token,
+        "synced_new_count": len(new_additions),
+        "new_courses_synced": list(new_additions),
+        "message": f"Pulled {len(new_additions)} newly verified records from iGOT." if new_additions else "iGOT profile is fully up-to-date.",
+        "completed_modules": merged,
+        "competency_score": user.competency_score
+    }
+
+@app.post("/api/igot/webhook")
+def igot_incoming_webhook(payload: IGOTWebhookPayload, db: Session = Depends(get_db)):
+    clean_email = payload.officer_email.strip().lower()
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Officer not enrolled in MoSPI platform.")
+
+    try:
+        completed = json.loads(user.completed_modules or "[]")
+    except Exception:
+        completed = []
+
+    if payload.course_id not in completed:
+        completed.append(payload.course_id)
+        user.completed_modules = json.dumps(sorted(completed))
+        user.competency_score = f"{min(100, 75 + len(completed) * 5)}%"
+        db.commit()
+
+    return {
+        "status": "success",
+        "event_received": payload.event,
+        "verified_course_id": payload.course_id,
+        "current_completed": completed
+    }
+
 @app.post("/api/officer/complete-module")
 def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
@@ -317,69 +492,6 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
         "completed_count": completed_count,
         "completed_percentage": completed_percent,
         "remaining_percentage": remaining_percent
-    }
-
-# --- iGOT Karmayogi True Webhook & Sync Ingestion ---
-@app.post("/api/igot/webhook")
-def igot_incoming_webhook(payload: IGOTWebhookPayload, db: Session = Depends(get_db)):
-    clean_email = payload.officer_email.strip().lower()
-    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Officer not enrolled in MoSPI platform.")
-
-    try:
-        completed = json.loads(user.completed_modules) if user.completed_modules else []
-    except Exception:
-        completed = []
-
-    if payload.course_id not in completed:
-        completed.append(payload.course_id)
-        user.completed_modules = json.dumps(completed)
-        new_score = min(100, 75 + len(completed) * 5)
-        user.competency_score = f"{new_score}%"
-        db.commit()
-
-    return {
-        "status": "success",
-        "event_received": payload.event,
-        "officer": user.name,
-        "verified_course_id": payload.course_id,
-        "source": payload.verification_source,
-        "current_completed": completed
-    }
-
-@app.post("/api/igot/sync")
-def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_db)):
-    clean_email = req.email.strip().lower()
-    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Officer not found.")
-
-    try:
-        completed = json.loads(user.completed_modules) if user.completed_modules else []
-    except Exception:
-        completed = []
-
-    # Sync any pending modules up to next level from simulated iGOT Karmayogi stream
-    all_available = [1, 2, 3, 4, 5]
-    uncompleted = [c for c in all_available if c not in completed]
-    
-    synced_any = False
-    if uncompleted:
-        next_completed = uncompleted[0]
-        completed.append(next_completed)
-        user.completed_modules = json.dumps(completed)
-        new_score = min(100, 75 + len(completed) * 5)
-        user.competency_score = f"{new_score}%"
-        db.commit()
-        synced_any = True
-
-    return {
-        "status": "success",
-        "message": "iGOT Karmayogi bi-directional sync completed." if synced_any else "All iGOT modules already synchronized.",
-        "synced_new": synced_any,
-        "completed_modules": completed,
-        "competency_score": user.competency_score
     }
 
 @app.get("/api/officer/skill-gap")
