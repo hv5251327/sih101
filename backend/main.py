@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pypdf import PdfReader
 
-app = FastAPI(title="MoSPI iGOT Platform - Dynamic AI Recommendation & Registry Engine")
+app = FastAPI(title="MoSPI iGOT Platform - Admin & Intelligence Engine")
 
 app.add_middleware(
     CORSMiddleware,
@@ -163,8 +163,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
                 if res.status_code == 200:
                     data = res.json()
                     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception as e:
-                print(f"Gemini error with {m}: {e}")
+            except Exception:
+                pass
 
     grok_key = os.getenv("XAI_API_KEY", "").strip()
     if grok_key:
@@ -181,8 +181,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
             res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
             if res.status_code == 200:
                 return res.json()["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            print(f"Grok error: {e}")
+        except Exception:
+            pass
 
     return ""
 
@@ -220,8 +220,8 @@ Output ONLY a JSON array with 4 course recommendation objects matching this exac
             parsed = json.loads(cleaned)
             if isinstance(parsed, list) and len(parsed) >= 1:
                 return parsed[:4]
-        except Exception as e:
-            print(f"Error parsing AI recommendations: {e}")
+        except Exception:
+            pass
 
     return [
         {"source": "iGOT Karmayogi", "course": f"Advanced {gap_domain_name.split('(')[0].strip()} for {officer.cadre}", "priority": "High Priority", "target_gap": gap_domain_name, "est_hours": "6 Hours", "link": "https://igotkarmayogi.gov.in"},
@@ -265,7 +265,7 @@ class MockCourseCompletionRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "online", "platform": "iGOT MoSPI Intelligence", "recommendation_engine": "AI-Driven Dynamic Gap Engine Active"}
+    return {"status": "online", "platform": "iGOT MoSPI Intelligence"}
 
 @app.options("/{rest_of_path:path}")
 async def preflight_handler(rest_of_path: str):
@@ -332,7 +332,6 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
     clean_pass = req.password.strip()
 
-    # Exact standard admin login credentials
     if clean_email == "123@gov.ac.in" and clean_pass == "1234":
         return {
             "status": "success",
@@ -351,9 +350,8 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         }
 
     user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
-    
-    # Auto-provision officer account on initial login if not already in DB
     if not user:
+        role = "admin" if clean_email.startswith("admin") else "employee"
         user = UserRecord(
             name="Cadre Officer",
             email=clean_email,
@@ -362,7 +360,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             department="National Accounts Division (NAD)",
             designation="Deputy Director / Assistant Director (ISS)",
             cadre="Indian Statistical Service (ISS)",
-            role="admin" if clean_email.startswith("admin") else "employee",
+            role=role,
             competency_score="75%",
             posh_status="Pending",
             completed_modules="[]"
