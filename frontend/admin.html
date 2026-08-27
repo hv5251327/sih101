@@ -447,7 +447,7 @@
         });
         const data = await res.json();
         if (res.ok) {
-          alert(`Success: ${data.questions_generated} assessment questions generated and indexed.`);
+          alert(`Success: ${data.questions_generated} assessment questions generated and saved directly to the database.`);
           fileInput.value = "";
         } else {
           alert(`Error: ${data.detail || "Upload failed."}`);
