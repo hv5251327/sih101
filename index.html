@@ -64,6 +64,68 @@
     }
   }
 </style>
+<style id="navbar-mobile-fix">
+  /* Header & Navigation Fixes */
+  .header, header, nav, .navbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    padding: 12px 16px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .brand, .logo-container, .header-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    max-width: 100% !important;
+  }
+  .nav-buttons, .auth-buttons, .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+  }
+  
+  /* Hero Buttons Alignment */
+  .hero-buttons, .cta-buttons {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    margin-top: 24px !important;
+    width: 100% !important;
+  }
+
+  /* Responsive styling for Mobile */
+  @media screen and (max-width: 768px) {
+    .header, header, nav, .navbar {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+    }
+    .nav-buttons, .auth-buttons, .header-actions {
+      width: 100% !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+    }
+    .hero-buttons, .cta-buttons {
+      flex-direction: column !important;
+      width: 100% !important;
+    }
+    .hero-buttons button, .hero-buttons a,
+    .cta-buttons button, .cta-buttons a,
+    .nav-buttons button, .nav-buttons a {
+      width: 100% !important;
+      text-align: center !important;
+      justify-content: center !important;
+      padding: 12px !important;
+      box-sizing: border-box !important;
+    }
+  }
+</style>
 </head>
 <body>
   <div class="top-gov-bar">
@@ -283,6 +345,7 @@
   </script>
 </body>
 </html>
+
 
 
 
