@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoSPI - Official Access Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-blue: #005691; --bg: #f8fafc; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background: var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .card { background:white; padding:35px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.08); width:100%; max-width:440px; }
+    .tabs { display:flex; gap:10px; margin-bottom:25px; border-bottom:2px solid #e2e8f0; padding-bottom:10px; }
+    .tab { flex:1; text-align:center; padding:10px; font-weight:700; cursor:pointer; color:#64748b; border-radius:6px; }
+    .tab.active { background:var(--gov-navy); color:white; }
+    .form-group { margin-bottom:15px; }
+    label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:5px; color:#334155; }
+    input, select { width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.95rem; }
+    .btn { width:100%; padding:12px; border:none; border-radius:6px; font-weight:700; cursor:pointer; background:var(--gov-navy); color:white; margin-top:10px; }
+    .btn:hover { background:var(--gov-blue); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="color:var(--gov-navy); text-align:center; margin-bottom:20px;"><i class="fa-solid fa-building-columns"></i> MoSPI Platform</h2>
+    <div class="tabs">
+      <div class="tab active" id="tabLogin" onclick="showTab('login')">Login</div>
+      <div class="tab" id="tabReg" onclick="showTab('reg')">Register</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group"><label>Official Email</label><input type="email" id="loginEmail" placeholder="officer@mospi.gov.in" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
+      <button type="submit" class="btn">Authenticate</button>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="regForm" onsubmit="handleRegister(event)" style="display:none;">
+      <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Shri Rajesh Kumar" required></div>
+      <div class="form-group"><label>Official Email</label><input type="email" id="regEmail" placeholder="rajesh@mospi.gov.in" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="••••••••" required></div>
+      <div class="form-group">
+        <label>Service Cadre</label>
+        <select id="regCadre">
+          <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
+          <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Department</label><input type="text" id="regDept" value="National Accounts Division (NAD)"></div>
+      <div class="form-group"><label>Designation</label><input type="text" id="regDesig" value="Deputy Director / Assistant Director (ISS)"></div>
+      <button type="submit" class="btn" style="background:var(--gov-orange); color:black;">Register Officer</button>
+    </form>
+  </div>
+
+  <script>
+    const API_BASE = "https://sih101.onrender.com";
+
+    function showTab(t) {
+      document.getElementById("tabLogin").classList.toggle("active", t === "login");
+      document.getElementById("tabReg").classList.toggle("active", t === "reg");
+      document.getElementById("loginForm").style.display = t === "login" ? "block" : "none";
+      document.getElementById("regForm").style.display = t === "reg" ? "block" : "none";
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPass").value.trim();
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Authentication failed");
+        localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      } catch (err) { alert(err.message); }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("regName").value.trim(),
+        email: document.getElementById("regEmail").value.trim(),
+        password: document.getElementById("regPass").value.trim(),
+        cadre: document.getElementById("regCadre").value,
+        department: document.getElementById("regDept").value.trim(),
+        designation: document.getElementById("regDesig").value.trim()
+      };
+      try {
+        const res = await fetch(`${API_BASE}/api/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Registration failed");
+        localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        alert("Registration Successful!");
+        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      } catch (err) { alert(err.message); }
+    }
+  </script>
+</body>
+</html>

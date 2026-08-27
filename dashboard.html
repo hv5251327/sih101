@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoSPI - Officer Course Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --bg: #f8fafc; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background: var(--bg); }
+    header { background: var(--gov-navy); color:white; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; }
+    .btn-logout { background: #ef4444; border:none; color:white; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
+    .container { max-width:1100px; margin:30px auto; padding:0 20px; }
+    .profile-card { background:white; padding:25px; border-radius:10px; margin-bottom:30px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); }
+    .course-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; }
+    .course-card { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border-top:4px solid var(--gov-orange); }
+  </style>
+</head>
+<body>
+  <header>
+    <h2><i class="fa-solid fa-graduation-cap"></i> MoSPI Learning Portal</h2>
+    <div>
+      <span id="userNameHeader" style="margin-right:15px; font-weight:600;"></span>
+      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="profile-card">
+      <h3 id="officerName" style="color:var(--gov-navy);"></h3>
+      <p style="color:#64748b; margin-top:5px;" id="officerMeta"></p>
+    </div>
+
+    <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-book-bookmark"></i> Assigned Cadre Courses</h3>
+    <div class="course-grid">
+      <div class="course-card">
+        <h4>National Accounts & GDP Compilation</h4>
+        <p style="color:#64748b; font-size:0.9rem; margin:10px 0;">Methodologies on Gross Value Added (GVA) and quarterly estimation.</p>
+        <button style="width:100%; padding:8px; background:var(--gov-navy); color:white; border:none; border-radius:6px; cursor:pointer;">Launch Module</button>
+      </div>
+      <div class="course-card">
+        <h4>Consumer Price Index (CPI) Analytics</h4>
+        <p style="color:#64748b; font-size:0.9rem; margin:10px 0;">Data collection processes and inflation basket metrics.</p>
+        <button style="width:100%; padding:8px; background:var(--gov-navy); color:white; border:none; border-radius:6px; cursor:pointer;">Launch Module</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const session = localStorage.getItem("mospi_user");
+    if (!session) {
+      window.location.href = "login.html";
+    }
+    const user = JSON.parse(session);
+    document.getElementById("userNameHeader").innerText = user.name;
+    document.getElementById("officerName").innerText = user.name;
+    document.getElementById("officerMeta").innerText = `${user.designation} | ${user.department} | Cadre: ${user.cadre}`;
+
+    function logout() {
+      localStorage.removeItem("mospi_user");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
