@@ -67,6 +67,14 @@ class QuizRecord(Base):
     correct_index = Column(Integer, default=0)
     explanation = Column(Text, default="")
 
+class AuditLogRecord(Base):
+    __tablename__ = "compliance_audit_logs"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    officer_email = Column(String(255), nullable=False)
+    action_type = Column(String(100), nullable=False)
+    details = Column(Text, default="")
+    timestamp = Column(String(100), nullable=False)
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -78,6 +86,19 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def log_audit_event(db: Session, email: str, action: str, details: str):
+    try:
+        entry = AuditLogRecord(
+            officer_email=email,
+            action_type=action,
+            details=details,
+            timestamp=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        )
+        db.add(entry)
+        db.commit()
+    except Exception as e:
+        print(f"Audit log error: {e}")
 
 def seed_mock_igot_registry():
     db = SessionLocal()
@@ -163,8 +184,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
                 if res.status_code == 200:
                     data = res.json()
                     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Gemini error with {m}: {e}")
 
     grok_key = os.getenv("XAI_API_KEY", "").strip()
     if grok_key:
@@ -181,8 +202,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
             res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
             if res.status_code == 200:
                 return res.json()["choices"][0]["message"]["content"].strip()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Grok error: {e}")
 
     return ""
 
@@ -300,6 +321,10 @@ class MockCourseCompletionRequest(BaseModel):
     officer_email: str
     course_id: int
 
+class OfflineSyncBatch(BaseModel):
+    email: str
+    completed_module_ids: List[int]
+
 @app.get("/")
 def root():
     return {"status": "online", "platform": "iGOT MoSPI Intelligence"}
@@ -344,6 +369,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+        log_audit_event(db, clean_email, "USER_REGISTER", f"Registered under {user.cadre}")
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
@@ -370,6 +396,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     clean_pass = req.password.strip()
 
     if clean_email == "123@gov.ac.in" and clean_pass == "1234":
+        log_audit_event(db, "123@gov.ac.in", "ADMIN_AUTH_SUCCESS", "Chief Administrator logged in via master bypass")
         return {
             "status": "success",
             "user": {
@@ -405,15 +432,19 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+        log_audit_event(db, clean_email, "OFFICER_AUTO_PROVISION", "New officer profile auto-provisioned")
     else:
         stored_pass = (user.password or user.hashed_password or "").strip()
         if stored_pass and stored_pass != clean_pass:
+            log_audit_event(db, clean_email, "AUTH_FAILURE", "Incorrect password attempt")
             raise HTTPException(status_code=401, detail="Invalid password.")
 
     try:
         completed = json.loads(user.completed_modules) if user.completed_modules else []
     except Exception:
         completed = []
+
+    log_audit_event(db, clean_email, "OFFICER_AUTH_SUCCESS", "Officer logged into portal")
 
     return {
         "status": "success",
@@ -473,6 +504,7 @@ def mock_complete_course_on_igot(req: MockCourseCompletionRequest, db: Session =
             record.last_completed_at = datetime.utcnow().isoformat()
             
     db.commit()
+    log_audit_event(db, clean_email, "MOCK_IGOT_UPDATE", f"External course #{req.course_id} completed on registry")
     return {
         "status": "success",
         "message": f"Course #{req.course_id} recorded in central iGOT registry.",
@@ -508,6 +540,7 @@ def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_d
         new_score = min(100, 75 + len(merged) * 5)
         user.competency_score = f"{new_score}%"
         db.commit()
+        log_audit_event(db, clean_email, "IGOT_PULL_SYNC", f"Synchronized {len(new_additions)} external course completions")
 
     return {
         "status": "success",
@@ -518,6 +551,26 @@ def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_d
         "completed_modules": merged,
         "competency_score": user.competency_score
     }
+
+@app.post("/api/officer/offline-sync")
+def sync_offline_queue(req: OfflineSyncBatch, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Officer not found.")
+
+    try:
+        current = set(json.loads(user.completed_modules or "[]"))
+    except Exception:
+        current = set()
+
+    updated = sorted(list(current.union(set(req.completed_module_ids))))
+    user.completed_modules = json.dumps(updated)
+    user.competency_score = f"{min(100, 75 + len(updated) * 5)}%"
+    db.commit()
+
+    log_audit_event(db, clean_email, "OFFLINE_CACHE_SYNC", f"Ingested {len(req.completed_module_ids)} queued offline modules")
+    return {"status": "success", "synced_count": len(req.completed_module_ids), "completed_modules": updated}
 
 @app.post("/api/igot/webhook")
 def igot_incoming_webhook(payload: IGOTWebhookPayload, db: Session = Depends(get_db)):
@@ -536,6 +589,7 @@ def igot_incoming_webhook(payload: IGOTWebhookPayload, db: Session = Depends(get
         user.completed_modules = json.dumps(sorted(completed))
         user.competency_score = f"{min(100, 75 + len(completed) * 5)}%"
         db.commit()
+        log_audit_event(db, clean_email, "IGOT_WEBHOOK_EVENT", f"Incoming verified completion for course #{payload.course_id}")
 
     return {
         "status": "success",
@@ -562,6 +616,7 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
         new_score = min(100, 75 + len(completed) * 5)
         user.competency_score = f"{new_score}%"
         db.commit()
+        log_audit_event(db, clean_email, "QUIZ_ASSESSMENT_PASS", f"Passed assessment for Module #{req.course_id}")
 
     completed_count = len(completed)
     completed_percent = round((completed_count / TOTAL_MODULES_COUNT) * 100, 1)
@@ -715,6 +770,11 @@ def generate_annual_tna_report(db: Session = Depends(get_db)):
     }
     return {"status": "success", "report": tna_plan}
 
+@app.get("/api/admin/audit-logs")
+def get_audit_logs(db: Session = Depends(get_db)):
+    logs = db.query(AuditLogRecord).order_by(AuditLogRecord.id.desc()).limit(100).all()
+    return [{"id": l.id, "email": l.officer_email, "action": l.action_type, "details": l.details, "timestamp": l.timestamp} for l in logs]
+
 @app.post("/api/chat/assistant")
 def virtual_assistant_chat(req: ChatRequest):
     msg = req.message.strip()
@@ -744,7 +804,6 @@ Answer general queries accurately and concisely. For official statistical questi
 
     return {"status": "success", "reply": ans}
 
-# DIRECT PDF QUIZ UPLOAD & RELIABLE DATABASE INSERTION
 @app.post("/api/admin/upload-quiz-material")
 async def upload_quiz_material(
     course_id: int = Form(...),
@@ -757,7 +816,6 @@ async def upload_quiz_material(
         extracted_text = extract_all_pdf_text(content)
         ai_questions = generate_questions_with_ai(extracted_text, file.filename, course_name)
         
-        # Clear existing questions for this course to update with fresh uploaded material
         db.query(QuizRecord).filter(QuizRecord.course_id == course_id).delete()
         
         new_records = []
@@ -774,6 +832,7 @@ async def upload_quiz_material(
 
         db.add_all(new_records)
         db.commit()
+        log_audit_event(db, "123@gov.ac.in", "AI_QUIZ_GENERATION", f"Generated {len(new_records)} assessment items for Course #{course_id}")
         return {"status": "success", "questions_generated": len(new_records), "course_id": course_id}
     except Exception as e:
         db.rollback()
@@ -821,12 +880,16 @@ async def verify_certificate(email: str = Form(...), course_id: int = Form(...),
         user.completed_modules = json.dumps(completed)
         user.competency_score = f"{min(100, 75 + len(completed) * 5)}%"
         db.commit()
+        log_audit_event(db, user.email, "CERTIFICATE_VERIFY", f"Verified certificate for {course_name}")
     return {"status": "success", "message": f"Certificate verified for '{course_name}'."}
 
 @app.get("/api/admin/users")
-def get_all_users(db: Session = Depends(get_db)):
-    users = db.query(UserRecord).all()
-    return [{"id": u.id, "name": u.name, "email": u.email, "department": u.department, "designation": u.designation, "competency": u.competency_score, "completed_count": len(json.loads(u.completed_modules or "[]"))} for u in users]
+def get_all_users(cadre: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(UserRecord)
+    if cadre and cadre != "all":
+        query = query.filter(UserRecord.cadre.ilike(f"%{cadre}%"))
+    users = query.all()
+    return [{"id": u.id, "name": u.name, "email": u.email, "cadre": u.cadre, "department": u.department, "designation": u.designation, "competency": u.competency_score, "completed_count": len(json.loads(u.completed_modules or "[]"))} for u in users]
 
 @app.get("/api/admin/analytics")
 def get_admin_analytics(db: Session = Depends(get_db)):
