@@ -6,53 +6,42 @@
   <title>iGOT MoSPI - Integrated Government Online Training Platform</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --gov-navy: #002B49;
-      --gov-orange: #FF9933;
-      --gov-green: #138808;
-      --gov-blue: #005691;
-      --bg: #f8fafc;
-      --text: #1e293b;
-    }
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-blue: #005691; --bg: #f8fafc; }
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background: var(--bg); color: var(--text); }
-    .top-bar { background:#0f172a; color:#cbd5e1; font-size:0.75rem; padding:6px 40px; display:flex; justify-content:space-between; border-bottom:2px solid var(--gov-orange); }
-    header { background:white; padding:15px 40px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
-    .logo-box { display:flex; align-items:center; gap:12px; }
-    .nav-actions { display:flex; gap:10px; }
-    .btn { padding:9px 18px; border-radius:6px; font-size:0.88rem; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; }
-    .btn-navy { background:var(--gov-navy); color:white; }
-    .btn-navy:hover { background:var(--gov-blue); }
-    .btn-orange { background:var(--gov-orange); color:#000; font-weight:700; }
-    .btn-orange:hover { background:#e68524; }
-    .btn-admin { background:#334155; color:white; }
-    .hero { background:linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%); color:white; padding:50px 40px; text-align:center; }
-    .container { max-width:1200px; margin:40px auto; padding:0 20px; }
-    .course-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin-top:20px; }
-    .course-card { background:white; border-radius:10px; padding:22px; border:1px solid #e2e8f0; border-top:4px solid var(--gov-orange); box-shadow:0 4px 6px -1px rgba(0,0,0,0.06); }
-    .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.7); display:none; justify-content:center; align-items:center; z-index:1000; }
-    .modal-box { background:white; padding:32px; border-radius:12px; width:100%; max-width:460px; position:relative; }
-    .close-btn { position:absolute; top:16px; right:20px; font-size:1.5rem; cursor:pointer; color:#94a3b8; }
-    .form-group { margin-bottom:14px; }
-    label { display:block; font-size:0.82rem; font-weight:700; margin-bottom:4px; color:#334155; }
-    input, select { width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; }
+    body { background: var(--bg); color: #1e293b; }
+    .top-gov-bar { background: #0f172a; color: #cbd5e1; font-size: 0.75rem; padding: 6px 40px; display: flex; justify-content: space-between; border-bottom: 2px solid var(--gov-orange); }
+    header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
+    .btn { padding: 9px 18px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-navy { background: var(--gov-navy); color: white; }
+    .btn-orange { background: var(--gov-orange); color: #000; font-weight: 700; }
+    .btn-admin { background: #334155; color: white; }
+    .hero { background: linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%); color: white; padding: 60px 40px; text-align: center; }
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    .course-card { background: white; border-radius: 10px; padding: 22px; border: 1px solid #e2e8f0; border-top: 4px solid var(--gov-orange); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+    .modal-box { background: white; padding: 32px; border-radius: 12px; width: 100%; max-width: 480px; position: relative; }
+    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; color: #334155; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
   </style>
 </head>
 <body>
-  <div class="top-bar">
+  <div class="top-gov-bar">
     <span><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & Programme Implementation</span>
     <span>iGOT Karmayogi Bharat Integrated</span>
   </div>
 
   <header>
-    <div class="logo-box">
+    <div style="display:flex; align-items:center; gap:12px;">
       <i class="fa-solid fa-building-columns" style="font-size:2rem; color:var(--gov-navy);"></i>
       <div>
         <h1 style="font-size:1.25rem; font-weight:800; color:var(--gov-navy);">iGOT MoSPI Platform</h1>
         <p style="font-size:0.75rem; color:#64748b;">National Cadre Competency & Training Intelligence</p>
       </div>
     </div>
-    <div class="nav-actions">
+    <div style="display:flex; gap:10px;">
       <button class="btn btn-admin" onclick="openModal('adminModal')"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
       <button class="btn btn-navy" onclick="openModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Officer Login</button>
       <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i> Register Cadre</button>
@@ -60,8 +49,8 @@
   </header>
 
   <div class="hero">
-    <h2 style="font-size:2rem; font-weight:800; margin-bottom:10px;">Empowering Statistical & Administrative Cadres</h2>
-    <p style="max-width:700px; margin:0 auto 20px; color:#e2e8f0;">Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
+    <h2 style="font-size:2.2rem; font-weight:800; margin-bottom:12px;">Empowering Statistical & Administrative Cadres</h2>
+    <p style="max-width:750px; margin:0 auto 25px; color:#e2e8f0;">Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
     <div style="display:flex; justify-content:center; gap:12px;">
       <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-id-card"></i> Register As Officer</button>
       <button class="btn btn-navy" style="border:1px solid #94a3b8;" onclick="openModal('loginModal')"><i class="fa-solid fa-user-check"></i> Officer Login</button>
@@ -69,47 +58,47 @@
   </div>
 
   <div class="container">
-    <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-book-bookmark"></i> Recommended MoSPI Cadre Courses</h3>
+    <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:20px;"><i class="fa-solid fa-book-open-reader"></i> Recommended Cadre Courses</h3>
     <div class="course-grid">
       <div class="course-card">
         <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">NATIONAL ACCOUNTS DIVISION</span>
         <h4 style="color:var(--gov-navy); margin:8px 0;">System of National Accounts (SNA 2008) & GDP Estimation</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Gross Value Added (GVA), constant price deflators, and institutional sector balance sheet compilation.</p>
+        <p style="color:#64748b; font-size:0.88rem;">Gross Value Added (GVA), constant price deflators, and institutional sector accounts.</p>
       </div>
       <div class="course-card">
         <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">PRICE STATISTICS</span>
         <h4 style="color:var(--gov-navy); margin:8px 0;">Consumer Price Index (CPI) Analytics & Weighting</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Field validation rules, geometric mean price indexation, and rural-urban price aggregation metrics.</p>
+        <p style="color:#64748b; font-size:0.88rem;">Field validation rules, geometric mean price indexation, and rural-urban price aggregation.</p>
       </div>
       <div class="course-card">
         <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">FIELD OPERATIONS (FOD)</span>
-        <h4 style="color:var(--gov-navy); margin:8px 0;">Periodic Labour Force Survey (PLFS) Digital Data Collection</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Household sampling stratifications, Computer Assisted Personal Interviewing (CAPI), and live scrutiny.</p>
+        <h4 style="color:var(--gov-navy); margin:8px 0;">Periodic Labour Force Survey (PLFS) Data Collection</h4>
+        <p style="color:#64748b; font-size:0.88rem;">Household sampling stratifications, CAPI protocols, and real-time validation.</p>
       </div>
     </div>
   </div>
 
-  <!-- OFFICER LOGIN MODAL -->
+  <!-- OFFICER LOGIN -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <span class="close-btn" onclick="closeModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i> Officer Portal Login</h3>
-      <form onsubmit="handleOfficerLogin(event)">
-        <div class="form-group"><label>Official Email ID *</label><input type="email" id="loginEmail" placeholder="officer@mospi.gov.in" required></div>
-        <div class="form-group"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
-        <button type="submit" class="btn btn-navy" style="width:100%; padding:12px; margin-top:8px;">Sign In to Dashboard</button>
+      <span class="close-modal" onclick="closeAllModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i> Officer Login</h3>
+      <form id="officerLoginForm">
+        <div class="form-group"><label>Official Email *</label><input type="email" id="loginEmail" required></div>
+        <div class="form-group"><label>Password *</label><input type="password" id="loginPass" required></div>
+        <button type="submit" class="btn btn-navy" style="width:100%; padding:12px; margin-top:8px;">Sign In</button>
       </form>
     </div>
   </div>
 
-  <!-- REGISTER MODAL -->
+  <!-- CADRE REGISTRATION -->
   <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
-      <span class="close-btn" onclick="closeModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
-      <form onsubmit="handleOfficerRegister(event)">
+      <span class="close-modal" onclick="closeAllModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
+      <form id="officerRegisterForm">
         <div class="form-group"><label>Full Name *</label><input type="text" id="regName" placeholder="Shri Rajesh Kumar" required></div>
-        <div class="form-group"><label>Official Email *</label><input type="email" id="regEmail" placeholder="rajesh@mospi.gov.in" required></div>
+        <div class="form-group"><label>Official Email *</label><input type="email" id="regEmail" placeholder="officer@mospi.gov.in" required></div>
         <div class="form-group"><label>Password *</label><input type="password" id="regPass" placeholder="••••••••" required></div>
         <div class="form-group">
           <label>Service Cadre *</label>
@@ -120,74 +109,53 @@
         </div>
         <div class="form-group"><label>Department</label><input type="text" id="regDept" value="National Accounts Division (NAD)"></div>
         <div class="form-group"><label>Designation</label><input type="text" id="regDesig" value="Deputy Director / Assistant Director (ISS)"></div>
-        <button type="submit" class="btn btn-orange" style="width:100%; padding:12px; margin-top:8px;">Complete Registration</button>
+        <button type="submit" class="btn btn-orange" style="width:100%; padding:12px; margin-top:8px;">Register Officer</button>
       </form>
     </div>
   </div>
 
-  <!-- ADMIN LOGIN MODAL -->
+  <!-- ADMIN LOGIN -->
   <div class="modal-overlay" id="adminModal">
     <div class="modal-box">
-      <span class="close-btn" onclick="closeModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:5px;"><i class="fa-solid fa-shield-halved"></i> Admin Intelligence Console</h3>
+      <span class="close-modal" onclick="closeAllModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); margin-bottom:5px;"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
       <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Supervisory access: 123@gov.ac.in / 1234</p>
-      <form onsubmit="handleAdminLogin(event)">
+      <form id="adminLoginForm">
         <div class="form-group"><label>Admin Email *</label><input type="email" id="adminEmail" value="123@gov.ac.in" required></div>
-        <div class="form-group"><label>Access Password *</label><input type="password" id="adminPass" value="1234" required></div>
+        <div class="form-group"><label>Password *</label><input type="password" id="adminPass" value="1234" required></div>
         <button type="submit" class="btn btn-admin" style="width:100%; padding:12px; margin-top:8px;">Authenticate Admin</button>
       </form>
     </div>
   </div>
 
   <script>
-        const API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:")
-      ? "http://127.0.0.1:8000"
-      : "https://sih101.onrender.com";
+    const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:");
+    const API_BASE = isLocal ? "http://127.0.0.1:8000" : "https://sih101.onrender.com";
 
     function openModal(id) {
-      closeModals();
+      closeAllModals();
       const m = document.getElementById(id);
       if (m) m.style.display = "flex";
     }
 
-    function closeModals() {
+    function closeAllModals() {
       document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
     }
 
     document.querySelectorAll(".modal-overlay").forEach(m => {
-      m.addEventListener("click", e => { if (e.target === m) closeModals(); });
+      m.addEventListener("click", e => { if (e.target === m) closeAllModals(); });
     });
 
-    async function handleOfficerLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPass").value.trim();
-
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Invalid login credentials.");
-
-        localStorage.setItem("mospi_user", JSON.stringify(data.user));
-        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    async function handleOfficerRegister(e) {
+    // Explicit event attachment with null safety
+    document.getElementById("officerRegisterForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const payload = {
-        name: document.getElementById("regName").value.trim(),
-        email: document.getElementById("regEmail").value.trim(),
-        password: document.getElementById("regPass").value.trim(),
-        cadre: document.getElementById("regCadre").value,
-        department: document.getElementById("regDept").value.trim(),
-        designation: document.getElementById("regDesig").value.trim()
+        name: document.getElementById("regName")?.value || "Officer",
+        email: document.getElementById("regEmail")?.value || "",
+        password: document.getElementById("regPass")?.value || "",
+        cadre: document.getElementById("regCadre")?.value || "Indian Statistical Service (ISS)",
+        department: document.getElementById("regDept")?.value || "National Accounts Division (NAD)",
+        designation: document.getElementById("regDesig")?.value || "Deputy Director"
       };
 
       try {
@@ -199,18 +167,18 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Registration failed.");
 
-        alert(`Welcome, ${data.user.name}! Registration complete.`);
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        alert("Registration Successful!");
         window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
       } catch (err) {
-        alert(err.message);
+        alert("Registration Error: " + err.message);
       }
-    }
+    });
 
-    async function handleAdminLogin(e) {
+    document.getElementById("officerLoginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const email = document.getElementById("adminEmail").value.trim();
-      const password = document.getElementById("adminPass").value.trim();
+      const email = document.getElementById("loginEmail")?.value || "";
+      const password = document.getElementById("loginPass")?.value || "";
 
       try {
         const res = await fetch(`${API_BASE}/api/login`, {
@@ -219,15 +187,35 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Admin authentication failed.");
+        if (!res.ok) throw new Error(data.detail || "Login failed.");
+
+        localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      } catch (err) {
+        alert("Login Error: " + err.message);
+      }
+    });
+
+    document.getElementById("adminLoginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("adminEmail")?.value || "";
+      const password = document.getElementById("adminPass")?.value || "";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Admin login failed.");
 
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = "admin.html";
       } catch (err) {
-        alert(err.message);
+        alert("Admin Error: " + err.message);
       }
-    }
+    });
   </script>
 </body>
 </html>
-
