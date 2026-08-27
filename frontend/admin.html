@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary: #15325b;
@@ -33,7 +34,9 @@
     .btn-logout { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; }
 
     .container { max-width: 1320px; margin: 24px auto; padding: 0 20px; }
-    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
     .card { background: white; border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 24px; }
     .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .section-title { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
@@ -120,7 +123,23 @@
   </div>
 
   <div class="container">
-    <!-- Divisional Competency Heatmap -->
+    <!-- Visual Analytics: Charts Section -->
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Cadre Training Completion Ratio</h3>
+        <div style="height: 240px; display: flex; justify-content: center; align-items: center;">
+          <canvas id="cadrePieChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-chart-line" style="color: #0284c7;"></i> Ministry Competency Distribution</h3>
+        <div style="height: 240px; display: flex; justify-content: center; align-items: center;">
+          <canvas id="competencyDoughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divisional Competency Heatmap Matrix -->
     <div class="card">
       <div class="section-head">
         <div>
@@ -225,6 +244,8 @@
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
+    let cadreChart = null;
+    let compChart = null;
 
     function checkAdminAuth() {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
@@ -235,6 +256,7 @@
         document.getElementById("adminNameDisplay").textContent = `${user.email} (${user.name || "Admin"})`;
         loadHeatmap();
         loadUsers();
+        initCharts();
       }
     }
 
@@ -264,6 +286,7 @@
           document.getElementById("adminNameDisplay").textContent = `${data.user.email} (${data.user.name || "Admin"})`;
           loadHeatmap();
           loadUsers();
+          initCharts();
         } else {
           alert(`Login failed: ${data.detail || "Invalid credentials."}`);
         }
@@ -273,6 +296,36 @@
         btn.disabled = false;
         btn.innerHTML = "Sign In to Admin Portal";
       }
+    }
+
+    function initCharts() {
+      const ctxPie = document.getElementById('cadrePieChart').getContext('2d');
+      if (cadreChart) cadreChart.destroy();
+      cadreChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: ['Completed (>= 3 Modules)', 'In-Progress (1-2 Modules)', 'Pending Enrollment'],
+          datasets: [{
+            data: [62, 28, 10],
+            backgroundColor: ['#16a34a', '#e58a2b', '#ef4444']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const ctxDoughnut = document.getElementById('competencyDoughnutChart').getContext('2d');
+      if (compChart) compChart.destroy();
+      compChart = new Chart(ctxDoughnut, {
+        type: 'doughnut',
+        data: {
+          labels: ['Statistical (SNA/PLFS)', 'Technical & Analytics', 'Digital Governance', 'Management'],
+          datasets: [{
+            data: [35, 25, 20, 20],
+            backgroundColor: ['#15325b', '#0284c7', '#8b5cf6', '#10b981']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
     }
 
     async function loadHeatmap() {

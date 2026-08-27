@@ -13,7 +13,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from pypdf import PdfReader
 
-app = FastAPI(title="MoSPI iGOT Platform - Admin & Intelligence Engine")
+app = FastAPI(title="MoSPI iGOT Central Platform")
 
 app.add_middleware(
     CORSMiddleware,
