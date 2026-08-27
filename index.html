@@ -3,345 +3,907 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>iGOT MoSPI - Integrated Government Online Training Platform</title>
+  <title>iGOT Karmayogi Bharat | MoSPI Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-blue: #005691; --bg: #f8fafc; }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background: var(--bg); color: #1e293b; }
-    .top-gov-bar { background: #0f172a; color: #cbd5e1; font-size: 0.75rem; padding: 6px 40px; display: flex; justify-content: space-between; border-bottom: 2px solid var(--gov-orange); }
-    header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
-    .btn { padding: 9px 18px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-navy { background: var(--gov-navy); color: white; }
-    .btn-orange { background: var(--gov-orange); color: #000; font-weight: 700; }
-    .btn-admin { background: #334155; color: white; }
-    .hero { background: linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%); color: white; padding: 60px 40px; text-align: center; }
-    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-    .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
-    .course-card { background: white; border-radius: 10px; padding: 22px; border: 1px solid #e2e8f0; border-top: 4px solid var(--gov-orange); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-box { background: white; padding: 32px; border-radius: 12px; width: 100%; max-width: 480px; position: relative; }
-    .close-modal { position: absolute; top: 16px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; color: #334155; }
-    input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
-  </style>
-<style id="mobile-responsive-rules">
-  @media screen and (max-width: 768px) {
+    :root {
+      --primary-navy: #1b365d;
+      --hero-bg: #f9f3ea;
+      --banner-blue: #1b498f;
+      --accent-orange: #e89234;
+      --card-bg: #ffffff;
+      --text-dark: #222222;
+      --text-muted: #5f6368;
+      --border-color: #e2d7c7;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
     body {
-      overflow-x: hidden !important;
+      background-color: #ffffff;
+      color: var(--text-dark);
+      overflow-x: hidden;
     }
-    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
-      max-width: 100% !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
+    a {
+      text-decoration: none;
+      color: inherit;
     }
-    .grid, .row, .cards-grid, .stats-row, .d-flex {
-      display: flex !important;
-      flex-direction: column !important;
-      width: 100% !important;
-      gap: 15px !important;
-    }
-    table {
-      display: block !important;
-      overflow-x: auto !important;
-      white-space: nowrap !important;
-      width: 100% !important;
-    }
-    .sidebar, aside {
-      position: relative !important;
-      width: 100% !important;
-      height: auto !important;
-    }
-    input, select, textarea, button {
-      font-size: 16px !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    .modal-content, .dialog {
-      width: 92% !important;
-      margin: 10px auto !important;
-    }
-  }
-</style>
-<style id="navbar-mobile-fix">
-  /* Header & Navigation Fixes */
-  .header, header, nav, .navbar {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    gap: 12px !important;
-    padding: 12px 16px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-  }
-  .brand, .logo-container, .header-title {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    max-width: 100% !important;
-  }
-  .nav-buttons, .auth-buttons, .header-actions {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    flex-wrap: wrap !important;
-  }
-  
-  /* Hero Buttons Alignment */
-  .hero-buttons, .cta-buttons {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 12px !important;
-    flex-wrap: wrap !important;
-    margin-top: 24px !important;
-    width: 100% !important;
-  }
 
-  /* Responsive styling for Mobile */
-  @media screen and (max-width: 768px) {
-    .header, header, nav, .navbar {
-      flex-direction: column !important;
-      align-items: flex-start !important;
+    /* Top Strip */
+    .top-strip {
+      background: #0f2744;
+      color: #ffffff;
+      padding: 6px 40px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
     }
-    .nav-buttons, .auth-buttons, .header-actions {
-      width: 100% !important;
-      justify-content: flex-start !important;
-      gap: 8px !important;
+    .top-strip .flag-part {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .hero-buttons, .cta-buttons {
-      flex-direction: column !important;
-      width: 100% !important;
+
+    /* Header Nav */
+    .nav-container {
+      background: #ffffff;
+      margin: 10px auto;
+      max-width: 1400px;
+      border-radius: 40px;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 1px solid #eee;
     }
-    .hero-buttons button, .hero-buttons a,
-    .cta-buttons button, .cta-buttons a,
-    .nav-buttons button, .nav-buttons a {
-      width: 100% !important;
-      text-align: center !important;
-      justify-content: center !important;
-      padding: 12px !important;
-      box-sizing: border-box !important;
+    .nav-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-  }
-</style>
+    .logo-text {
+      font-size: 18px;
+      font-weight: 800;
+      color: #d97706;
+      line-height: 1.1;
+    }
+    .logo-subtext {
+      font-size: 10px;
+      color: #4b5563;
+      font-weight: 600;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      list-style: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .nav-links a:hover {
+      color: var(--accent-orange);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-login-outline {
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 1.5px solid var(--banner-blue);
+      color: var(--banner-blue);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .btn-login-outline:hover {
+      background: #f0f4fa;
+    }
+    .btn-register-solid {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      background: var(--accent-orange);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(232, 146, 52, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-register-solid:hover {
+      background: #d47e22;
+    }
+    .btn-admin {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      background: var(--hero-bg);
+      padding: 40px 60px 60px 60px;
+      position: relative;
+    }
+    .hero-inner {
+      max-width: 1350px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .hero-content {
+      flex: 1.1;
+    }
+    .hero-pretitle {
+      font-size: 18px;
+      color: #374151;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .hero-title {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--accent-orange);
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    .social-follow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .social-follow span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+    .social-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    .social-icon:hover {
+      transform: scale(1.1);
+    }
+    .hero-banner-wrapper {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-banner-card {
+      background: linear-gradient(135deg, #1b498f 0%, #0d2957 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 36px 30px;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 12px 30px rgba(27, 73, 143, 0.25);
+      border: 4px solid #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner-card::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: radial-gradient(circle at top right, rgba(232, 146, 52, 0.35), transparent 60%);
+      pointer-events: none;
+    }
+    .banner-highlight {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fde047;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .banner-main-num {
+      font-size: 72px;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      margin: 8px 0;
+    }
+    .banner-subtext {
+      font-size: 18px;
+      font-weight: 600;
+      color: #e0e7ff;
+    }
+
+    /* Stats Ribbon */
+    .stats-ribbon {
+      background: var(--banner-blue);
+      color: white;
+      padding: 24px 40px;
+    }
+    .stats-grid {
+      max-width: 1350px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-item i {
+      font-size: 24px;
+      margin-bottom: 4px;
+      color: #fde047;
+    }
+    .stat-number {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    /* Section Global */
+    .section-container {
+      max-width: 1350px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1e293b;
+      text-align: center;
+      width: 100%;
+    }
+    .show-all-link {
+      color: #2563eb;
+      font-size: 13px;
+      font-weight: 700;
+      position: absolute;
+      right: 40px;
+    }
+
+    /* Showcase Carousel Container */
+    .showcase-wrapper {
+      background: var(--hero-bg);
+      border-radius: 16px;
+      padding: 30px;
+      position: relative;
+    }
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .course-card {
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      position: relative;
+    }
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .card-thumb {
+      height: 140px;
+      background: #1e293b;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .play-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .play-overlay i {
+      font-size: 32px;
+      color: #ffffff;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+      transition: transform 0.2s;
+    }
+    .course-card:hover .play-overlay {
+      background: rgba(0,0,0,0.45);
+    }
+    .course-card:hover .play-overlay i {
+      transform: scale(1.15);
+      color: var(--accent-orange);
+    }
+    .thumb-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.75);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 2;
+    }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+    .pill-tag {
+      display: inline-block;
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+    .pill-tag-case {
+      border: 1px solid #94a3b8;
+      color: #475569;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-bottom: 6px;
+      align-self: flex-start;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e3a8a;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    .card-org {
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    /* Content Partners */
+    .partners-section {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .partners-grid {
+      max-width: 1200px;
+      margin: 30px auto 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+    .partner-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 110px;
+    }
+    .partner-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* Ministry Bar */
+    .ministry-bar {
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 0;
+      overflow-x: auto;
+      white-space: nowrap;
+      background: #fafafa;
+    }
+    .ministry-list {
+      display: inline-flex;
+      gap: 30px;
+      padding: 0 40px;
+    }
+    .ministry-item {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e3a8a;
+      border-left: 2px solid #cbd5e1;
+      padding-left: 15px;
+    }
+
+    /* Video Player Modal */
+    .video-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .video-modal.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #0f172a;
+      border-radius: 16px;
+      max-width: 850px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: #1e293b;
+      color: #ffffff;
+    }
+    .modal-title-text {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: #cbd5e1;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .modal-close:hover {
+      color: #ffffff;
+    }
+    .iframe-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+    }
+    .iframe-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Footer */
+    footer {
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 30px 40px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media screen and (max-width: 1024px) {
+      .cards-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media screen and (max-width: 768px) {
+      .hero-inner {
+        flex-direction: column;
+      }
+      .nav-container {
+        flex-direction: column;
+        gap: 12px;
+        border-radius: 16px;
+      }
+      .nav-links {
+        display: none;
+      }
+      .cards-row {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .top-strip {
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="top-gov-bar">
-    <span><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & Programme Implementation</span>
-    <span>iGOT Karmayogi Bharat Integrated</span>
+
+  <!-- Top Strip -->
+  <div class="top-strip">
+    <div class="flag-part">
+      <i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & Programme Implementation
+    </div>
+    <div>
+      iGOT Karmayogi Bharat Integrated
+    </div>
   </div>
 
+  <!-- Header Nav -->
   <header>
-    <div style="display:flex; align-items:center; gap:12px;">
-      <i class="fa-solid fa-building-columns" style="font-size:2rem; color:var(--gov-navy);"></i>
-      <div>
-        <h1 style="font-size:1.25rem; font-weight:800; color:var(--gov-navy);">iGOT MoSPI Platform</h1>
-        <p style="font-size:0.75rem; color:#64748b;">National Cadre Competency & Training Intelligence</p>
+    <div class="nav-container">
+      <div class="nav-logo-group">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 28px; color: #d97706;"></i>
+        <div>
+          <div class="logo-text">कर्मयोगी भारत</div>
+          <div class="logo-subtext">iGOT MoSPI Intelligence</div>
+        </div>
       </div>
-    </div>
-    <div style="display:flex; gap:10px;">
-      <button class="btn btn-admin" onclick="openModal('adminModal')"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
-      <button class="btn btn-navy" onclick="openModal('loginModal')"><i class="fa-solid fa-arrow-right-to-bracket"></i>Employee Login</button>
-      <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-user-plus"></i>New Registration</button>
+      <ul class="nav-links">
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Newsroom</a></li>
+        <li><a href="#">Career</a></li>
+        <li><a href="#">Tenders</a></li>
+        <li><a href="#">Notifications</a></li>
+        <li><a href="#">Help Centre</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-admin" onclick="window.location.href='admin.html'"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
+        <button class="btn-login-outline" onclick="window.location.href='login.html'">Employee Login</button>
+        <button class="btn-register-solid" onclick="window.location.href='login.html?register=1'">New Registration</button>
+      </div>
     </div>
   </header>
 
-  
-  </div>
-
-  <div class="container">
-    <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:20px;"><i class="fa-solid fa-book-open-reader"></i> Recommended Cadre Courses</h3>
-    <div class="course-grid">
-      <div class="course-card">
-        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">NATIONAL ACCOUNTS DIVISION</span>
-        <h4 style="color:var(--gov-navy); margin:8px 0;">System of National Accounts (SNA 2008) & GDP Estimation</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Gross Value Added (GVA), constant price deflators, and institutional sector accounts.</p>
-      </div>
-      <div class="course-card">
-        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">PRICE STATISTICS</span>
-        <h4 style="color:var(--gov-navy); margin:8px 0;">Consumer Price Index (CPI) Analytics & Weighting</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Field validation rules, geometric mean price indexation, and rural-urban price aggregation.</p>
-      </div>
-      <div class="course-card">
-        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">FIELD OPERATIONS (FOD)</span>
-        <h4 style="color:var(--gov-navy); margin:8px 0;">Periodic Labour Force Survey (PLFS) Data Collection</h4>
-        <p style="color:#64748b; font-size:0.88rem;">Household sampling stratifications, CAPI protocols, and real-time validation.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- OFFICER LOGIN -->
-  <div class="modal-overlay" id="loginModal">
-    <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i>Employee Login</h3>
-      <form id="officerLoginForm">
-        <div class="form-group"><label>Official Email *</label><input type="email" id="loginEmail" required></div>
-        <div class="form-group"><label>Password *</label><input type="password" id="loginPass" required></div>
-        <button type="submit" class="btn btn-navy" style="width:100%; padding:12px; margin-top:8px;">Sign In</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- CADRE REGISTRATION -->
-  <div class="modal-overlay" id="registerModal">
-    <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
-      <form id="officerRegisterForm">
-        <div class="form-group"><label>Full Name *</label><input type="text" id="regName" placeholder="Shri Rajesh Kumar" required></div>
-        <div class="form-group"><label>Official Email *</label><input type="email" id="regEmail" placeholder="officer@mospi.gov.in" required></div>
-        <div class="form-group"><label>Password *</label><input type="password" id="regPass" placeholder="••••••••" required></div>
-        <div class="form-group">
-          <label>Service Cadre *</label>
-          <select id="regCadre">
-            <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
-            <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
-          </select>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-pretitle">iGOT Karmayogi</div>
+        <h1 class="hero-title">Transforming & Empowering Civil Servants</h1>
+        <div class="social-follow">
+          <span>Follow Us</span>
+          <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
         </div>
-        <div class="form-group"><label>Department</label><input type="text" id="regDept" value="National Accounts Division (NAD)"></div>
-        <div class="form-group"><label>Designation</label><input type="text" id="regDesig" value="Deputy Director / Assistant Director (ISS)"></div>
-        <button type="submit" class="btn btn-orange" style="width:100%; padding:12px; margin-top:8px;">Register Officer</button>
-      </form>
+      </div>
+      <div class="hero-banner-wrapper">
+        <div class="hero-banner-card">
+          <div class="banner-highlight">Congratulations, Karmayogis!</div>
+          <div class="banner-main-num">1.7 Crore+</div>
+          <div class="banner-subtext">Users Onboarded</div>
+          <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Let's continue to learn, grow and lead!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Ribbon -->
+  <section class="stats-ribbon">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <i class="fa-solid fa-users"></i>
+        <div class="stat-number">1,72,04,488</div>
+        <div class="stat-label">Total Karmayogis Onboarded</div>
+      </div>
+      <div class="stat-item">
+        <i class="fa-solid fa-book-open"></i>
+        <div class="stat-number">6,252</div>
+        <div class="stat-label">Total Courses</div>
+      </div>
+      <div class="stat-item">
+        <i class="fa-solid fa-circle-check"></i>
+        <div class="stat-number">14,96,44,900</div>
+        <div class="stat-label">Total Completions</div>
+      </div>
+      <div class="stat-item">
+        <i class="fa-solid fa-user-check"></i>
+        <div class="stat-number">16,53,660</div>
+        <div class="stat-label">Monthly Active Users</div>
+      </div>
+      <div class="stat-item">
+        <i class="fa-solid fa-certificate"></i>
+        <div class="stat-number">2,90,521</div>
+        <div class="stat-label">Certificates Issued Yesterday</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcased Courses -->
+  <section class="section-container">
+    <div class="section-header" style="position: relative;">
+      <h2 class="section-title">Showcased Courses</h2>
+      <a href="login.html" class="show-all-link">Show all <i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+    <div class="showcase-wrapper">
+      <div class="cards-row">
+        
+        <div class="course-card" onclick="openVideo('mak7BPe_0jY', 'Prevention of Sexual Harassment of Women at Workplace (ISTM)')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60" alt="POSH">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 52m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="card-title">Prevention of Sexual Harassment of Women at Workplace</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Institute of Secretariat Training & Management</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('H16CzEcSC6U', 'Fire Safety in Healthcare Facilities (MoHFW)')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=500&auto=format&fit=crop&q=60" alt="Healthcare">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 23m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="card-title">Fire Safety in Healthcare Facilities</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Ministry of Health and Family Welfare</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('a3xD_eysXQI', 'Civil Defence Services - NDRF')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=500&auto=format&fit=crop&q=60" alt="Civil Defence">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 17m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="card-title">Civil Defence Services (नागरिक सुरक्षा सेवाएँ)</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By National Disaster Response Force (NDRF)</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('HqlLctm0qpE', 'Swachhata Hi Seva Training Module')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=500&auto=format&fit=crop&q=60" alt="Swachhata">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 20m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="card-title">स्वच्छता ही सेवा - प्रशिक्षण मॉड्यूल</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Ministry of Housing and Urban Affairs (MoHUA)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Amrit Gyaan Kosh Case Studies -->
+  <section class="section-container">
+    <div class="section-header" style="position: relative;">
+      <h2 class="section-title">Amrit Gyaan Kosh Case Studies</h2>
+      <a href="dashboard.html" class="show-all-link">Show all <i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+    <div class="showcase-wrapper">
+      <div class="cards-row">
+        
+        <div class="course-card" onclick="openVideo('mak7BPe_0jY', 'From Darkness to Dignity: Transformation of Malapur')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=500&auto=format&fit=crop&q=60" alt="Governance">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag-case">Governance & Administration</span>
+              <h3 class="card-title">From Darkness to Dignity: Transformation of Malapur</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('a3xD_eysXQI', 'MANTHAN: Building Demand-Driven Industry-Academia Bridge')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500&auto=format&fit=crop&q=60" alt="Manthan">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 10m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag-case">Information Technology</span>
+              <h3 class="card-title">MANTHAN: Building India's Demand-Driven Industry Bridge</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('H16CzEcSC6U', 'Smart Mobility for Digital India Delhi Metro')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=500&auto=format&fit=crop&q=60" alt="Metro">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag-case">Urban Development</span>
+              <h3 class="card-title">Smart Mobility for Digital India Delhi Metro Rail Corp</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+          </div>
+        </div>
+
+        <div class="course-card" onclick="openVideo('HqlLctm0qpE', 'Extreme Poverty Identification Process (EPIP): Kerala')">
+          <div class="card-thumb">
+            <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=500&auto=format&fit=crop&q=60" alt="Kerala Poverty">
+            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
+          </div>
+          <div class="card-body">
+            <div>
+              <span class="pill-tag-case">Welfare</span>
+              <h3 class="card-title">Extreme Poverty Identification Process (EPIP): Kerala</h3>
+            </div>
+            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Partners -->
+  <section class="partners-section">
+    <h2 class="section-title">Content Partners</h2>
+    <div class="partners-grid">
+      <div class="partner-item">
+        <i class="fa-solid fa-landmark" style="font-size: 38px; color: #1e3a8a;"></i>
+        <div class="partner-name">DPIIT</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-shield-halved" style="font-size: 38px; color: #b91c1c;"></i>
+        <div class="partner-name">RAKNPA</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-feather-pointed" style="font-size: 38px; color: #ea580c;"></i>
+        <div class="partner-name">WF</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 38px; color: #0284c7;"></i>
+        <div class="partner-name">ISB</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-award" style="font-size: 38px; color: #854d0e;"></i>
+        <div class="partner-name">LBSNAA</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-tree" style="font-size: 38px; color: #15803d;"></i>
+        <div class="partner-name">MoEFCC</div>
+      </div>
+      <div class="partner-item">
+        <i class="fa-solid fa-building-columns" style="font-size: 38px; color: #1e40af;"></i>
+        <div class="partner-name">ISTM</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Organisation Partners -->
+  <section style="text-align: center; margin-bottom: 50px;">
+    <h2 class="section-title" style="margin-bottom: 20px;">Organisation Partners</h2>
+    <div class="ministry-bar">
+      <div class="ministry-list">
+        <div class="ministry-item">Ministry of Agriculture & Farmers Welfare</div>
+        <div class="ministry-item">Ministry of AYUSH</div>
+        <div class="ministry-item">Ministry of Chemicals & Fertilizers</div>
+        <div class="ministry-item">Ministry of Civil Aviation</div>
+        <div class="ministry-item">Ministry of Coal</div>
+        <div class="ministry-item">Ministry of Statistics & Programme Implementation (MoSPI)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Modal -->
+  <div id="videoModal" class="video-modal" onclick="closeVideo(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-top">
+        <div id="modalTitle" class="modal-title-text">Course Video</div>
+        <button class="modal-close" onclick="closeVideo(event)"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="iframe-wrapper">
+        <iframe id="videoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
     </div>
   </div>
 
-  <!-- ADMIN LOGIN -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <h3 style="color:var(--gov-navy); margin-bottom:5px;"><i class="fa-solid fa-shield-halved"></i> Admin Console</h3>
-      <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Supervisory access: 123@gov.ac.in / 1234</p>
-      <form id="adminLoginForm">
-        <div class="form-group"><label>Admin Email *</label><input type="email" id="adminEmail" value="123@gov.ac.in" required></div>
-        <div class="form-group"><label>Password *</label><input type="password" id="adminPass" value="1234" required></div>
-        <button type="submit" class="btn btn-admin" style="width:100%; padding:12px; margin-top:8px;">Authenticate Admin</button>
-      </form>
-    </div>
-  </div>
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 iGOT Karmayogi Bharat | Ministry of Statistics & Programme Implementation. All Rights Reserved.</p>
+  </footer>
 
-      <script>
-    const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:");
-    const API_BASE = isLocal ? "http://127.0.0.1:8000" : "https://sih101.onrender.com";
-
-    function openModal(id) {
-      closeAllModals();
-      const m = document.getElementById(id);
-      if (m) m.style.display = "flex";
+  <script>
+    function openVideo(videoId, title) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('videoIframe').src = "https://www.youtube-nocookie.com/embed/" + videoId + "?autoplay=1&rel=0";
+      document.getElementById('videoModal').classList.add('active');
     }
 
-    function closeAllModals() {
-      document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
+    function closeVideo(e) {
+      document.getElementById('videoIframe').src = "";
+      document.getElementById('videoModal').classList.remove('active');
     }
-
-    document.querySelectorAll(".modal-overlay").forEach(m => {
-      m.addEventListener("click", e => { if (e.target === m) closeAllModals(); });
-    });
-
-    document.getElementById("officerRegisterForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector("button[type='submit']");
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = "Registering Officer...";
-
-      const payload = {
-        name: document.getElementById("regName")?.value.trim() || "Officer",
-        email: document.getElementById("regEmail")?.value.trim() || "",
-        password: document.getElementById("regPass")?.value.trim() || "",
-        cadre: document.getElementById("regCadre")?.value || "Indian Statistical Service (ISS)",
-        department: document.getElementById("regDept")?.value.trim() || "National Accounts Division (NAD)",
-        designation: document.getElementById("regDesig")?.value.trim() || "Deputy Director / Assistant Director (ISS)"
-      };
-
-      try {
-        const res = await fetch(`${API_BASE}/api/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Registration failed.");
-
-        localStorage.setItem("mospi_user", JSON.stringify(data.user));
-        alert("Registration Successful!");
-        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
-      } catch (err) {
-        alert("Registration Error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
-      }
-    });
-
-    document.getElementById("officerLoginForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector("button[type='submit']");
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = "Authenticating...";
-
-      const email = document.getElementById("loginEmail")?.value.trim() || "";
-      const password = document.getElementById("loginPass")?.value.trim() || "";
-
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Authentication failed.");
-
-        localStorage.setItem("mospi_user", JSON.stringify(data.user));
-        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
-      } catch (err) {
-        alert("Login Error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
-      }
-    });
-
-    document.getElementById("adminLoginForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const btn = e.target.querySelector("button[type='submit']");
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = "Verifying Admin...";
-
-      const email = document.getElementById("adminEmail")?.value.trim() || "";
-      const password = document.getElementById("adminPass")?.value.trim() || "";
-
-      try {
-        const res = await fetch(`${API_BASE}/api/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Admin authentication failed.");
-
-        localStorage.setItem("mospi_user", JSON.stringify(data.user));
-        window.location.href = "admin.html";
-      } catch (err) {
-        alert("Admin Error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
-      }
-    });
   </script>
+
 </body>
 </html>
-
-
-
-
-
-
