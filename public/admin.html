@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary: #15325b;
@@ -34,7 +35,7 @@
     .login-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 20px; text-align: center; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
-    .form-group input {
+    .form-group input, .form-group select {
       width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px;
     }
     .btn-submit {
@@ -47,18 +48,38 @@
     .header-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--primary); font-size: 18px; }
     .btn-logout { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-    .container { max-width: 1300px; margin: 30px auto; padding: 0 20px; }
-    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
-    .card { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-    .card-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .container { max-width: 1320px; margin: 30px auto; padding: 0 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
+    
+    .card { background: white; border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .card-title { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
-    th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #334155; }
-    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0369a1; }
+    /* Filters Bar */
+    .filter-bar {
+      display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+      background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;
+    }
+    .filter-item { flex: 1; min-width: 200px; }
+    .filter-item label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; display: block; }
+    .filter-item select, .filter-item input {
+      width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid var(--border); font-size: 13px;
+    }
 
-    @media screen and (max-width: 768px) {
-      .dash-grid { grid-template-columns: 1fr; }
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th { background: #f1f5f9; padding: 12px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 1px solid var(--border); cursor: pointer; }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: #334155; }
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+    .badge-blue { background: #e0f2fe; color: #0369a1; }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+
+    .chart-box { position: relative; height: 230px; width: 100%; display: flex; align-items: center; justify-content: center; }
+
+    @media screen and (max-width: 1024px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -97,14 +118,39 @@
   </div>
 
   <div class="container">
-    <div class="dash-grid">
+    
+    <!-- Top Interactive Visualizations: 3 Pie/Bar Charts -->
+    <div class="grid-3">
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color: #2563eb;"></i> By Ministry / Division</h3>
+        <div class="chart-box">
+          <canvas id="deptPieChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color: #ea580c;"></i> By Cadre / Designation</h3>
+        <div class="chart-box">
+          <canvas id="cadrePieChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-chart-column" style="color: #16a34a;"></i> Completed vs Pending vs To Learn</h3>
+        <div class="chart-box">
+          <canvas id="progressDoughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Assessment Upload & Predictive Needs -->
+    <div class="grid-2">
       <div class="card">
         <h3 class="card-title"><i class="fa-solid fa-file-pdf" style="color: #dc2626;"></i> AI Assessment Engine (PDF to MCQs)</h3>
-        <p style="font-size: 12px; color: var(--muted); margin-bottom: 14px;">Select module and circular to auto-generate 5 grounded questions.</p>
         <form id="uploadForm" onsubmit="handleUploadCircular(event)">
           <div class="form-group">
             <label>Select Training Module</label>
-            <select id="courseIdSelect" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid var(--border);">
+            <select id="courseIdSelect">
               <option value="1">Course 1: National Accounts & GDP (SNA 2008)</option>
               <option value="2">Course 2: CPI Price Analytics</option>
               <option value="3">Course 3: PLFS Digital Survey</option>
@@ -113,7 +159,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Training Material (PDF)</label>
+            <label>Upload Circular (PDF)</label>
             <input type="file" id="pdfFile" accept="application/pdf" required style="font-size: 12px;">
           </div>
           <button type="submit" id="uploadBtn" class="btn-submit" style="background: var(--accent);">Synthesize 5 Assessment Questions</button>
@@ -122,77 +168,97 @@
       </div>
 
       <div class="card">
-        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color: #0284c7;"></i> Predictive Capacity Building (NSSTA/TPAC)</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
-          <div style="background: #f1f5f9; padding: 14px; border-radius: 8px; text-align: center;">
-            <div id="totalOfficersCount" style="font-size: 24px; font-weight: 800; color: var(--primary);">4</div>
-            <div style="font-size: 11px; color: var(--muted); font-weight: 600;">Total Officers Tracked</div>
+        <h3 class="card-title"><i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Predictive Needs & Unmet Curricula</h3>
+        <div id="predictiveNeedsList" style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 8px;">
+          <div style="padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <strong>National Accounts Division (NAD)</strong>: <span style="color:#b45309;">Needs GVA Scrutiny & SNA 2008 Batch (55% Pending)</span>
           </div>
-          <div style="background: #fef3c7; padding: 14px; border-radius: 8px; text-align: center;">
-            <div id="avgCompletion" style="font-size: 24px; font-weight: 800; color: #b45309;">68.5%</div>
-            <div style="font-size: 11px; color: #92400e; font-weight: 600;">Avg. Competency Progress</div>
+          <div style="padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <strong>Price Statistics Division (PSD)</strong>: <span style="color:#b45309;">Needs Python/R Price Index Aggregation (62% Pending)</span>
           </div>
-        </div>
-
-        <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Identified Division Shortages & Suggested Batches:</div>
-        <div id="predictiveNeedsList" style="font-size: 12px; color: #475569;">
-          <div style="margin-bottom: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-            <strong>National Accounts Division (NAD)</strong>: <span style="color:#b45309;">NSSTA Special Capacity Building Batch (SNA 2008 & CAPI)</span>
-          </div>
-          <div style="margin-bottom: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-            <strong>Price Statistics Division (PSD)</strong>: <span style="color:#b45309;">NSSTA TPAC Python & Big Data Analytics Workshop</span>
+          <div style="padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <strong>Survey Operations / PLFS</strong>: <span style="color:#b45309;">Needs Digital CAPI Field Validation Workshop (40% Pending)</span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Advanced Sorting & Filtering Bar -->
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Search Officer</label>
+        <input type="text" id="searchInput" placeholder="Search by name or email..." oninput="applyFilters()">
+      </div>
+      <div class="filter-item">
+        <label>Filter by Ministry / Division</label>
+        <select id="deptFilter" onchange="applyFilters()">
+          <option value="ALL">All Divisions</option>
+          <option value="National Accounts Division (NAD)">National Accounts Division (NAD)</option>
+          <option value="Price Statistics Division (PSD)">Price Statistics Division (PSD)</option>
+          <option value="Survey Operations / PLFS">Survey Operations / PLFS</option>
+          <option value="Industrial Statistics Wing (ISW)">Industrial Statistics Wing (ISW)</option>
+          <option value="Economic Statistics Division (ESD)">Economic Statistics Division (ESD)</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>Filter by Cadre / Designation</label>
+        <select id="cadreFilter" onchange="applyFilters()">
+          <option value="ALL">All Cadres & Roles</option>
+          <option value="Deputy Director">Deputy Director (ISS)</option>
+          <option value="Assistant Director">Assistant Director (ISS)</option>
+          <option value="Senior Statistical Officer">Senior Statistical Officer (SSO)</option>
+          <option value="Junior Statistical Officer">Junior Statistical Officer (JSO)</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>Sort By</label>
+        <select id="sortSelect" onchange="applyFilters()">
+          <option value="comp_desc">Competency (Highest First)</option>
+          <option value="comp_asc">Competency (Lowest First)</option>
+          <option value="name_asc">Name (A - Z)</option>
+          <option value="name_desc">Name (Z - A)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Officers Competency Table -->
     <div class="card">
-      <h3 class="card-title"><i class="fa-solid fa-users" style="color: #16a34a;"></i> Registered Officers & Competency Records</h3>
+      <h3 class="card-title"><i class="fa-solid fa-users" style="color: #16a34a;"></i> Officer Competency & Curriculum Ledger</h3>
       <div style="overflow-x: auto;">
         <table>
           <thead>
             <tr>
               <th>Officer Name</th>
               <th>Email</th>
-              <th>Department</th>
-              <th>Designation</th>
-              <th>Competency Rating</th>
+              <th>Ministry / Division</th>
+              <th>Cadre / Designation</th>
+              <th>Competency</th>
               <th>Completed Modules</th>
+              <th>Pending / To Learn</th>
             </tr>
           </thead>
           <tbody id="officersTableBody">
-            <tr>
-              <td><strong>Nagari Harsha Vardhan</strong></td>
-              <td>harsha@gov.in</td>
-              <td>National Accounts Division (NAD)</td>
-              <td>Deputy Director (ISS)</td>
-              <td><span class="badge">85%</span></td>
-              <td>2 / 5</td>
-            </tr>
-            <tr>
-              <td><strong>Priya Sharma</strong></td>
-              <td>priya.sharma@gov.in</td>
-              <td>Survey Operations / PLFS</td>
-              <td>Assistant Director (ISS)</td>
-              <td><span class="badge">90%</span></td>
-              <td>3 / 5</td>
-            </tr>
-            <tr>
-              <td><strong>Rajesh Kumar</strong></td>
-              <td>rajesh.k@gov.in</td>
-              <td>Price Statistics Division (PSD)</td>
-              <td>Senior Statistical Officer</td>
-              <td><span class="badge">75%</span></td>
-              <td>1 / 5</td>
-            </tr>
+            <!-- Rendered by JS -->
           </tbody>
         </table>
       </div>
     </div>
+
   </div>
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
+    let allOfficers = [];
+    let deptChart = null;
+    let cadreChart = null;
+    let progressChart = null;
+
+    const fallbackOfficers = [
+      { name: "Nagari Harsha Vardhan", email: "harsha@gov.in", department: "National Accounts Division (NAD)", designation: "Deputy Director (ISS)", cadre: "Indian Statistical Service", competency: "85%", completed_count: 3 },
+      { name: "Priya Sharma", email: "priya.sharma@gov.in", department: "Survey Operations / PLFS", designation: "Assistant Director (ISS)", cadre: "Indian Statistical Service", competency: "90%", completed_count: 4 },
+      { name: "Rajesh Kumar", email: "rajesh.k@gov.in", department: "Price Statistics Division (PSD)", designation: "Senior Statistical Officer (SSO)", cadre: "Subordinate Statistical Service", competency: "75%", completed_count: 1 },
+      { name: "Ananya Roy", email: "ananya.r@gov.in", department: "Industrial Statistics Wing (ISW)", designation: "Junior Statistical Officer (JSO)", cadre: "Subordinate Statistical Service", competency: "70%", completed_count: 1 }
+    ];
 
     function checkAdminAuth() {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
@@ -204,19 +270,13 @@
       }
     }
 
-        async function handleAdminLogin(e) {
+    async function handleAdminLogin(e) {
       e.preventDefault();
       const email = document.getElementById("adminEmail").value.trim();
       const password = document.getElementById("adminPassword").value.trim();
 
       if (email === "123@gov.ac.in" && password === "1234") {
-        localStorage.setItem("mospi_user", JSON.stringify({
-          id: 999,
-          name: "Chief Administrator",
-          email: "123@gov.ac.in",
-          role: "admin",
-          department: "Ministry Headquarters"
-        }));
+        localStorage.setItem("mospi_user", JSON.stringify({ id: 999, name: "Chief Administrator", email: "123@gov.ac.in", role: "admin" }));
         document.getElementById("adminLoginModal").style.display = "none";
         loadDashboardData();
         return;
@@ -254,7 +314,6 @@
       const btn = document.getElementById("uploadBtn");
 
       if (!file) return;
-
       const formData = new FormData();
       formData.append("course_id", courseId);
       formData.append("file", file);
@@ -264,10 +323,7 @@
       btn.disabled = true;
 
       try {
-        const res = await fetch(`${API_BASE}/api/admin/upload-quiz-material`, {
-          method: "POST",
-          body: formData
-        });
+        const res = await fetch(`${API_BASE}/api/admin/upload-quiz-material`, { method: "POST", body: formData });
         const data = await res.json();
         if (res.ok) {
           status.textContent = `Generated & saved 5 questions for Course #${courseId}!`;
@@ -284,47 +340,135 @@
       }
     }
 
-        async function loadDashboardData() {
+    async function loadDashboardData() {
       try {
         const usersRes = await fetch(`${API_BASE}/api/admin/users`);
         if (usersRes.ok) {
           const users = await usersRes.json();
           if (Array.isArray(users) && users.length > 0) {
-            const tbody = document.getElementById("officersTableBody");
-            tbody.innerHTML = "";
-            users.forEach(u => {
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
-                <td><strong>${u.name || "Officer"}</strong></td>
-                <td>${u.email}</td>
-                <td>${u.department || "NAD"}</td>
-                <td>${u.designation || "Deputy Director"}</td>
-                <td><span class="badge">${u.competency || "75%"}</span></td>
-                <td>${u.completed_count || 0} / 5</td>
-              `;
-              tbody.appendChild(tr);
-            });
+            allOfficers = users;
+          } else {
+            allOfficers = fallbackOfficers;
           }
+        } else {
+          allOfficers = fallbackOfficers;
         }
       } catch (err) {
-        const tbody = document.getElementById("officersTableBody");
-        if (tbody && tbody.innerHTML.includes("Loading")) {
-          tbody.innerHTML = `
-            <tr>
-              <td><strong>Nagari Harsha Vardhan</strong></td>
-              <td>harsha@gov.in</td>
-              <td>National Accounts Division (NAD)</td>
-              <td>Deputy Director (ISS)</td>
-              <td><span class="badge">85%</span></td>
-              <td>2 / 5</td>
-            </tr>
-          `;
-        }
+        allOfficers = fallbackOfficers;
       }
+      applyFilters();
+      renderCharts();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const dept = document.getElementById("deptFilter").value;
+      const cadre = document.getElementById("cadreFilter").value;
+      const sort = document.getElementById("sortSelect").value;
+
+      let filtered = allOfficers.filter(o => {
+        const matchesSearch = (o.name || "").toLowerCase().includes(search) || (o.email || "").toLowerCase().includes(search);
+        const matchesDept = (dept === "ALL") || (o.department || "").includes(dept) || (dept.includes(o.department || ""));
+        const matchesCadre = (cadre === "ALL") || (o.designation || "").includes(cadre);
+        return matchesSearch && matchesDept && matchesCadre;
+      });
+
+      filtered.sort((a, b) => {
+        const scoreA = parseInt(a.competency || "0");
+        const scoreB = parseInt(b.competency || "0");
+        if (sort === "comp_desc") return scoreB - scoreA;
+        if (sort === "comp_asc") return scoreA - scoreB;
+        if (sort === "name_asc") return (a.name || "").localeCompare(b.name || "");
+        if (sort === "name_desc") return (b.name || "").localeCompare(a.name || "");
+      });
+
+      const tbody = document.getElementById("officersTableBody");
+      tbody.innerHTML = "";
+      filtered.forEach(u => {
+        const done = u.completed_count || 0;
+        const pending = Math.max(0, 5 - done);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${u.name || "Officer"}</strong></td>
+          <td>${u.email}</td>
+          <td>${u.department || "NAD"}</td>
+          <td>${u.designation || "Deputy Director (ISS)"}</td>
+          <td><span class="badge badge-blue">${u.competency || "75%"}</span></td>
+          <td><span class="badge badge-green">${done} / 5 Modules</span></td>
+          <td><span class="badge badge-orange">${pending} Modules to Learn</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCharts() {
+      const deptCounts = {};
+      const cadreCounts = {};
+      let totalCompleted = 0;
+      let totalPending = 0;
+
+      allOfficers.forEach(u => {
+        const d = u.department || "General NAD";
+        deptCounts[d] = (deptCounts[d] || 0) + 1;
+
+        const c = (u.designation || "Assistant Director").split("/")[0].trim();
+        cadreCounts[c] = (cadreCounts[c] || 0) + 1;
+
+        const done = u.completed_count || 1;
+        totalCompleted += done;
+        totalPending += Math.max(0, 5 - done);
+      });
+
+      // 1. Dept Pie Chart
+      if (deptChart) deptChart.destroy();
+      deptChart = new Chart(document.getElementById("deptPieChart"), {
+        type: "pie",
+        data: {
+          labels: Object.keys(deptCounts),
+          datasets: [{
+            data: Object.values(deptCounts),
+            backgroundColor: ["#1e40af", "#f59e0b", "#10b981", "#8b5cf6", "#ef4444"]
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+      });
+
+      // 2. Cadre Pie Chart
+      if (cadreChart) cadreChart.destroy();
+      cadreChart = new Chart(document.getElementById("cadrePieChart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(cadreCounts),
+          datasets: [{
+            data: Object.values(cadreCounts),
+            backgroundColor: ["#e58a2b", "#0284c7", "#16a34a", "#6366f1"]
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+      });
+
+      // 3. Completed vs Pending vs To Learn Bar Chart
+      if (progressChart) progressChart.destroy();
+      progressChart = new Chart(document.getElementById("progressDoughnutChart"), {
+        type: "bar",
+        data: {
+          labels: ["Completed", "Pending to Learn"],
+          datasets: [{
+            label: "Total Modules",
+            data: [totalCompleted, totalPending],
+            backgroundColor: ["#16a34a", "#e11d48"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
     }
 
     window.onload = checkAdminAuth;
   </script>
 </body>
 </html>
-
