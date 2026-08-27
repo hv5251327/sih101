@@ -10,14 +10,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary-navy: #1b365d;
-      --hero-bg: #f9f3ea;
-      --banner-blue: #1b498f;
-      --accent-orange: #e89234;
-      --card-bg: #ffffff;
-      --text-dark: #222222;
-      --text-muted: #5f6368;
-      --border-color: #e2d7c7;
+      --primary-navy: #15325b;
+      --hero-cream: #faf5ed;
+      --banner-blue: #1c498a;
+      --accent-gold: #e58a2b;
+      --text-main: #1f2937;
+      --text-muted: #64748b;
+      --card-border: #e9decb;
     }
     * {
       box-sizing: border-box;
@@ -27,7 +26,7 @@
     }
     body {
       background-color: #ffffff;
-      color: var(--text-dark);
+      color: var(--text-main);
       overflow-x: hidden;
     }
     a {
@@ -37,97 +36,68 @@
 
     /* Top Strip */
     .top-strip {
-      background: #0f2744;
-      color: #ffffff;
-      padding: 6px 40px;
+      background: #0d213a;
+      color: #f1f5f9;
+      padding: 6px 36px;
       font-size: 11px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 500;
     }
-    .top-strip .flag-part {
+    .top-strip .flag-item {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    /* Header Nav */
+    /* Navigation Bar */
     .nav-container {
       background: #ffffff;
-      margin: 10px auto;
-      max-width: 1400px;
-      border-radius: 40px;
-      padding: 8px 24px;
+      margin: 12px auto;
+      max-width: 1380px;
+      border-radius: 36px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
       border: 1px solid #eee;
     }
-    .nav-logo-group {
+    .nav-brand {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .logo-text {
-      font-size: 18px;
+    .brand-title {
+      font-size: 19px;
       font-weight: 800;
-      color: #d97706;
+      color: var(--accent-gold);
       line-height: 1.1;
     }
-    .logo-subtext {
-      font-size: 10px;
-      color: #4b5563;
+    .brand-subtitle {
+      font-size: 11px;
+      color: #475569;
       font-weight: 600;
     }
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 22px;
       list-style: none;
       font-size: 13px;
       font-weight: 600;
-      color: #374151;
+      color: #334155;
     }
     .nav-links a:hover {
-      color: var(--accent-orange);
+      color: var(--accent-gold);
     }
     .nav-actions {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .btn-login-outline {
-      padding: 8px 18px;
-      border-radius: 20px;
-      border: 1.5px solid var(--banner-blue);
-      color: var(--banner-blue);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #fff;
-      transition: all 0.2s;
-    }
-    .btn-login-outline:hover {
-      background: #f0f4fa;
-    }
-    .btn-register-solid {
-      padding: 8px 20px;
-      border-radius: 20px;
-      border: none;
-      background: var(--accent-orange);
-      color: #ffffff;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 3px 8px rgba(232, 146, 52, 0.3);
-      transition: all 0.2s;
-    }
-    .btn-register-solid:hover {
-      background: #d47e22;
-    }
-    .btn-admin {
+    .btn-admin-pill {
       padding: 8px 16px;
       border-radius: 20px;
       border: 1.5px solid #334155;
@@ -137,15 +107,43 @@
       font-weight: 600;
       cursor: pointer;
     }
+    .btn-employee-pill {
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: 1.5px solid var(--banner-blue);
+      color: var(--banner-blue);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      transition: 0.2s;
+    }
+    .btn-employee-pill:hover {
+      background: #f0f4fa;
+    }
+    .btn-register-pill {
+      padding: 8px 20px;
+      border-radius: 20px;
+      border: none;
+      background: var(--accent-gold);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(229, 138, 43, 0.3);
+      transition: 0.2s;
+    }
+    .btn-register-pill:hover {
+      background: #cf781e;
+    }
 
     /* Hero Section */
     .hero-section {
-      background: var(--hero-bg);
-      padding: 40px 60px 60px 60px;
-      position: relative;
+      background: var(--hero-cream);
+      padding: 44px 50px 60px 50px;
     }
     .hero-inner {
-      max-width: 1350px;
+      max-width: 1320px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -156,195 +154,186 @@
       flex: 1.1;
     }
     .hero-pretitle {
-      font-size: 18px;
-      color: #374151;
+      font-size: 17px;
+      color: #334155;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .hero-title {
-      font-size: 42px;
+      font-size: 40px;
       font-weight: 800;
-      color: var(--accent-orange);
-      line-height: 1.2;
+      color: var(--accent-gold);
+      line-height: 1.22;
       margin-bottom: 24px;
     }
-    .social-follow {
+    .social-row {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-top: 20px;
     }
-    .social-follow span {
+    .social-row span {
       font-size: 13px;
       font-weight: 600;
-      color: #4b5563;
+      color: #475569;
     }
-    .social-icon {
+    .social-btn {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: #1e3a8a;
+      background: var(--primary-navy);
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 13px;
       transition: transform 0.2s;
     }
-    .social-icon:hover {
+    .social-btn:hover {
       transform: scale(1.1);
     }
-    .hero-banner-wrapper {
-      flex: 1.2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .hero-card-wrap {
+      flex: 1.15;
     }
-    .hero-banner-card {
-      background: linear-gradient(135deg, #1b498f 0%, #0d2957 100%);
+    .hero-banner-box {
+      background: linear-gradient(135deg, #1c498a 0%, #0e2b58 100%);
       color: white;
-      border-radius: 20px;
-      padding: 36px 30px;
+      border-radius: 18px;
+      padding: 34px 28px;
       text-align: center;
       width: 100%;
-      box-shadow: 0 12px 30px rgba(27, 73, 143, 0.25);
+      box-shadow: 0 12px 28px rgba(28, 73, 138, 0.22);
       border: 4px solid #ffffff;
       position: relative;
       overflow: hidden;
     }
-    .hero-banner-card::before {
+    .hero-banner-box::after {
       content: "";
       position: absolute;
       width: 100%;
       height: 100%;
       top: 0;
       left: 0;
-      background: radial-gradient(circle at top right, rgba(232, 146, 52, 0.35), transparent 60%);
+      background: radial-gradient(circle at top right, rgba(229, 138, 43, 0.35), transparent 65%);
       pointer-events: none;
     }
-    .banner-highlight {
-      font-size: 18px;
+    .banner-top-tag {
+      font-size: 16px;
       font-weight: 700;
       color: #fde047;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
     }
-    .banner-main-num {
-      font-size: 72px;
+    .banner-stat {
+      font-size: 68px;
       font-weight: 900;
-      line-height: 1;
+      line-height: 1.05;
       color: #ffffff;
-      margin: 8px 0;
+      margin: 10px 0;
     }
-    .banner-subtext {
-      font-size: 18px;
+    .banner-desc {
+      font-size: 17px;
       font-weight: 600;
-      color: #e0e7ff;
+      color: #e2e8f0;
     }
 
-    /* Stats Ribbon */
+    /* Stats Strip */
     .stats-ribbon {
       background: var(--banner-blue);
       color: white;
-      padding: 24px 40px;
+      padding: 24px 30px;
     }
     .stats-grid {
-      max-width: 1350px;
+      max-width: 1320px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 20px;
+      gap: 16px;
       text-align: center;
     }
-    .stat-item {
+    .stat-box {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
     }
-    .stat-item i {
-      font-size: 24px;
-      margin-bottom: 4px;
+    .stat-box i {
+      font-size: 22px;
+      margin-bottom: 2px;
       color: #fde047;
     }
-    .stat-number {
-      font-size: 22px;
+    .stat-box .num {
+      font-size: 20px;
       font-weight: 800;
-      letter-spacing: 0.5px;
     }
-    .stat-label {
+    .stat-box .lbl {
       font-size: 11px;
       color: #cbd5e1;
       font-weight: 500;
     }
 
-    /* Section Global */
-    .section-container {
-      max-width: 1350px;
-      margin: 50px auto;
+    /* Course Sections */
+    .section-wrap {
+      max-width: 1320px;
+      margin: 46px auto;
       padding: 0 20px;
     }
-    .section-header {
+    .section-head {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 24px;
+      position: relative;
+      margin-bottom: 22px;
     }
     .section-title {
-      font-size: 24px;
+      font-size: 23px;
       font-weight: 800;
       color: #1e293b;
       text-align: center;
-      width: 100%;
     }
-    .show-all-link {
+    .show-all {
       color: #2563eb;
       font-size: 13px;
       font-weight: 700;
       position: absolute;
-      right: 40px;
+      right: 10px;
     }
-
-    /* Showcase Carousel Container */
-    .showcase-wrapper {
-      background: var(--hero-bg);
+    .showcase-shelf {
+      background: var(--hero-cream);
       border-radius: 16px;
-      padding: 30px;
-      position: relative;
+      padding: 26px;
     }
-    .cards-row {
+    .grid-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      gap: 18px;
     }
-    .course-card {
+    .portal-card {
       background: #ffffff;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
       display: flex;
       flex-direction: column;
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
-      position: relative;
     }
-    .course-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    .portal-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 18px rgba(0,0,0,0.11);
     }
-    .card-thumb {
-      height: 140px;
+    .card-cover {
+      height: 136px;
       background: #1e293b;
       position: relative;
       overflow: hidden;
     }
-    .card-thumb img {
+    .card-cover img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-    .play-overlay {
+    .play-btn-layer {
       position: absolute;
       top: 0;
       left: 0;
@@ -356,20 +345,20 @@
       justify-content: center;
       transition: background 0.2s;
     }
-    .play-overlay i {
-      font-size: 32px;
+    .play-btn-layer i {
+      font-size: 30px;
       color: #ffffff;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
       transition: transform 0.2s;
     }
-    .course-card:hover .play-overlay {
+    .portal-card:hover .play-btn-layer {
       background: rgba(0,0,0,0.45);
     }
-    .course-card:hover .play-overlay i {
+    .portal-card:hover .play-btn-layer i {
       transform: scale(1.15);
-      color: var(--accent-orange);
+      color: var(--accent-gold);
     }
-    .thumb-badge {
+    .duration-badge {
       position: absolute;
       bottom: 8px;
       right: 8px;
@@ -384,97 +373,97 @@
       gap: 4px;
       z-index: 2;
     }
-    .card-body {
-      padding: 16px;
+    .card-info {
+      padding: 14px;
       display: flex;
       flex-direction: column;
       flex: 1;
       justify-content: space-between;
     }
-    .pill-tag {
-      display: inline-block;
-      border: 1px solid var(--accent-orange);
-      color: var(--accent-orange);
+    .pill-course {
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
       font-size: 10px;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 12px;
+      padding: 2px 7px;
+      border-radius: 10px;
       margin-bottom: 8px;
       align-self: flex-start;
     }
-    .pill-tag-case {
+    .pill-case {
       border: 1px solid #94a3b8;
       color: #475569;
       font-size: 10px;
       font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
-      margin-bottom: 6px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-bottom: 8px;
       align-self: flex-start;
     }
-    .card-title {
+    .course-heading {
       font-size: 14px;
       font-weight: 700;
       color: #1e3a8a;
       line-height: 1.35;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    .card-org {
+    .org-subtext {
       font-size: 11px;
-      color: #64748b;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       margin-top: auto;
     }
 
-    /* Content Partners */
-    .partners-section {
+    /* Partners */
+    .partner-section {
       text-align: center;
       padding: 40px 20px;
     }
-    .partners-grid {
+    .partner-shelf {
       max-width: 1200px;
-      margin: 30px auto 0 auto;
+      margin: 24px auto 0 auto;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      gap: 40px;
+      gap: 36px;
     }
-    .partner-item {
+    .partner-block {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      width: 110px;
+      gap: 8px;
+      width: 100px;
     }
-    .partner-name {
+    .partner-label {
       font-size: 12px;
       font-weight: 700;
       color: #334155;
     }
 
-    /* Ministry Bar */
-    .ministry-bar {
+    /* Ministry Carousel */
+    .ministry-carousel {
       border-top: 1px solid #e2e8f0;
       border-bottom: 1px solid #e2e8f0;
-      padding: 20px 0;
+      padding: 18px 0;
       overflow-x: auto;
       white-space: nowrap;
       background: #fafafa;
+      margin-bottom: 40px;
     }
-    .ministry-list {
+    .ministry-chain {
       display: inline-flex;
-      gap: 30px;
-      padding: 0 40px;
+      gap: 28px;
+      padding: 0 36px;
     }
-    .ministry-item {
+    .ministry-node {
       font-size: 13px;
       font-weight: 600;
       color: #1e3a8a;
       border-left: 2px solid #cbd5e1;
-      padding-left: 15px;
+      padding-left: 14px;
     }
 
     /* Video Player Modal */
@@ -495,43 +484,43 @@
     .video-modal.active {
       display: flex;
     }
-    .modal-box {
+    .modal-card {
       background: #0f172a;
-      border-radius: 16px;
-      max-width: 850px;
+      border-radius: 14px;
+      max-width: 820px;
       width: 100%;
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
       border: 1px solid #334155;
     }
-    .modal-top {
+    .modal-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
+      padding: 10px 18px;
       background: #1e293b;
       color: #ffffff;
     }
-    .modal-title-text {
+    .modal-title {
       font-size: 14px;
       font-weight: 700;
     }
-    .modal-close {
+    .modal-exit {
       background: none;
       border: none;
       color: #cbd5e1;
       font-size: 18px;
       cursor: pointer;
     }
-    .modal-close:hover {
+    .modal-exit:hover {
       color: #ffffff;
     }
-    .iframe-wrapper {
+    .video-frame {
       position: relative;
       padding-bottom: 56.25%;
       height: 0;
     }
-    .iframe-wrapper iframe {
+    .video-frame iframe {
       position: absolute;
       top: 0;
       left: 0;
@@ -540,17 +529,16 @@
       border: none;
     }
 
-    /* Footer */
     footer {
       background: #0f172a;
       color: #94a3b8;
-      padding: 30px 40px;
+      padding: 28px 20px;
       text-align: center;
       font-size: 12px;
     }
 
     @media screen and (max-width: 1024px) {
-      .cards-row {
+      .grid-row {
         grid-template-columns: repeat(2, 1fr);
       }
       .stats-grid {
@@ -569,7 +557,7 @@
       .nav-links {
         display: none;
       }
-      .cards-row {
+      .grid-row {
         grid-template-columns: 1fr;
       }
       .stats-grid {
@@ -585,9 +573,8 @@
 </head>
 <body>
 
-  <!-- Top Strip -->
   <div class="top-strip">
-    <div class="flag-part">
+    <div class="flag-item">
       <i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & Programme Implementation
     </div>
     <div>
@@ -595,14 +582,13 @@
     </div>
   </div>
 
-  <!-- Header Nav -->
   <header>
     <div class="nav-container">
-      <div class="nav-logo-group">
-        <i class="fa-solid fa-graduation-cap" style="font-size: 28px; color: #d97706;"></i>
+      <div class="nav-brand">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 28px; color: var(--accent-gold);"></i>
         <div>
-          <div class="logo-text">कर्मयोगी भारत</div>
-          <div class="logo-subtext">iGOT MoSPI Intelligence</div>
+          <div class="brand-title">कर्मयोगी भारत</div>
+          <div class="brand-subtitle">iGOT MoSPI Intelligence</div>
         </div>
       </div>
       <ul class="nav-links">
@@ -614,136 +600,133 @@
         <li><a href="#">Help Centre</a></li>
       </ul>
       <div class="nav-actions">
-        <button class="btn-admin" onclick="window.location.href='admin.html'"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
-        <button class="btn-login-outline" onclick="window.location.href='login.html'">Employee Login</button>
-        <button class="btn-register-solid" onclick="window.location.href='login.html?register=1'">New Registration</button>
+        <button class="btn-admin-pill" onclick="window.location.href='admin.html'"><i class="fa-solid fa-shield-halved"></i> Admin Login</button>
+        <button class="btn-employee-pill" onclick="window.location.href='login.html'">Employee Login</button>
+        <button class="btn-register-pill" onclick="window.location.href='login.html?register=1'">New Registration</button>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-inner">
       <div class="hero-content">
         <div class="hero-pretitle">iGOT Karmayogi</div>
         <h1 class="hero-title">Transforming & Empowering Civil Servants</h1>
-        <div class="social-follow">
+        <div class="social-row">
           <span>Follow Us</span>
-          <a href="#" class="social-icon"><i class="fa-brands fa-x-twitter"></i></a>
-          <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
-          <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
-          <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="social-btn"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" class="social-btn"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
         </div>
       </div>
-      <div class="hero-banner-wrapper">
-        <div class="hero-banner-card">
-          <div class="banner-highlight">Congratulations, Karmayogis!</div>
-          <div class="banner-main-num">1.7 Crore+</div>
-          <div class="banner-subtext">Users Onboarded</div>
-          <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">Let's continue to learn, grow and lead!</p>
+      <div class="hero-card-wrap">
+        <div class="hero-banner-box">
+          <div class="banner-top-tag">Congratulations, Karmayogis!</div>
+          <div class="banner-stat">1.7 Crore+</div>
+          <div class="banner-desc">Users Onboarded</div>
+          <p style="margin-top: 8px; font-size: 13px; opacity: 0.9;">Let's continue to learn, grow and lead!</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Statistics Ribbon -->
   <section class="stats-ribbon">
     <div class="stats-grid">
-      <div class="stat-item">
+      <div class="stat-box">
         <i class="fa-solid fa-users"></i>
-        <div class="stat-number">1,72,04,488</div>
-        <div class="stat-label">Total Karmayogis Onboarded</div>
+        <div class="num">1,72,04,488</div>
+        <div class="lbl">Total Karmayogis Onboarded</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <i class="fa-solid fa-book-open"></i>
-        <div class="stat-number">6,252</div>
-        <div class="stat-label">Total Courses</div>
+        <div class="num">6,252</div>
+        <div class="lbl">Total Courses</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <i class="fa-solid fa-circle-check"></i>
-        <div class="stat-number">14,96,44,900</div>
-        <div class="stat-label">Total Completions</div>
+        <div class="num">14,96,44,900</div>
+        <div class="lbl">Total Completions</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <i class="fa-solid fa-user-check"></i>
-        <div class="stat-number">16,53,660</div>
-        <div class="stat-label">Monthly Active Users</div>
+        <div class="num">16,53,660</div>
+        <div class="lbl">Monthly Active Users</div>
       </div>
-      <div class="stat-item">
+      <div class="stat-box">
         <i class="fa-solid fa-certificate"></i>
-        <div class="stat-number">2,90,521</div>
-        <div class="stat-label">Certificates Issued Yesterday</div>
+        <div class="num">2,90,521</div>
+        <div class="lbl">Certificates Issued Yesterday</div>
       </div>
     </div>
   </section>
 
-  <!-- Showcased Courses -->
-  <section class="section-container">
-    <div class="section-header" style="position: relative;">
+  <section class="section-wrap">
+    <div class="section-head">
       <h2 class="section-title">Showcased Courses</h2>
-      <a href="login.html" class="show-all-link">Show all <i class="fa-solid fa-chevron-right"></i></a>
+      <a href="login.html" class="show-all">Show all <i class="fa-solid fa-chevron-right"></i></a>
     </div>
-    <div class="showcase-wrapper">
-      <div class="cards-row">
+    <div class="showcase-shelf">
+      <div class="grid-row">
         
-        <div class="course-card" onclick="openVideo('mak7BPe_0jY', 'Prevention of Sexual Harassment of Women at Workplace (ISTM)')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('mak7BPe_0jY', 'Prevention of Sexual Harassment of Women at Workplace (ISTM)')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=60" alt="POSH">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 52m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 52m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
-              <h3 class="card-title">Prevention of Sexual Harassment of Women at Workplace</h3>
+              <span class="pill-course"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="course-heading">Prevention of Sexual Harassment of Women at Workplace</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Institute of Secretariat Training & Management</div>
+            <div class="org-subtext"><i class="fa-solid fa-building-columns"></i> By Institute of Secretariat Training & Management</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('H16CzEcSC6U', 'Fire Safety in Healthcare Facilities (MoHFW)')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('H16CzEcSC6U', 'Fire Safety in Healthcare Facilities (MoHFW)')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=500&auto=format&fit=crop&q=60" alt="Healthcare">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 23m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 23m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
-              <h3 class="card-title">Fire Safety in Healthcare Facilities</h3>
+              <span class="pill-course"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="course-heading">Fire Safety in Healthcare Facilities</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Ministry of Health and Family Welfare</div>
+            <div class="org-subtext"><i class="fa-solid fa-building-columns"></i> By Ministry of Health and Family Welfare</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('a3xD_eysXQI', 'Civil Defence Services - NDRF')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('a3xD_eysXQI', 'Civil Defence Services - NDRF')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=500&auto=format&fit=crop&q=60" alt="Civil Defence">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 17m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 17m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
-              <h3 class="card-title">Civil Defence Services (नागरिक सुरक्षा सेवाएँ)</h3>
+              <span class="pill-course"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="course-heading">Civil Defence Services (नागरिक सुरक्षा सेवाएँ)</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By National Disaster Response Force (NDRF)</div>
+            <div class="org-subtext"><i class="fa-solid fa-building-columns"></i> By National Disaster Response Force (NDRF)</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('HqlLctm0qpE', 'Swachhata Hi Seva Training Module')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('HqlLctm0qpE', 'Swachhata Hi Seva Training Module')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=500&auto=format&fit=crop&q=60" alt="Swachhata">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 20m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 20m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag"><i class="fa-solid fa-play"></i> Course</span>
-              <h3 class="card-title">स्वच्छता ही सेवा - प्रशिक्षण मॉड्यूल</h3>
+              <span class="pill-course"><i class="fa-solid fa-play"></i> Course</span>
+              <h3 class="course-heading">स्वच्छता ही सेवा - प्रशिक्षण मॉड्यूल</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-building-columns"></i> By Ministry of Housing and Urban Affairs (MoHUA)</div>
+            <div class="org-subtext"><i class="fa-solid fa-building-columns"></i> By Ministry of Housing and Urban Affairs (MoHUA)</div>
           </div>
         </div>
 
@@ -751,72 +734,71 @@
     </div>
   </section>
 
-  <!-- Amrit Gyaan Kosh Case Studies -->
-  <section class="section-container">
-    <div class="section-header" style="position: relative;">
+  <section class="section-wrap">
+    <div class="section-head">
       <h2 class="section-title">Amrit Gyaan Kosh Case Studies</h2>
-      <a href="dashboard.html" class="show-all-link">Show all <i class="fa-solid fa-chevron-right"></i></a>
+      <a href="dashboard.html" class="show-all">Show all <i class="fa-solid fa-chevron-right"></i></a>
     </div>
-    <div class="showcase-wrapper">
-      <div class="cards-row">
+    <div class="showcase-shelf">
+      <div class="grid-row">
         
-        <div class="course-card" onclick="openVideo('mak7BPe_0jY', 'From Darkness to Dignity: Transformation of Malapur')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('mak7BPe_0jY', 'From Darkness to Dignity: Transformation of Malapur')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=500&auto=format&fit=crop&q=60" alt="Governance">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag-case">Governance & Administration</span>
-              <h3 class="card-title">From Darkness to Dignity: Transformation of Malapur</h3>
+              <span class="pill-case">Governance & Administration</span>
+              <h3 class="course-heading">From Darkness to Dignity: Transformation of Malapur</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+            <div class="org-subtext"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('a3xD_eysXQI', 'MANTHAN: Building Demand-Driven Industry-Academia Bridge')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('a3xD_eysXQI', 'MANTHAN: Building Demand-Driven Industry-Academia Bridge')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500&auto=format&fit=crop&q=60" alt="Manthan">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 10m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 10m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag-case">Information Technology</span>
-              <h3 class="card-title">MANTHAN: Building India's Demand-Driven Industry Bridge</h3>
+              <span class="pill-case">Information Technology</span>
+              <h3 class="course-heading">MANTHAN: Building India's Demand-Driven Industry Bridge</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+            <div class="org-subtext"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('H16CzEcSC6U', 'Smart Mobility for Digital India Delhi Metro')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('H16CzEcSC6U', 'Smart Mobility for Digital India Delhi Metro')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=500&auto=format&fit=crop&q=60" alt="Metro">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag-case">Urban Development</span>
-              <h3 class="card-title">Smart Mobility for Digital India Delhi Metro Rail Corp</h3>
+              <span class="pill-case">Urban Development</span>
+              <h3 class="course-heading">Smart Mobility for Digital India Delhi Metro Rail Corp</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+            <div class="org-subtext"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
           </div>
         </div>
 
-        <div class="course-card" onclick="openVideo('HqlLctm0qpE', 'Extreme Poverty Identification Process (EPIP): Kerala')">
-          <div class="card-thumb">
+        <div class="portal-card" onclick="openVideo('HqlLctm0qpE', 'Extreme Poverty Identification Process (EPIP): Kerala')">
+          <div class="card-cover">
             <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=500&auto=format&fit=crop&q=60" alt="Kerala Poverty">
-            <div class="play-overlay"><i class="fa-solid fa-circle-play"></i></div>
-            <div class="thumb-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
+            <div class="play-btn-layer"><i class="fa-solid fa-circle-play"></i></div>
+            <div class="duration-badge"><i class="fa-solid fa-clock"></i> 1h 30m</div>
           </div>
-          <div class="card-body">
+          <div class="card-info">
             <div>
-              <span class="pill-tag-case">Welfare</span>
-              <h3 class="card-title">Extreme Poverty Identification Process (EPIP): Kerala</h3>
+              <span class="pill-case">Welfare</span>
+              <h3 class="course-heading">Extreme Poverty Identification Process (EPIP): Kerala</h3>
             </div>
-            <div class="card-org"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
+            <div class="org-subtext"><i class="fa-solid fa-award"></i> By Capacity Building Commission</div>
           </div>
         </div>
 
@@ -824,70 +806,66 @@
     </div>
   </section>
 
-  <!-- Content Partners -->
-  <section class="partners-section">
+  <section class="partner-section">
     <h2 class="section-title">Content Partners</h2>
-    <div class="partners-grid">
-      <div class="partner-item">
-        <i class="fa-solid fa-landmark" style="font-size: 38px; color: #1e3a8a;"></i>
-        <div class="partner-name">DPIIT</div>
+    <div class="partner-shelf">
+      <div class="partner-block">
+        <i class="fa-solid fa-landmark" style="font-size: 36px; color: #1e3a8a;"></i>
+        <div class="partner-label">DPIIT</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-shield-halved" style="font-size: 38px; color: #b91c1c;"></i>
-        <div class="partner-name">RAKNPA</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-shield-halved" style="font-size: 36px; color: #b91c1c;"></i>
+        <div class="partner-label">RAKNPA</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-feather-pointed" style="font-size: 38px; color: #ea580c;"></i>
-        <div class="partner-name">WF</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-feather-pointed" style="font-size: 36px; color: #ea580c;"></i>
+        <div class="partner-label">WF</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-graduation-cap" style="font-size: 38px; color: #0284c7;"></i>
-        <div class="partner-name">ISB</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 36px; color: #0284c7;"></i>
+        <div class="partner-label">ISB</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-award" style="font-size: 38px; color: #854d0e;"></i>
-        <div class="partner-name">LBSNAA</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-award" style="font-size: 36px; color: #854d0e;"></i>
+        <div class="partner-label">LBSNAA</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-tree" style="font-size: 38px; color: #15803d;"></i>
-        <div class="partner-name">MoEFCC</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-tree" style="font-size: 36px; color: #15803d;"></i>
+        <div class="partner-label">MoEFCC</div>
       </div>
-      <div class="partner-item">
-        <i class="fa-solid fa-building-columns" style="font-size: 38px; color: #1e40af;"></i>
-        <div class="partner-name">ISTM</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Organisation Partners -->
-  <section style="text-align: center; margin-bottom: 50px;">
-    <h2 class="section-title" style="margin-bottom: 20px;">Organisation Partners</h2>
-    <div class="ministry-bar">
-      <div class="ministry-list">
-        <div class="ministry-item">Ministry of Agriculture & Farmers Welfare</div>
-        <div class="ministry-item">Ministry of AYUSH</div>
-        <div class="ministry-item">Ministry of Chemicals & Fertilizers</div>
-        <div class="ministry-item">Ministry of Civil Aviation</div>
-        <div class="ministry-item">Ministry of Coal</div>
-        <div class="ministry-item">Ministry of Statistics & Programme Implementation (MoSPI)</div>
+      <div class="partner-block">
+        <i class="fa-solid fa-building-columns" style="font-size: 36px; color: #1e40af;"></i>
+        <div class="partner-label">ISTM</div>
       </div>
     </div>
   </section>
 
-  <!-- Video Modal -->
+  <section style="text-align: center; margin-bottom: 40px;">
+    <h2 class="section-title" style="margin-bottom: 18px;">Organisation Partners</h2>
+    <div class="ministry-carousel">
+      <div class="ministry-chain">
+        <div class="ministry-node">Ministry of Agriculture & Farmers Welfare</div>
+        <div class="ministry-node">Ministry of AYUSH</div>
+        <div class="ministry-node">Ministry of Chemicals & Fertilizers</div>
+        <div class="ministry-node">Ministry of Civil Aviation</div>
+        <div class="ministry-node">Ministry of Coal</div>
+        <div class="ministry-node">Ministry of Statistics & Programme Implementation (MoSPI)</div>
+      </div>
+    </div>
+  </section>
+
   <div id="videoModal" class="video-modal" onclick="closeVideo(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-top">
-        <div id="modalTitle" class="modal-title-text">Course Video</div>
-        <button class="modal-close" onclick="closeVideo(event)"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-bar">
+        <div id="modalTitle" class="modal-title">Course Video</div>
+        <button class="modal-exit" onclick="closeVideo(event)"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="iframe-wrapper">
+      <div class="video-frame">
         <iframe id="videoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     <p>&copy; 2026 iGOT Karmayogi Bharat | Ministry of Statistics & Programme Implementation. All Rights Reserved.</p>
   </footer>
