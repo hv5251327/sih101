@@ -35,6 +35,7 @@ class UserRecord(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)
     department = Column(String(255), default="National Accounts Division (NAD)")
     designation = Column(String(255), default="Deputy Director / Assistant Director (ISS)")
     cadre = Column(String(100), default="Indian Statistical Service (ISS)")
@@ -128,6 +129,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         name=req.name.strip() if req.name else "Registered Officer",
         email=clean_email,
         password=clean_pass,
+        hashed_password=clean_pass,
         department=req.department.strip() if req.department else "National Accounts Division (NAD)",
         designation=req.designation.strip() if req.designation else "Deputy Director / Assistant Director (ISS)",
         cadre=req.cadre.strip() if req.cadre else "Indian Statistical Service (ISS)",
@@ -186,7 +188,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
         }
 
     user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
-    if not user or user.password.strip() != clean_pass:
+    stored_pass = (user.password or user.hashed_password or "").strip()`n    if not user or stored_pass != clean_pass:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
     try:
@@ -382,3 +384,4 @@ def get_all_users(db: Session = Depends(get_db)):
             "learned_topics": learned_topics
         })
     return results
+
