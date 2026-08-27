@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cadre Registration | iGOT MoSPI Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-navy: #15325b;
+      --accent-gold: #e58a2b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-strip {
+      background: #0d213a;
+      color: #f1f5f9;
+      padding: 6px 36px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+    }
+    .main-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .reg-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 36px 32px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+    .brand-icon {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 32px;
+      color: var(--accent-gold);
+    }
+    .reg-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary-navy);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .reg-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-gold);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover {
+      background: #cf781e;
+    }
+    .bottom-links {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .bottom-links a {
+      color: var(--primary-navy);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .alert-box {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #f87171;
+    }
+    .alert-success {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-strip">
+    <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI</div>
+    <div>iGOT Karmayogi Bharat Integrated</div>
+  </div>
+
+  <div class="main-wrap">
+    <div class="reg-card">
+      <div class="brand-icon">
+        <i class="fa-solid fa-id-card"></i>
+      </div>
+      <h1 class="reg-title">New Officer Registration</h1>
+      <p class="reg-subtitle">National Statistical & Administrative Cadres</p>
+
+      <div id="alertBox" class="alert-box"></div>
+
+      <form id="regForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="e.g. Harsha Vardhan" required>
+        </div>
+        <div class="form-group">
+          <label>Official Email Address</label>
+          <input type="email" id="regEmail" placeholder="officer@gov.in" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPass" placeholder="Enter secure password" required>
+        </div>
+        <div class="form-group">
+          <label>Department / Division</label>
+          <select id="regDept">
+            <option value="National Accounts Division (NAD)">National Accounts Division (NAD)</option>
+            <option value="Price Statistics Division (PSD)">Price Statistics Division (PSD)</option>
+            <option value="Survey Operations / PLFS">Survey Operations / PLFS</option>
+            <option value="Industrial Statistics Wing (ISW)">Industrial Statistics Wing (ISW)</option>
+            <option value="Economic Statistics Division (ESD)">Economic Statistics Division (ESD)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Designation</label>
+          <select id="regDesig">
+            <option value="Deputy Director / Assistant Director (ISS)">Deputy Director / Assistant Director (ISS)</option>
+            <option value="Senior Statistical Officer (SSO)">Senior Statistical Officer (SSO)</option>
+            <option value="Junior Statistical Officer (JSO)">Junior Statistical Officer (JSO)</option>
+            <option value="Director / Joint Director">Director / Joint Director</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cadre</label>
+          <input type="text" id="regCadre" value="Indian Statistical Service (ISS)" readonly>
+        </div>
+        <button type="submit" id="submitBtn" class="btn-submit">Register Officer Account</button>
+      </form>
+
+      <div class="bottom-links">
+        Already registered? <a href="login.html">Employee Login</a> | <a href="index.html">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://sih101.onrender.com";
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById("alertBox");
+      const btn = document.getElementById("submitBtn");
+
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPass").value.trim();
+      const department = document.getElementById("regDept").value;
+      const designation = document.getElementById("regDesig").value;
+      const cadre = document.getElementById("regCadre").value;
+
+      alertBox.style.display = "none";
+      btn.disabled = true;
+      btn.textContent = "Registering...";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password, department, designation, cadre })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.status === "success") {
+          localStorage.setItem("mospi_user", JSON.stringify(data.user));
+          alertBox.className = "alert-box alert-success";
+          alertBox.textContent = "Registration successful! Redirecting to dashboard...";
+          alertBox.style.display = "block";
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 1200);
+        } else {
+          alertBox.className = "alert-box alert-error";
+          alertBox.textContent = data.detail || "Registration failed. Please try again.";
+          alertBox.style.display = "block";
+        }
+      } catch (err) {
+        alertBox.className = "alert-box alert-error";
+        alertBox.textContent = "Server is waking up. Please retry in a few seconds.";
+        alertBox.style.display = "block";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Register Officer Account";
+      }
+    }
+  </script>
+</body>
+</html>
