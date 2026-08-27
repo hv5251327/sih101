@@ -128,7 +128,7 @@
     </div>
   </div>
 
-  <script>
+    <script>
     const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:");
     const API_BASE = isLocal ? "http://127.0.0.1:8000" : "https://sih101.onrender.com";
 
@@ -146,9 +146,27 @@
       m.addEventListener("click", e => { if (e.target === m) closeAllModals(); });
     });
 
-    // Explicit event attachment with null safety
+    // Helper fetch with timeout & auto retry indicator
+    async function safeFetch(url, options = {}) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout for Render wake up
+      try {
+        const res = await fetch(url, { credentials: "omit", mode: "cors", ...options, credentials: "omit", signal: controller.signal });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        throw new Error(err.name === "AbortError" ? "Server took too long to wake up. Please try once more." : "Unable to reach server. Please check internet connection or retry.");
+      }
+    }
+
     document.getElementById("officerRegisterForm").addEventListener("submit", async function(e) {
       e.preventDefault();
+      const btn = e.target.querySelector("button[type='submit']");
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = "Connecting to MoSPI Server...";
+
       const payload = {
         name: document.getElementById("regName")?.value || "Officer",
         email: document.getElementById("regEmail")?.value || "",
@@ -159,7 +177,7 @@
       };
 
       try {
-        const res = await fetch(`${API_BASE}/api/register`, {
+        const res = await safeFetch(`${API_BASE}/api/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
@@ -171,17 +189,25 @@
         alert("Registration Successful!");
         window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
       } catch (err) {
-        alert("Registration Error: " + err.message);
+        alert("Registration Notice: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
       }
     });
 
     document.getElementById("officerLoginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
+      const btn = e.target.querySelector("button[type='submit']");
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = "Authenticating...";
+
       const email = document.getElementById("loginEmail")?.value || "";
       const password = document.getElementById("loginPass")?.value || "";
 
       try {
-        const res = await fetch(`${API_BASE}/api/login`, {
+        const res = await safeFetch(`${API_BASE}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -192,17 +218,25 @@
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
       } catch (err) {
-        alert("Login Error: " + err.message);
+        alert("Login Notice: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
       }
     });
 
     document.getElementById("adminLoginForm").addEventListener("submit", async function(e) {
       e.preventDefault();
+      const btn = e.target.querySelector("button[type='submit']");
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = "Verifying Admin...";
+
       const email = document.getElementById("adminEmail")?.value || "";
       const password = document.getElementById("adminPass")?.value || "";
 
       try {
-        const res = await fetch(`${API_BASE}/api/login`, {
+        const res = await safeFetch(`${API_BASE}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -213,9 +247,13 @@
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = "admin.html";
       } catch (err) {
-        alert("Admin Error: " + err.message);
+        alert("Admin Notice: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
       }
     });
   </script>
 </body>
 </html>
+
