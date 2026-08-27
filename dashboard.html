@@ -47,9 +47,7 @@
     .chart-wrapper-profile {
       display: flex; align-items: center; gap: 24px; flex: 1; justify-content: flex-end; min-width: 280px;
     }
-    .pie-box {
-      width: 110px; height: 110px; position: relative;
-    }
+    .pie-box { width: 110px; height: 110px; position: relative; }
 
     .section-title { font-size: 18px; font-weight: 800; color: var(--primary-navy); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
     .competency-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -64,10 +62,34 @@
     .rec-item { padding: 12px; border-radius: 8px; background: #f8fafc; border: 1px solid var(--border); margin-bottom: 10px; }
     .rec-badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #e0f2fe; color: #0284c7; }
 
-    .module-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; }
-    .btn-action { padding: 6px 12px; border-radius: 6px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .module-item {
+      padding: 16px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 14px; background: #ffffff;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .module-top { display: flex; justify-content: space-between; align-items: center; }
+    .btn-action-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn-action { padding: 7px 12px; border-radius: 6px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-video { background: #dc2626; color: white; }
+    .btn-video:hover { background: #b91c1c; }
+    .btn-igot { background: #0284c7; color: white; }
+    .btn-igot:hover { background: #0369a1; }
     .btn-quiz { background: var(--primary-navy); color: white; }
-    .btn-cert { background: var(--accent-gold); color: white; margin-left: 6px; }
+    .btn-cert { background: var(--accent-gold); color: white; }
+
+    .video-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 99999;
+    }
+    .video-modal-overlay.active { display: flex; }
+    .video-modal-box {
+      background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 800px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .video-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .video-title { font-size: 16px; font-weight: 800; color: var(--primary-navy); }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
     .chat-fab {
       position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%;
@@ -171,15 +193,25 @@
       <div class="card">
         <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> Personalized Learning Pathways (iGOT + NSSTA)</h3>
         <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Dynamically recommended to bridge your identified domain skill gaps.</p>
-        <div id="recommendationsList">
-          <!-- Populated instantly via fallback / API -->
-        </div>
+        <div id="recommendationsList"></div>
       </div>
 
       <div class="card">
-        <h3 class="section-title"><i class="fa-solid fa-graduation-cap" style="color: var(--accent-gold);"></i> MoSPI Core Competency Modules</h3>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Take synthesized quizzes or upload certificates to unlock modules.</p>
+        <h3 class="section-title"><i class="fa-solid fa-graduation-cap" style="color: var(--accent-gold);"></i> MoSPI Core Competency Modules & Video Lectures</h3>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">Watch training videos, access iGOT modules, or take assessments.</p>
         <div id="modulesList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="videoModal" class="video-modal-overlay">
+    <div class="video-modal-box">
+      <div class="video-header">
+        <span id="modalVideoTitle" class="video-title">iGOT Training Lecture</span>
+        <button onclick="closeVideoModal()" style="border:none; background:none; font-size:18px; cursor:pointer; color:#64748b;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="video-container">
+        <iframe id="videoIframe" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
       </div>
     </div>
   </div>
@@ -187,11 +219,11 @@
   <div class="chat-fab" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></div>
   <div id="chatWindow" class="chat-window">
     <div class="chat-head">
-      <span><i class="fa-solid fa-brain"></i> MoSPI Skill Assistant (Grok AI)</span>
+      <span><i class="fa-solid fa-brain"></i> MoSPI Skill Assistant</span>
       <span style="cursor: pointer;" onclick="toggleChat()"><i class="fa-solid fa-xmark"></i></span>
     </div>
     <div id="chatBody" class="chat-body">
-      <div class="chat-msg msg-bot">Namaste Officer! I am your AI Capacity Building Assistant powered by Grok. Ask me anything about SNA 2008 GVA compilation, PLFS sampling, CPI methodologies, or NSSTA TPAC courses.</div>
+      <div class="chat-msg msg-bot">Namaste Officer! I am your AI Capacity Building Assistant. Ask me anything about SNA 2008 GVA compilation, PLFS sampling, CPI methodologies, or NSSTA TPAC courses.</div>
     </div>
     <form class="chat-foot" onsubmit="sendChat(event)">
       <input type="text" id="chatInput" class="chat-input" placeholder="Ask statistical question..." required>
@@ -205,18 +237,18 @@
     let progressChartInstance = null;
 
     const MODULES = [
-      { id: 1, name: "National Accounts & GDP Compilation (SNA 2008)" },
-      { id: 2, name: "Consumer Price Index (CPI) Analytics" },
-      { id: 3, name: "Periodic Labour Force Survey (PLFS) Digital Survey" },
-      { id: 4, name: "Annual Survey of Industries (ASI) Scrutiny" },
-      { id: 5, name: "Index of Industrial Production (IIP) Diagnostics" }
+      { id: 1, name: "National Accounts & GDP Compilation (SNA 2008)", videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", igotUrl: "https://igotkarmayogi.gov.in" },
+      { id: 2, name: "Consumer Price Index (CPI) Analytics", videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", igotUrl: "https://igotkarmayogi.gov.in" },
+      { id: 3, name: "Periodic Labour Force Survey (PLFS) Digital Survey", videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", igotUrl: "https://igotkarmayogi.gov.in" },
+      { id: 4, name: "Annual Survey of Industries (ASI) Scrutiny", videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", igotUrl: "https://igotkarmayogi.gov.in" },
+      { id: 5, name: "Index of Industrial Production (IIP) Diagnostics", videoUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", igotUrl: "https://igotkarmayogi.gov.in" }
     ];
 
     const defaultRecommendations = [
-      { source: "iGOT Karmayogi", course: "National Accounts & GVA Frameworks (SNA 2008)", priority: "High Priority", target_gap: "Statistical Competencies", est_hours: "6 Hours" },
-      { source: "NSSTA TPAC Recommended", course: "Official Statistics with Python, R & Big Data GIS", priority: "Mandatory", target_gap: "Technical & Data Analytics", est_hours: "15 Hours" },
-      { source: "iGOT Karmayogi", course: "PLFS Digital CAPI/CATI Field Verification", priority: "Medium Priority", target_gap: "Technical & Survey Design", est_hours: "8 Hours" },
-      { source: "NSSTA TPAC Recommended", course: "Data Protection & Digital Personal Data Privacy (DPDP)", priority: "Compliance", target_gap: "Digital Governance", est_hours: "4 Hours" }
+      { source: "iGOT Karmayogi", course: "National Accounts & GVA Frameworks (SNA 2008)", priority: "High Priority", target_gap: "Statistical Competencies", est_hours: "6 Hours", link: "https://igotkarmayogi.gov.in" },
+      { source: "NSSTA TPAC Recommended", course: "Official Statistics with Python, R & Big Data GIS", priority: "Mandatory", target_gap: "Technical & Data Analytics", est_hours: "15 Hours", link: "https://igotkarmayogi.gov.in" },
+      { source: "iGOT Karmayogi", course: "PLFS Digital CAPI/CATI Field Verification", priority: "Medium Priority", target_gap: "Technical & Survey Design", est_hours: "8 Hours", link: "https://igotkarmayogi.gov.in" },
+      { source: "NSSTA TPAC Recommended", course: "Data Protection & Digital Personal Data Privacy (DPDP)", priority: "Compliance", target_gap: "Digital Governance", est_hours: "4 Hours", link: "https://igotkarmayogi.gov.in" }
     ];
 
     function checkAuth() {
@@ -247,7 +279,12 @@
             <span class="rec-badge">${rec.source}</span>
             <span style="font-size: 10px; font-weight: 700; color: #dc2626;">${rec.priority}</span>
           </div>
-          <strong style="font-size: 13px; color: #1e3a8a;">${rec.course}</strong>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 13px; color: #1e3a8a;">${rec.course}</strong>
+            <a href="${rec.link || 'https://igotkarmayogi.gov.in'}" target="_blank" class="btn-action btn-igot" style="padding: 3px 8px; font-size: 10px;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Open iGOT
+            </a>
+          </div>
           <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Target Gap: ${rec.target_gap} | Duration: ${rec.est_hours}</div>
         `;
         recList.appendChild(item);
@@ -278,9 +315,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
+          plugins: { legend: { display: false } },
           cutout: "68%"
         }
       });
@@ -296,19 +331,36 @@
         const div = document.createElement("div");
         div.className = "module-item";
         div.innerHTML = `
-          <div>
+          <div class="module-top">
             <strong style="font-size: 13px; color: #1e293b;">${m.name}</strong>
-            <div style="font-size: 11px; color: ${isDone ? '#16a34a' : '#ea580c'}; font-weight: 600;">
-              ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed & Verified' : '<i class="fa-solid fa-circle-notch"></i> Pending Verification'}
-            </div>
+            <span style="font-size: 11px; color: ${isDone ? '#16a34a' : '#ea580c'}; font-weight: 700;">
+              ${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : '<i class="fa-solid fa-circle-notch"></i> Pending'}
+            </span>
           </div>
-          <div>
+          <div class="btn-action-row">
+            <button class="btn-action btn-video" onclick="openVideoModal('${m.name}', '${m.videoUrl}')">
+              <i class="fa-solid fa-circle-play"></i> Watch Lecture
+            </button>
+            <a href="${m.igotUrl}" target="_blank" class="btn-action btn-igot">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> iGOT Portal
+            </a>
             <button class="btn-action btn-quiz" onclick="startQuiz(${m.id})">Take Quiz</button>
-            <button class="btn-action btn-cert" onclick="uploadCert(${m.id})">Verify Certificate</button>
+            <button class="btn-action btn-cert" onclick="uploadCert(${m.id})">Verify Cert</button>
           </div>
         `;
         list.appendChild(div);
       });
+    }
+
+    function openVideoModal(title, url) {
+      document.getElementById("modalVideoTitle").textContent = title;
+      document.getElementById("videoIframe").src = url;
+      document.getElementById("videoModal").classList.add("active");
+    }
+
+    function closeVideoModal() {
+      document.getElementById("videoIframe").src = "";
+      document.getElementById("videoModal").classList.remove("active");
     }
 
     async function loadSkillGaps() {
@@ -335,7 +387,7 @@
           }
         }
       } catch (err) {
-        console.warn("Using offline recommendations fallback.");
+        console.warn("Using offline recommendations.");
       }
     }
 
@@ -360,7 +412,7 @@
 
       const botLoading = document.createElement("div");
       botLoading.className = "chat-msg msg-bot";
-      botLoading.textContent = "Analyzing official guidelines with Grok AI...";
+      botLoading.textContent = "Analyzing official statistical guidelines...";
       body.appendChild(botLoading);
       body.scrollTop = body.scrollHeight;
 
@@ -373,7 +425,7 @@
         const data = await res.json();
         botLoading.textContent = data.reply || "Statistical guidance retrieved.";
       } catch (err) {
-        botLoading.textContent = "MoSPI Assistant available: Gross Value Added (GVA) equals Output minus Intermediate Consumption.";
+        botLoading.textContent = "Gross Value Added (GVA) equals Output minus Intermediate Consumption (SNA 2008).";
       }
       body.scrollTop = body.scrollHeight;
     }
