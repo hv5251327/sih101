@@ -243,7 +243,6 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
         "remaining_percentage": remaining_percent
     }
 
-# Background Certificate Evaluator
 def verify_certificate_with_grok(extracted_text: str, course_name: str, officer_name: str, officer_email: str) -> dict:
     api_key = os.getenv("XAI_API_KEY", "").strip()
     lower_text = extracted_text.lower()
@@ -423,34 +422,33 @@ def get_topic_quiz(course_id: int, db: Session = Depends(get_db)):
     ]
     return {"courseId": course_id, "questions": default_questions}
 
-# 5-Question Accurate Grok Generator
 def generate_questions_with_grok(extracted_text: str, filename: str, course_name: str) -> list:
     api_key = os.getenv("XAI_API_KEY", "").strip()
-    if not api_key or len(extracted_text.strip()) < 30:
+    cleaned_doc_text = extracted_text.strip()
+    if not api_key or len(cleaned_doc_text) < 50:
         return []
 
     prompt = f"""
-You are a senior psychometric exam specialist and curriculum author for the Ministry of Statistics & Programme Implementation (MoSPI), Government of India.
+You are an expert assessment author for the Ministry of Statistics & Programme Implementation (MoSPI).
+Generate exactly 5 multiple-choice questions derived directly from the provided text.
 
-Analyze the uploaded official circular/document "{filename}" for the module "{course_name}".
-Generate exactly 5 highly accurate, distinct, multiple-choice assessment questions strictly based on the extracted text below.
+SOURCE DOCUMENT: "{filename}" (Module: {course_name})
+TEXT:
+{cleaned_doc_text[:12000]}
 
-EXTRACTED DOCUMENT CONTENT:
-{extracted_text[:6000]}
+RULES:
+1. Ground every question strictly on the data, concepts, definitions, and rules in the text above.
+2. Provide exactly 4 realistic options per question.
+3. The "correct_index" (0, 1, 2, or 3) must be 100% accurate based on the text.
+4. "explanation" must cite the exact concept from the text.
 
-REQUIREMENTS:
-1. Generate exactly 5 questions derived directly from the document data, definitions, calculations, or standards.
-2. For each question, provide 4 distinct, highly plausible, relevant options.
-3. The correct answer index (0, 1, 2, or 3) must be 100% factually correct based on the text.
-4. Include a concise, rigorous explanation justifying why the correct answer is accurate according to this text.
-
-Respond ONLY with a valid JSON array of 5 objects in this exact structure without markdown backticks:
+Respond ONLY with a JSON array of 5 objects in this structure without markdown backticks:
 [
   {{
-    "question": "Clear, precise technical question based on the document",
-    "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+    "question": "Clear question text?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct_index": 0,
-    "explanation": "Evidence-backed reasoning citing the specific concept from the document."
+    "explanation": "Explanation citing the text."
   }}
 ]
 """
@@ -462,12 +460,12 @@ Respond ONLY with a valid JSON array of 5 objects in this exact structure withou
         payload = {
             "model": "grok-2-latest",
             "messages": [
-                {"role": "system", "content": "You are a professional MoSPI assessment generator. Output raw JSON array of 5 questions only."},
+                {"role": "system", "content": "You are a professional assessment generator. Output raw JSON array only."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.15
+            "temperature": 0.1
         }
-        res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=30)
+        res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=35)
         if res.status_code == 200:
             content = res.json()["choices"][0]["message"]["content"].strip()
             content = re.sub(r"^```json\s*", "", content)
@@ -476,7 +474,7 @@ Respond ONLY with a valid JSON array of 5 objects in this exact structure withou
             if isinstance(parsed, list) and len(parsed) >= 1:
                 return parsed
     except Exception as e:
-        print(f"Grok 5-question generation notice: {e}")
+        print(f"Grok extraction error: {e}")
     return []
 
 @app.post("/api/admin/upload-quiz-material")
@@ -495,22 +493,21 @@ async def upload_quiz_material(
             try:
                 reader = PdfReader(io.BytesIO(content))
                 for page in reader.pages:
-                    text = page.extract_text()
-                    if text:
-                        extracted_text += text + "\n"
-            except Exception:
-                extracted_text = content[:4000].decode("utf-8", errors="ignore")
+                    t = page.extract_text()
+                    if t:
+                        extracted_text += t + "\n"
+            except Exception as pe:
+                print(f"pypdf reader notice: {pe}")
+                extracted_text = content.decode("utf-8", errors="ignore")
         else:
-            extracted_text = content[:4000].decode("utf-8", errors="ignore")
+            extracted_text = content.decode("utf-8", errors="ignore")
 
-        # Call Grok to generate 5 accurate questions
         ai_questions = generate_questions_with_grok(extracted_text, filename, course_name)
         
-        # Replace existing questions for this course or append
-        db.query(QuizRecord).filter(QuizRecord.course_id == course_id).delete()
-
-        new_records = []
         if ai_questions and isinstance(ai_questions, list):
+            db.query(QuizRecord).filter(QuizRecord.course_id == course_id).delete()
+            
+            new_records = []
             for q_data in ai_questions:
                 opts = q_data.get("options", ["Option A", "Option B", "Option C", "Option D"])
                 if not isinstance(opts, list) or len(opts) < 2:
@@ -525,68 +522,29 @@ async def upload_quiz_material(
                     question=q_data.get("question", f"Assessment Question from {filename}"),
                     options_json=json.dumps(opts),
                     correct_index=c_idx,
-                    explanation=q_data.get("explanation", f"Derived from official guidelines in {filename}.")
+                    explanation=q_data.get("explanation", f"Derived from {filename}.")
                 )
                 new_records.append(q_rec)
-        
-        # Robust 5-Question Fallback if API is offline
-        if len(new_records) < 5:
-            fallbacks = [
-                (
-                    f"According to the guidelines in {filename}, what is the foundational methodology standard enforced for {course_name}?",
-                    ["Quarterly alignment with unified National Statistical Standards", "Discretionary survey truncation", "Uncalibrated ledger submission", "Ad-hoc parameter weighting"],
-                    0,
-                    f"Established by central statistical governance mandate in {filename}."
-                ),
-                (
-                    f"Which operational division holds primary validation authority under {filename}?",
-                    ["National Accounts Division & Field Operations Division", "State Financial Corporation", "Private Audit Guild", "Export Promotion Bureau"],
-                    0,
-                    f"Designated as the primary nodal authority under {filename}."
-                ),
-                (
-                    f"What verification protocol must officers apply when auditing returns for {course_name}?",
-                    ["Comprehensive multi-tier scrutiny with Deflator/PPS validation", "Single-point manual signoff", "Randomized non-scrutiny pass", "Bypass field audit triggers"],
-                    0,
-                    f"Mandated quality-control protocol in official MoSPI document {filename}."
-                ),
-                (
-                    f"What is the designated compliance cycle for data submission according to {filename}?",
-                    ["Mandatory periodic timeframe with automated audit logging", "Bi-decennial review", "Informal discretionary delivery", "Annual unregulated report"],
-                    0,
-                    f"Defined under the statutory reporting framework in {filename}."
-                ),
-                (
-                    f"How are data discrepancy margins resolved under the {course_name} quality control protocol?",
-                    ["Systematic reconciliation against benchmark registry data", "Immediate deletion of variance records", "Arbitrary numerical averaging", "Ignoring outliers exceeding standard tolerance"],
-                    0,
-                    f"Specified standard error minimization procedure in {filename}."
-                )
-            ]
-            for q_text, opts, c_idx, expl in fallbacks[len(new_records):5]:
-                new_records.append(QuizRecord(
-                    course_id=course_id,
-                    question=q_text,
-                    options_json=json.dumps(opts),
-                    correct_index=c_idx,
-                    explanation=expl
-                ))
 
-        db.add_all(new_records)
-        db.commit()
+            db.add_all(new_records)
+            db.commit()
 
-        return {
-            "status": "success",
-            "filename": filename,
-            "course_id": course_id,
-            "course_name": course_name,
-            "questions_generated": len(new_records),
-            "preview_text": f"Successfully generated and committed {len(new_records)} high-accuracy assessment questions for '{course_name}' into the database."
-        }
+            return {
+                "status": "success",
+                "filename": filename,
+                "course_id": course_id,
+                "course_name": course_name,
+                "questions_generated": len(new_records),
+                "preview_text": f"Successfully extracted text from {filename} and saved {len(new_records)} PDF-grounded questions directly to the database."
+            }
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unable to extract readable text or generate questions from {filename}. Please ensure the PDF contains selectable text."
+        )
     finally:
         db.close()
 
-# Enriched Admin Users Endpoint with Progress & Filters
 @app.get("/api/admin/users")
 def get_all_users(
     department: Optional[str] = None,
@@ -634,7 +592,6 @@ def get_all_users(
         })
     return results
 
-# Dedicated Admin Analytics & Charts Aggregator
 @app.get("/api/admin/analytics")
 def get_admin_analytics(db: Session = Depends(get_db)):
     try:
@@ -656,14 +613,12 @@ def get_admin_analytics(db: Session = Depends(get_db)):
         c_count = len(c_ids)
         overall_completed_count += c_count
 
-        # Department / Ministry breakdown
         dept = u.department or "General MoSPI"
         if dept not in dept_stats:
             dept_stats[dept] = {"total_officers": 0, "completed_modules": 0}
         dept_stats[dept]["total_officers"] += 1
         dept_stats[dept]["completed_modules"] += c_count
 
-        # Designation breakdown
         desig = u.designation or "Junior / Assistant Cadre"
         if desig not in desig_stats:
             desig_stats[desig] = {"total_officers": 0, "completed_modules": 0}
