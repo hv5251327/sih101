@@ -1,11 +1,10 @@
 ﻿import os
 import json
-import re
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
-from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy import create_engine, Column, Integer, String, Text, or_, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 app = FastAPI(title="MoSPI iGOT Intelligence Platform")
@@ -34,7 +33,7 @@ class UserRecord(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    password = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=True)
     hashed_password = Column(String(255), nullable=True)
     department = Column(String(255), default="National Accounts Division (NAD)")
     designation = Column(String(255), default="Deputy Director / Assistant Director (ISS)")
@@ -65,34 +64,6 @@ def get_db():
     finally:
         db.close()
 
-# Seed default admin account if not present
-def seed_admin():
-    db = SessionLocal()
-    try:
-        admin = db.query(UserRecord).filter(UserRecord.email == "123@gov.ac.in").first()
-        if not admin:
-            admin = UserRecord(
-                name="Chief Administrator",
-                email="123@gov.ac.in",
-                password="1234",
-                department="Ministry Headquarters",
-                designation="Director General",
-                cadre="Indian Statistical Service (ISS)",
-                role="admin",
-                competency_score="100%",
-                posh_status="Completed",
-                completed_modules=json.dumps([1, 2, 3])
-            )
-            db.add(admin)
-            db.commit()
-    except Exception as e:
-        db.rollback()
-        print(f"Admin seed note: {e}")
-    finally:
-        db.close()
-
-seed_admin()
-
 class RegisterRequest(BaseModel):
     name: str
     email: str
@@ -110,21 +81,25 @@ class CompleteModuleRequest(BaseModel):
     course_id: int
 
 @app.get("/")
-def root():
-    return {"status": "online", "platform": "iGOT MoSPI Intelligence"}
+def root(db: Session = Depends(get_db)):
+    count = db.query(UserRecord).count()
+    return {"status": "online", "platform": "iGOT MoSPI Intelligence", "user_count": count}
 
 @app.post("/api/register")
 def register(req: RegisterRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
     clean_pass = req.password.strip()
+    
     if not clean_email or not clean_pass:
-        raise HTTPException(status_code=400, detail="Email and password cannot be blank.")
+        raise HTTPException(status_code=400, detail="Email and password are required.")
 
-    existing = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+    # Check for existing user case-insensitively
+    existing = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
     if existing:
-        raise HTTPException(status_code=400, detail="An account with this official email already exists.")
+        raise HTTPException(status_code=400, detail="An account with this email already exists.")
 
     role = "admin" if clean_email == "123@gov.ac.in" else "employee"
+    
     user = UserRecord(
         name=req.name.strip() if req.name else "Registered Officer",
         email=clean_email,
@@ -138,9 +113,14 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
         posh_status="Pending",
         completed_modules="[]"
     )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
+    
+    try:
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error during registration: {str(e)}")
 
     return {
         "status": "success",
@@ -163,14 +143,27 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
     clean_pass = req.password.strip()
 
-    # Direct bypass check for admin
+    # Direct Master Admin Bypass
     if clean_email == "123@gov.ac.in" and clean_pass == "1234":
-        admin = db.query(UserRecord).filter(UserRecord.email == "123@gov.ac.in").first()
+        admin = db.query(UserRecord).filter(func.lower(UserRecord.email) == "123@gov.ac.in").first()
         if not admin:
-            admin = UserRecord(name="Chief Administrator", email="123@gov.ac.in", password="1234", role="admin", competency_score="100%", posh_status="Completed", completed_modules="[1,2,3]")
+            admin = UserRecord(
+                name="Chief Administrator",
+                email="123@gov.ac.in",
+                password="1234",
+                hashed_password="1234",
+                department="Ministry Headquarters",
+                designation="Director General",
+                cadre="Indian Statistical Service (ISS)",
+                role="admin",
+                competency_score="100%",
+                posh_status="Completed",
+                completed_modules="[1,2,3]"
+            )
             db.add(admin)
             db.commit()
             db.refresh(admin)
+
         return {
             "status": "success",
             "user": {
@@ -187,9 +180,15 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             }
         }
 
-    user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
-    stored_pass = (user.password or user.hashed_password or "").strip()`n    if not user or stored_pass != clean_pass:
-        raise HTTPException(status_code=401, detail="Invalid email or password.")
+    # Standard User Lookup
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found with this email.")
+
+    # Match against either password column
+    pass_candidate = (user.password or user.hashed_password or "").strip()
+    if pass_candidate != clean_pass:
+        raise HTTPException(status_code=401, detail="Incorrect password.")
 
     try:
         completed = json.loads(user.completed_modules) if user.completed_modules else []
@@ -215,7 +214,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 @app.post("/api/officer/complete-module")
 def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
     clean_email = req.email.strip().lower()
-    user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Officer not found.")
 
@@ -242,7 +241,7 @@ async def verify_certificate(
     db = SessionLocal()
     try:
         clean_email = email.strip().lower()
-        user = db.query(UserRecord).filter(UserRecord.email == clean_email).first()
+        user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
         if not user:
             raise HTTPException(status_code=404, detail="Officer record not found.")
 
@@ -310,9 +309,7 @@ async def upload_quiz_material(
     try:
         content = await file.read()
         filename = file.filename
-        text_preview = content[:2000].decode("utf-8", errors="ignore")
-
-        # Create generated questions from material
+        
         q1 = QuizRecord(
             course_id=course_id,
             question=f"According to the official circular ({filename}), what is the primary compliance mandate?",
@@ -384,4 +381,3 @@ def get_all_users(db: Session = Depends(get_db)):
             "learned_topics": learned_topics
         })
     return results
-
