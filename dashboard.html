@@ -3,64 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoSPI - Officer Course Dashboard</title>
+  <title>MoSPI - Officer Learning & Certification Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --bg: #f8fafc; }
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-green: #138808; --gov-blue: #005691; --bg: #f8fafc; }
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
     body { background: var(--bg); }
-    header { background: var(--gov-navy); color:white; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; }
-    .btn-logout { background: #ef4444; border:none; color:white; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
-    .container { max-width:1100px; margin:30px auto; padding:0 20px; }
-    .profile-card { background:white; padding:25px; border-radius:10px; margin-bottom:30px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); }
-    .course-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; }
-    .course-card { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border-top:4px solid var(--gov-orange); }
+    header { background: var(--gov-navy); color:white; padding:15px 35px; display:flex; justify-content:space-between; align-items:center; }
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    .profile-card { background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); display:flex; justify-content:space-between; align-items:center; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; }
+    .stat-box { background: white; padding: 20px; border-radius: 10px; border-left: 4px solid var(--gov-orange); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--gov-navy); }
+    .module-card { background: white; border-radius: 10px; padding: 22px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); display:flex; justify-content:space-between; align-items:center; }
+    .badge-comp { background: #dcfce7; color: #15803d; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; }
+    .badge-pend { background: #fef3c7; color: #b45309; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; }
+    .btn-action { padding: 8px 16px; border-radius: 6px; border:none; font-weight:600; cursor:pointer; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.7); display:none; justify-content:center; align-items:center; z-index:1000; }
+    .modal-box { background:white; padding:30px; border-radius:10px; width:100%; max-width:550px; max-height:90vh; overflow-y:auto; position:relative; }
   </style>
 </head>
 <body>
   <header>
-    <h2><i class="fa-solid fa-graduation-cap"></i> MoSPI Learning Portal</h2>
     <div>
-      <span id="userNameHeader" style="margin-right:15px; font-weight:600;"></span>
-      <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+      <h2 style="font-size:1.3rem;"><i class="fa-solid fa-graduation-cap"></i> MoSPI Cadre Learning Dashboard</h2>
+      <p style="font-size:0.75rem; color:#cbd5e1;">Official Training, Competency & Certification Tracker</p>
+    </div>
+    <div>
+      <span id="headerName" style="margin-right:15px; font-weight:600;"></span>
+      <button onclick="logout()" style="background:#ef4444; border:none; color:white; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
     </div>
   </header>
 
   <div class="container">
     <div class="profile-card">
-      <h3 id="officerName" style="color:var(--gov-navy);"></h3>
-      <p style="color:#64748b; margin-top:5px;" id="officerMeta"></p>
+      <div>
+        <h3 id="profName" style="color:var(--gov-navy); font-size:1.3rem;"></h3>
+        <p id="profMeta" style="color:#64748b; font-size:0.9rem; margin-top:4px;"></p>
+      </div>
+      <div>
+        <span style="font-size:0.8rem; color:#64748b;">Competency Rating</span>
+        <div id="profScore" style="font-size:1.8rem; font-weight:800; color:var(--gov-green);">75%</div>
+      </div>
     </div>
 
-    <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-book-bookmark"></i> Assigned Cadre Courses</h3>
-    <div class="course-grid">
-      <div class="course-card">
-        <h4>National Accounts & GDP Compilation</h4>
-        <p style="color:#64748b; font-size:0.9rem; margin:10px 0;">Methodologies on Gross Value Added (GVA) and quarterly estimation.</p>
-        <button style="width:100%; padding:8px; background:var(--gov-navy); color:white; border:none; border-radius:6px; cursor:pointer;">Launch Module</button>
+    <div class="stats-row">
+      <div class="stat-box">
+        <span style="font-size:0.8rem; color:#64748b;">Completed Modules</span>
+        <div class="stat-num" id="statCompleted">0</div>
       </div>
-      <div class="course-card">
-        <h4>Consumer Price Index (CPI) Analytics</h4>
-        <p style="color:#64748b; font-size:0.9rem; margin:10px 0;">Data collection processes and inflation basket metrics.</p>
-        <button style="width:100%; padding:8px; background:var(--gov-navy); color:white; border:none; border-radius:6px; cursor:pointer;">Launch Module</button>
+      <div class="stat-box" style="border-left-color:var(--gov-blue);">
+        <span style="font-size:0.8rem; color:#64748b;">Pending Modules</span>
+        <div class="stat-num" id="statPending">5</div>
       </div>
+      <div class="stat-box" style="border-left-color:var(--gov-green);">
+        <span style="font-size:0.8rem; color:#64748b;">PoSH & Ethics Status</span>
+        <div class="stat-num" style="font-size:1.2rem; margin-top:6px;" id="statPosh">Pending</div>
+      </div>
+    </div>
+
+    <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-list-check"></i> Cadre Curriculum Modules</h3>
+    <div id="modulesContainer"></div>
+  </div>
+
+  <!-- UPLOAD CERTIFICATE MODAL -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal-box">
+      <span style="position:absolute; top:15px; right:18px; font-size:1.4rem; cursor:pointer;" onclick="closeModal('uploadModal')">&times;</span>
+      <h3 style="color:var(--gov-navy); margin-bottom:15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Module Completion Certificate</h3>
+      <form onsubmit="handleUploadSubmit(event)">
+        <input type="hidden" id="uploadCourseId">
+        <p id="uploadCourseName" style="font-weight:700; margin-bottom:15px; color:var(--gov-blue);"></p>
+        <div style="margin-bottom:15px;">
+          <label style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:5px;">Select Certificate (PDF / PNG / JPG)</label>
+          <input type="file" id="certFile" accept=".pdf,.png,.jpg,.jpeg" required style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px;">
+        </div>
+        <button type="submit" class="btn-action" style="background:var(--gov-green); color:white; width:100%; padding:12px;"><i class="fa-solid fa-shield-check"></i> Submit for Verification</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- QUIZ MODAL -->
+  <div class="modal-overlay" id="quizModal">
+    <div class="modal-box">
+      <span style="position:absolute; top:15px; right:18px; font-size:1.4rem; cursor:pointer;" onclick="closeModal('quizModal')">&times;</span>
+      <h3 style="color:var(--gov-navy); margin-bottom:5px;"><i class="fa-solid fa-clipboard-question"></i> Module Assessment Quiz</h3>
+      <p id="quizCourseTitle" style="color:#64748b; font-size:0.85rem; margin-bottom:15px;"></p>
+      <div id="quizQuestionsArea"></div>
+      <button id="quizSubmitBtn" onclick="submitQuizAnswers()" class="btn-action" style="background:var(--gov-navy); color:white; width:100%; padding:12px; margin-top:15px;">Submit Assessment</button>
     </div>
   </div>
 
   <script>
+    const API_BASE = "https://sih101.onrender.com";
     const session = localStorage.getItem("mospi_user");
-    if (!session) {
-      window.location.href = "index.html";
+    if (!session) window.location.href = "index.html";
+    let currentUser = JSON.parse(session);
+
+    const COURSES = [
+      { id: 1, title: "System of National Accounts (SNA 2008) & GDP Estimation", dept: "National Accounts Division (NAD)", hours: "12 Hours" },
+      { id: 2, title: "Consumer Price Index (CPI) Analytics & Basket Weighting", dept: "Price Statistics Division", hours: "8 Hours" },
+      { id: 3, title: "Periodic Labour Force Survey (PLFS) Digital Data Collection", dept: "Field Operations Division (FOD)", hours: "10 Hours" },
+      { id: 4, title: "Annual Survey of Industries (ASI) Factory Scrutiny", dept: "Industrial Statistics", hours: "14 Hours" },
+      { id: 5, title: "Index of Industrial Production (IIP) Diagnostics", dept: "Economic Statistics", hours: "6 Hours" }
+    ];
+
+    let currentQuizData = null;
+    let selectedQuizAnswers = {};
+
+    function renderDashboard() {
+      document.getElementById("headerName").innerText = currentUser.name;
+      document.getElementById("profName").innerText = currentUser.name;
+      document.getElementById("profMeta").innerText = `${currentUser.designation} | ${currentUser.department} | Cadre: ${currentUser.cadre}`;
+      document.getElementById("profScore").innerText = currentUser.competency_score || "75%";
+      document.getElementById("statPosh").innerText = currentUser.posh_status || "Pending";
+
+      const completed = currentUser.completed_modules || [];
+      document.getElementById("statCompleted").innerText = completed.length;
+      document.getElementById("statPending").innerText = Math.max(0, COURSES.length - completed.length);
+
+      const container = document.getElementById("modulesContainer");
+      container.innerHTML = "";
+
+      COURSES.forEach(c => {
+        const isDone = completed.includes(c.id);
+        container.innerHTML += `
+          <div class="module-card">
+            <div>
+              <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">${c.dept} • ${c.hours}</span>
+              <h4 style="color:var(--gov-navy); margin:4px 0;">${c.title}</h4>
+              <span class="${isDone ? 'badge-comp' : 'badge-pend'}">${isDone ? '<i class="fa-solid fa-circle-check"></i> Completed' : '<i class="fa-solid fa-clock"></i> Pending'}</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              ${isDone ? 
+                `<button class="btn-action" style="background:#e2e8f0; color:#475569;" disabled><i class="fa-solid fa-check-double"></i> Certified</button>` :
+                `<button onclick="openUploadModal(${c.id}, '${c.title}')" class="btn-action" style="background:var(--gov-orange); color:#000;"><i class="fa-solid fa-upload"></i> Upload Certificate</button>
+                 <button onclick="launchQuiz(${c.id}, '${c.title}')" class="btn-action" style="background:var(--gov-navy); color:white;"><i class="fa-solid fa-pen-to-square"></i> Take Quiz</button>`
+              }
+            </div>
+          </div>
+        `;
+      });
     }
-    const user = JSON.parse(session);
-    document.getElementById("userNameHeader").innerText = user.name;
-    document.getElementById("officerName").innerText = user.name;
-    document.getElementById("officerMeta").innerText = `${user.designation} | ${user.department} | Cadre: ${user.cadre}`;
+
+    function openUploadModal(courseId, title) {
+      document.getElementById("uploadCourseId").value = courseId;
+      document.getElementById("uploadCourseName").innerText = title;
+      document.getElementById("uploadModal").style.display = "flex";
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      const courseId = document.getElementById("uploadCourseId").value;
+      const file = document.getElementById("certFile").files[0];
+      const formData = new FormData();
+      formData.append("email", currentUser.email);
+      formData.append("course_id", courseId);
+      formData.append("file", file);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/officer/verify-certificate`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Certificate upload failed.");
+
+        currentUser.completed_modules = data.completed_modules;
+        currentUser.competency_score = data.competency_score;
+        localStorage.setItem("mospi_user", JSON.stringify(currentUser));
+        alert("Certificate verified and module marked as completed!");
+        closeModal("uploadModal");
+        renderDashboard();
+      } catch (err) { alert(err.message); }
+    }
+
+    async function launchQuiz(courseId, title) {
+      document.getElementById("quizCourseTitle").innerText = title;
+      selectedQuizAnswers = {};
+      try {
+        const res = await fetch(`${API_BASE}/api/topics/${courseId}/quiz`);
+        currentQuizData = await res.json();
+        const area = document.getElementById("quizQuestionsArea");
+        area.innerHTML = "";
+
+        currentQuizData.questions.forEach((q, idx) => {
+          let optsHtml = "";
+          q.options.forEach((opt, optIdx) => {
+            optsHtml += `
+              <label style="display:block; margin:6px 0; font-weight:normal; font-size:0.9rem; cursor:pointer;">
+                <input type="radio" name="q_${idx}" value="${optIdx}" onchange="selectedQuizAnswers[${idx}]=${optIdx}"> ${opt}
+              </label>
+            `;
+          });
+
+          area.innerHTML += `
+            <div style="background:#f8fafc; padding:12px; border-radius:6px; margin-bottom:12px; border:1px solid #e2e8f0;">
+              <p style="font-weight:700; font-size:0.9rem; margin-bottom:8px;">${idx+1}. ${q.question}</p>
+              ${optsHtml}
+            </div>
+          `;
+        });
+
+        document.getElementById("quizModal").style.display = "flex";
+      } catch (err) { alert(err.message); }
+    }
+
+    async function submitQuizAnswers() {
+      const questions = currentQuizData.questions;
+      let score = 0;
+      questions.forEach((q, idx) => {
+        if (selectedQuizAnswers[idx] === q.correctIndex) score++;
+      });
+
+      if (score >= Math.ceil(questions.length / 2)) {
+        try {
+          const res = await fetch(`${API_BASE}/api/officer/complete-module`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: currentUser.email, course_id: currentQuizData.courseId })
+          });
+          const data = await res.json();
+          currentUser.completed_modules = data.completed_modules;
+          currentUser.competency_score = data.competency_score;
+          localStorage.setItem("mospi_user", JSON.stringify(currentUser));
+          alert(`Congratulations! You passed (${score}/${questions.length}) and completed the module.`);
+          closeModal("quizModal");
+          renderDashboard();
+        } catch (err) { alert(err.message); }
+      } else {
+        alert(`Assessment score: ${score}/${questions.length}. Please review module guidelines and retry.`);
+      }
+    }
 
     function logout() {
       localStorage.removeItem("mospi_user");
       window.location.href = "index.html";
     }
+
+    renderDashboard();
   </script>
 </body>
 </html>

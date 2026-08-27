@@ -15,78 +15,41 @@
       --text: #1e293b;
     }
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background: var(--bg); color: var(--text); line-height: 1.5; }
-
-    .top-gov-bar {
-      background: #0f172a; color: #cbd5e1; font-size: 0.75rem; padding: 6px 40px;
-      display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gov-orange);
-    }
-    header {
-      background: white; padding: 15px 40px; display: flex; justify-content: space-between;
-      align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100;
-    }
-    .logo-container { display: flex; align-items: center; gap: 15px; }
-    .logo-container h1 { font-size: 1.3rem; color: var(--gov-navy); font-weight: 800; letter-spacing: -0.5px; }
-    .logo-container p { font-size: 0.75rem; color: #64748b; font-weight: 600; }
-    .nav-actions { display: flex; gap: 10px; align-items: center; }
-
-    .btn { padding: 9px 18px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-navy { background: var(--gov-navy); color: white; }
-    .btn-navy:hover { background: var(--gov-blue); }
-    .btn-orange { background: var(--gov-orange); color: #000; font-weight: 700; }
-    .btn-orange:hover { background: #e68524; }
-    .btn-admin { background: #334155; color: white; }
-    .btn-admin:hover { background: #1e293b; }
-
-    .hero {
-      background: linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%);
-      color: white; padding: 60px 40px; text-align: center; position: relative;
-    }
-    .hero h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; }
-    .hero p { font-size: 1.05rem; max-width: 750px; margin: 0 auto 25px; color: #e2e8f0; }
-
-    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-    .section-title { font-size: 1.4rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-
-    .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
-    .course-card {
-      background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
-      border: 1px solid #e2e8f0; border-top: 4px solid var(--gov-orange); transition: transform 0.2s; display: flex; flex-direction: column; justify-content: space-between; padding: 22px;
-    }
-    .course-card:hover { transform: translateY(-3px); }
-    .course-tag { font-size: 0.75rem; font-weight: 700; color: var(--gov-blue); text-transform: uppercase; margin-bottom: 8px; }
-    .course-title { font-size: 1.1rem; font-weight: 700; color: var(--gov-navy); margin-bottom: 10px; }
-    .course-desc { font-size: 0.88rem; color: #64748b; margin-bottom: 15px; }
-    .course-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #475569; border-top: 1px solid #f1f5f9; padding-top: 12px; }
-
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); display: none;
-      justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px);
-    }
-    .modal-box {
-      background: white; padding: 32px; border-radius: 12px; width: 100%; max-width: 480px;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); position: relative;
-    }
-    .close-modal { position: absolute; top: 18px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
-    .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 16px; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; color: #334155; }
-    input, select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.9rem; }
+    body { background: var(--bg); color: var(--text); }
+    .top-bar { background:#0f172a; color:#cbd5e1; font-size:0.75rem; padding:6px 40px; display:flex; justify-content:space-between; border-bottom:2px solid var(--gov-orange); }
+    header { background:white; padding:15px 40px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,0.06); position:sticky; top:0; z-index:100; }
+    .logo-box { display:flex; align-items:center; gap:12px; }
+    .nav-actions { display:flex; gap:10px; }
+    .btn { padding:9px 18px; border-radius:6px; font-size:0.88rem; font-weight:600; cursor:pointer; border:none; transition:0.2s; display:inline-flex; align-items:center; gap:6px; }
+    .btn-navy { background:var(--gov-navy); color:white; }
+    .btn-navy:hover { background:var(--gov-blue); }
+    .btn-orange { background:var(--gov-orange); color:#000; font-weight:700; }
+    .btn-orange:hover { background:#e68524; }
+    .btn-admin { background:#334155; color:white; }
+    .hero { background:linear-gradient(135deg, var(--gov-navy) 0%, var(--gov-blue) 100%); color:white; padding:50px 40px; text-align:center; }
+    .container { max-width:1200px; margin:40px auto; padding:0 20px; }
+    .course-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin-top:20px; }
+    .course-card { background:white; border-radius:10px; padding:22px; border:1px solid #e2e8f0; border-top:4px solid var(--gov-orange); box-shadow:0 4px 6px -1px rgba(0,0,0,0.06); }
+    .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.7); display:none; justify-content:center; align-items:center; z-index:1000; }
+    .modal-box { background:white; padding:32px; border-radius:12px; width:100%; max-width:460px; position:relative; }
+    .close-btn { position:absolute; top:16px; right:20px; font-size:1.5rem; cursor:pointer; color:#94a3b8; }
+    .form-group { margin-bottom:14px; }
+    label { display:block; font-size:0.82rem; font-weight:700; margin-bottom:4px; color:#334155; }
+    input, select { width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; }
   </style>
 </head>
 <body>
-
-  <div class="top-gov-bar">
-    <span><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics and Programme Implementation</span>
+  <div class="top-bar">
+    <span><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & Programme Implementation</span>
     <span>iGOT Karmayogi Bharat Integrated</span>
   </div>
 
   <header>
-    <div class="logo-container">
+    <div class="logo-box">
       <i class="fa-solid fa-building-columns" style="font-size:2rem; color:var(--gov-navy);"></i>
       <div>
-        <h1>iGOT MoSPI Platform</h1>
-        <p>National Cadre Competency & Training Intelligence</p>
+        <h1 style="font-size:1.25rem; font-weight:800; color:var(--gov-navy);">iGOT MoSPI Platform</h1>
+        <p style="font-size:0.75rem; color:#64748b;">National Cadre Competency & Training Intelligence</p>
       </div>
     </div>
     <div class="nav-actions">
@@ -97,51 +60,31 @@
   </header>
 
   <div class="hero">
-    <h2>Empowering Statistical & Administrative Cadres</h2>
-    <p>Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
+    <h2 style="font-size:2rem; font-weight:800; margin-bottom:10px;">Empowering Statistical & Administrative Cadres</h2>
+    <p style="max-width:700px; margin:0 auto 20px; color:#e2e8f0;">Targeted competency tracks, national accounts frameworks, and official data analytics pipelines for MoSPI officers.</p>
     <div style="display:flex; justify-content:center; gap:12px;">
       <button class="btn btn-orange" onclick="openModal('registerModal')"><i class="fa-solid fa-id-card"></i> Register As Officer</button>
-      <button class="btn btn-navy" style="border:1px solid #94a3b8;" onclick="openModal('loginModal')"><i class="fa-solid fa-user-check"></i> Existing Officer Login</button>
+      <button class="btn btn-navy" style="border:1px solid #94a3b8;" onclick="openModal('loginModal')"><i class="fa-solid fa-user-check"></i> Officer Login</button>
     </div>
   </div>
 
-  <div class="container" id="coursesSection">
-    <div class="section-title"><i class="fa-solid fa-book-open-reader"></i> Recommended Cadre Courses & Modules</div>
+  <div class="container">
+    <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-book-bookmark"></i> Recommended MoSPI Cadre Courses</h3>
     <div class="course-grid">
       <div class="course-card">
-        <div>
-          <div class="course-tag">National Accounts Division</div>
-          <div class="course-title">System of National Accounts (SNA 2008) & GDP Estimation</div>
-          <div class="course-desc">Core methodology for compiling Gross Value Added (GVA), constant price deflators, and institutional sector accounts.</div>
-        </div>
-        <div class="course-meta">
-          <span><i class="fa-solid fa-clock"></i> 12 Hours</span>
-          <span><i class="fa-solid fa-award"></i> Level 4 ISS</span>
-        </div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">NATIONAL ACCOUNTS DIVISION</span>
+        <h4 style="color:var(--gov-navy); margin:8px 0;">System of National Accounts (SNA 2008) & GDP Estimation</h4>
+        <p style="color:#64748b; font-size:0.88rem;">Gross Value Added (GVA), constant price deflators, and institutional sector balance sheet compilation.</p>
       </div>
-
       <div class="course-card">
-        <div>
-          <div class="course-tag">Price Statistics</div>
-          <div class="course-title">Consumer Price Index (CPI) Analytics & Basket Weighting</div>
-          <div class="course-desc">Field validation rules, geometric mean price indexation, and rural-urban price aggregation protocols.</div>
-        </div>
-        <div class="course-meta">
-          <span><i class="fa-solid fa-clock"></i> 8 Hours</span>
-          <span><i class="fa-solid fa-award"></i> Level 3 SSS/ISS</span>
-        </div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">PRICE STATISTICS</span>
+        <h4 style="color:var(--gov-navy); margin:8px 0;">Consumer Price Index (CPI) Analytics & Weighting</h4>
+        <p style="color:#64748b; font-size:0.88rem;">Field validation rules, geometric mean price indexation, and rural-urban price aggregation metrics.</p>
       </div>
-
       <div class="course-card">
-        <div>
-          <div class="course-tag">Field Operations (FOD)</div>
-          <div class="course-title">Periodic Labour Force Survey (PLFS) Digital Data Collection</div>
-          <div class="course-desc">Household sampling stratifications, Computer Assisted Personal Interviewing (CAPI), and real-time scrutiny.</div>
-        </div>
-        <div class="course-meta">
-          <span><i class="fa-solid fa-clock"></i> 10 Hours</span>
-          <span><i class="fa-solid fa-award"></i> Level 3 SSS</span>
-        </div>
+        <span style="font-size:0.75rem; font-weight:700; color:var(--gov-blue);">FIELD OPERATIONS (FOD)</span>
+        <h4 style="color:var(--gov-navy); margin:8px 0;">Periodic Labour Force Survey (PLFS) Digital Data Collection</h4>
+        <p style="color:#64748b; font-size:0.88rem;">Household sampling stratifications, Computer Assisted Personal Interviewing (CAPI), and live scrutiny.</p>
       </div>
     </div>
   </div>
@@ -149,9 +92,9 @@
   <!-- OFFICER LOGIN MODAL -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <div class="modal-title"><i class="fa-solid fa-user-lock"></i> Officer Portal Login</div>
-      <form onsubmit="handleCadreLogin(event)">
+      <span class="close-btn" onclick="closeModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-user-lock"></i> Officer Portal Login</h3>
+      <form onsubmit="handleOfficerLogin(event)">
         <div class="form-group"><label>Official Email ID *</label><input type="email" id="loginEmail" placeholder="officer@mospi.gov.in" required></div>
         <div class="form-group"><label>Password *</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
         <button type="submit" class="btn btn-navy" style="width:100%; padding:12px; margin-top:8px;">Sign In to Dashboard</button>
@@ -159,18 +102,18 @@
     </div>
   </div>
 
-  <!-- CADRE REGISTRATION MODAL -->
+  <!-- REGISTER MODAL -->
   <div class="modal-overlay" id="registerModal">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <div class="modal-title"><i class="fa-solid fa-id-card"></i> Cadre Registration</div>
-      <form onsubmit="handleCadreRegister(event)">
+      <span class="close-btn" onclick="closeModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:15px;"><i class="fa-solid fa-id-card"></i> Cadre Registration</h3>
+      <form onsubmit="handleOfficerRegister(event)">
         <div class="form-group"><label>Full Name *</label><input type="text" id="regName" placeholder="Shri Rajesh Kumar" required></div>
         <div class="form-group"><label>Official Email *</label><input type="email" id="regEmail" placeholder="rajesh@mospi.gov.in" required></div>
         <div class="form-group"><label>Password *</label><input type="password" id="regPass" placeholder="••••••••" required></div>
         <div class="form-group">
           <label>Service Cadre *</label>
-          <select id="regCadre" required>
+          <select id="regCadre">
             <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
             <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
           </select>
@@ -185,12 +128,12 @@
   <!-- ADMIN LOGIN MODAL -->
   <div class="modal-overlay" id="adminModal">
     <div class="modal-box">
-      <span class="close-modal" onclick="closeAllModals()">&times;</span>
-      <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> Admin Intelligence Console</div>
-      <p style="font-size:0.82rem; color:#64748b; margin-bottom:15px;">Supervisory access: 123@gov.ac.in / 1234</p>
+      <span class="close-btn" onclick="closeModals()">&times;</span>
+      <h3 style="color:var(--gov-navy); font-weight:800; margin-bottom:5px;"><i class="fa-solid fa-shield-halved"></i> Admin Intelligence Console</h3>
+      <p style="font-size:0.8rem; color:#64748b; margin-bottom:15px;">Supervisory access: 123@gov.ac.in / 1234</p>
       <form onsubmit="handleAdminLogin(event)">
         <div class="form-group"><label>Admin Email *</label><input type="email" id="adminEmail" value="123@gov.ac.in" required></div>
-        <div class="form-group"><label>Password *</label><input type="password" id="adminPass" value="1234" required></div>
+        <div class="form-group"><label>Access Password *</label><input type="password" id="adminPass" value="1234" required></div>
         <button type="submit" class="btn btn-admin" style="width:100%; padding:12px; margin-top:8px;">Authenticate Admin</button>
       </form>
     </div>
@@ -200,20 +143,20 @@
     const API_BASE = "https://sih101.onrender.com";
 
     function openModal(id) {
-      closeAllModals();
-      const modal = document.getElementById(id);
-      if (modal) modal.style.display = "flex";
+      closeModals();
+      const m = document.getElementById(id);
+      if (m) m.style.display = "flex";
     }
 
-    function closeAllModals() {
+    function closeModals() {
       document.querySelectorAll(".modal-overlay").forEach(m => m.style.display = "none");
     }
 
     document.querySelectorAll(".modal-overlay").forEach(m => {
-      m.addEventListener("click", e => { if (e.target === m) closeAllModals(); });
+      m.addEventListener("click", e => { if (e.target === m) closeModals(); });
     });
 
-    async function handleCadreLogin(e) {
+    async function handleOfficerLogin(e) {
       e.preventDefault();
       const email = document.getElementById("loginEmail").value.trim();
       const password = document.getElementById("loginPass").value.trim();
@@ -225,16 +168,16 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Authentication failed.");
+        if (!res.ok) throw new Error(data.detail || "Invalid login credentials.");
 
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
       } catch (err) {
-        alert("Login Error: " + err.message);
+        alert(err.message);
       }
     }
 
-    async function handleCadreRegister(e) {
+    async function handleOfficerRegister(e) {
       e.preventDefault();
       const payload = {
         name: document.getElementById("regName").value.trim(),
@@ -254,11 +197,11 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Registration failed.");
 
-        alert(`Welcome, ${data.user.name}! Redirecting to your learning dashboard.`);
+        alert(`Welcome, ${data.user.name}! Registration complete.`);
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
       } catch (err) {
-        alert("Registration Error: " + err.message);
+        alert(err.message);
       }
     }
 
@@ -279,7 +222,7 @@
         localStorage.setItem("mospi_user", JSON.stringify(data.user));
         window.location.href = "admin.html";
       } catch (err) {
-        alert("Admin Login Error: " + err.message);
+        alert(err.message);
       }
     }
   </script>

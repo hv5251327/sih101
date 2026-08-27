@@ -3,34 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoSPI - Admin Intelligence Console</title>
+  <title>MoSPI - Admin Intelligence & Cadre Management</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --gov-navy: #002B49; --bg: #f8fafc; }
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-blue: #005691; --bg: #f8fafc; }
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
     body { background: var(--bg); }
-    header { background: var(--gov-navy); color:white; padding:15px 30px; display:flex; justify-content:space-between; align-items:center; }
-    .container { max-width:1100px; margin:30px auto; padding:0 20px; }
-    table { width:100%; border-collapse:collapse; background:white; border-radius:8px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); margin-top:20px; }
-    th, td { padding:14px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.9rem; }
-    th { background:#0f172a; color:white; }
-    .btn-logout { background: #ef4444; border:none; color:white; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; }
+    header { background: #0f172a; color:white; padding:15px 35px; display:flex; justify-content:space-between; align-items:center; }
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    .card { background: white; padding: 25px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06); }
+    table { width:100%; border-collapse:collapse; margin-top:15px; }
+    th, td { padding:12px; text-align:left; border-bottom:1px solid #e2e8f0; font-size:0.88rem; }
+    th { background: #002B49; color:white; }
+    .tag { display:inline-block; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-size:0.75rem; margin:2px; font-weight:600; }
   </style>
 </head>
 <body>
   <header>
-    <h2><i class="fa-solid fa-shield-halved"></i> MoSPI Admin Console</h2>
-    <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+    <div>
+      <h2 style="font-size:1.3rem;"><i class="fa-solid fa-shield-halved"></i> MoSPI Admin Intelligence Console</h2>
+      <p style="font-size:0.75rem; color:#94a3b8;">Cadre Supervision, Assessment Authoring & Learning Audits</p>
+    </div>
+    <button onclick="logout()" style="background:#ef4444; border:none; color:white; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
   </header>
 
   <div class="container">
-    <h3>Registered Cadre Officers</h3>
-    <table>
-      <thead>
-        <tr><th>ID</th><th>Officer Name</th><th>Email</th><th>Cadre</th><th>Department</th><th>Role</th></tr>
-      </thead>
-      <tbody id="userRows"></tbody>
-    </table>
+    
+    <!-- AI QUESTION GENERATOR FROM PDF MATERIAL -->
+    <div class="card">
+      <h3 style="color:var(--gov-navy); margin-bottom:10px;"><i class="fa-solid fa-file-circle-question" style="color:var(--gov-orange);"></i> Author Assessment Quiz from Official Material (PDF)</h3>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:15px;">Upload circulars, guidelines, or training manuals to generate and persist quiz items to the database.</p>
+      <form onsubmit="handleMaterialUpload(event)" style="display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end;">
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Target Module</label>
+          <select id="quizTargetCourse" style="width:100%; padding:9px; border:1px solid #cbd5e1; border-radius:6px;">
+            <option value="1">1. System of National Accounts & GDP (NAD)</option>
+            <option value="2">2. Consumer Price Index Analytics (Price Stats)</option>
+            <option value="3">3. PLFS Digital Data Collection (FOD)</option>
+            <option value="4">4. Annual Survey of Industries (ASI)</option>
+            <option value="5">5. Index of Industrial Production (IIP)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Training Material (PDF / DOC)</label>
+          <input type="file" id="materialFile" accept=".pdf,.doc,.docx,.txt" required style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px;">
+        </div>
+        <button type="submit" id="btnUploadMat" style="background:var(--gov-navy); color:white; border:none; padding:10px 18px; border-radius:6px; font-weight:700; cursor:pointer;"><i class="fa-solid fa-bolt"></i> Generate & Store Quiz</button>
+      </form>
+      <div id="uploadStatus" style="margin-top:12px; font-size:0.85rem;"></div>
+    </div>
+
+    <!-- REGISTERED OFFICERS AUDIT TABLE -->
+    <div class="card">
+      <h3 style="color:var(--gov-navy); margin-bottom:10px;"><i class="fa-solid fa-users-viewfinder"></i> Registered Officers & Cadre Learning Tracker</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Officer Name</th>
+            <th>Email</th>
+            <th>Cadre / Designation</th>
+            <th>Competency</th>
+            <th>Modules Completed</th>
+            <th>What They Learned</th>
+          </tr>
+        </thead>
+        <tbody id="adminUserRows"></tbody>
+      </table>
+    </div>
+
   </div>
 
   <script>
@@ -39,27 +80,67 @@
     if (!session) window.location.href = "index.html";
     const user = JSON.parse(session);
     if (user.role !== "admin") {
-      alert("Unauthorized access. Redirecting to employee dashboard.");
+      alert("Unauthorized access.");
       window.location.href = "dashboard.html";
     }
 
-    async function loadUsers() {
+    async function loadCadreOverview() {
       try {
         const res = await fetch(`${API_BASE}/api/admin/users`);
         const users = await res.json();
-        const tbody = document.getElementById("userRows");
+        const tbody = document.getElementById("adminUserRows");
         tbody.innerHTML = "";
+
         users.forEach(u => {
-          tbody.innerHTML += `<tr>
-            <td>${u.id}</td>
-            <td><strong>${u.name}</strong></td>
-            <td>${u.email}</td>
-            <td>${u.cadre}</td>
-            <td>${u.department}</td>
-            <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-weight:700;">${u.role}</span></td>
-          </tr>`;
+          let topicsHtml = u.learned_topics && u.learned_topics.length > 0 
+            ? u.learned_topics.map(t => `<span class="tag">${t}</span>`).join(" ")
+            : `<span style="color:#94a3b8; font-style:italic;">No modules completed yet</span>`;
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${u.id}</td>
+              <td><strong>${u.name}</strong><br><small style="color:#64748b;">${u.department}</small></td>
+              <td>${u.email}</td>
+              <td>${u.cadre}<br><small style="color:#64748b;">${u.designation}</small></td>
+              <td><strong style="color:var(--gov-blue);">${u.competency}</strong></td>
+              <td><span style="background:#e2e8f0; padding:3px 8px; border-radius:12px; font-weight:700;">${u.completed_count} Completed</span></td>
+              <td>${topicsHtml}</td>
+            </tr>
+          `;
         });
       } catch (err) { alert(err.message); }
+    }
+
+    async function handleMaterialUpload(e) {
+      e.preventDefault();
+      const courseId = document.getElementById("quizTargetCourse").value;
+      const file = document.getElementById("materialFile").files[0];
+      const btn = document.getElementById("btnUploadMat");
+      const status = document.getElementById("uploadStatus");
+
+      btn.disabled = true;
+      btn.innerText = "Parsing & Storing...";
+      status.innerHTML = `<span style="color:var(--gov-blue);"><i class="fa-solid fa-spinner fa-spin"></i> Processing circular document...</span>`;
+
+      const formData = new FormData();
+      formData.append("course_id", courseId);
+      formData.append("file", file);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/upload-quiz-material`, {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Upload failed.");
+
+        status.innerHTML = `<span style="color:green; font-weight:700;"><i class="fa-solid fa-circle-check"></i> ${data.preview_text}</span>`;
+      } catch (err) {
+        status.innerHTML = `<span style="color:red;"><i class="fa-solid fa-circle-xmark"></i> ${err.message}</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Generate & Store Quiz`;
+      }
     }
 
     function logout() {
@@ -67,7 +148,7 @@
       window.location.href = "index.html";
     }
 
-    loadUsers();
+    loadCadreOverview();
   </script>
 </body>
 </html>
