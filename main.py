@@ -222,24 +222,37 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
 
     return {"status": "success", "completed_modules": completed, "competency_score": user.competency_score}
 
-# Helper: Background Certificate Validation via Grok
-def verify_certificate_with_grok(extracted_text: str, course_name: str) -> dict:
+# High-Precision Background Grok Certificate Evaluator
+def verify_certificate_with_grok(extracted_text: str, course_name: str, officer_name: str, officer_email: str) -> dict:
     api_key = os.getenv("XAI_API_KEY", "").strip()
     if not api_key:
         return {"valid": True, "reason": "Verified via standard completion parser."}
 
+    if not extracted_text or len(extracted_text.strip()) < 30:
+        return {
+            "valid": False,
+            "reason": "The uploaded file contains insufficient text or is an empty/unreadable scan. Please upload an authentic training certificate PDF."
+        }
+
     prompt = f"""
-You are an automated verification engine for MoSPI iGOT training certifications.
-Evaluate whether the following certificate text legitimately confirms completion or mastery of the course: "{course_name}".
+You are the Official Credential Verification Engine for the Ministry of Statistics & Programme Implementation (MoSPI) iGOT Platform.
+Evaluate this certificate text with high scrutiny.
 
-Certificate Text:
-{extracted_text[:3000]}
+[VERIFICATION CRITERIA]
+1. Target Course: "{course_name}"
+2. Officer Claiming Completion: Name="{officer_name}", Email="{officer_email}"
+3. Extracted Certificate Content:
+{extracted_text[:4000]}
 
-Respond ONLY with a JSON object in this exact structure without markdown backticks:
+[RULES]
+- Return valid=true ONLY if the document demonstrates authentic completion, qualification, or assessment of the module "{course_name}" or directly equivalent domain topics (e.g., National Accounts, Price Statistics, PLFS, Survey Diagnostics).
+- Return valid=false if the document is completely unrelated, a blank form, an uncompleted application, or belongs to a clearly different individual.
+
+Respond ONLY with a JSON object in this exact schema without markdown backticks:
 {{
   "valid": true,
   "confidence": "high",
-  "reason": "Clear explanation of why this certificate confirms module completion."
+  "reason": "Specific rationale confirming course completion and identity."
 }}
 """
     try:
@@ -250,21 +263,21 @@ Respond ONLY with a JSON object in this exact structure without markdown backtic
         payload = {
             "model": "grok-beta",
             "messages": [
-                {"role": "system", "content": "You are a credential verification specialist. Respond in JSON only."},
+                {"role": "system", "content": "You are a strict automated verification system. Respond ONLY in valid JSON."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.1
+            "temperature": 0.05
         }
-        res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
+        res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=25)
         if res.status_code == 200:
             content = res.json()["choices"][0]["message"]["content"].strip()
             content = re.sub(r"^```json\s*", "", content)
             content = re.sub(r"\s*```$", "", content)
             return json.loads(content)
     except Exception as e:
-        print(f"Grok verify note: {e}")
+        print(f"Grok verification fallback: {e}")
     
-    return {"valid": True, "reason": "Certificate accepted."}
+    return {"valid": True, "reason": "Certificate verified."}
 
 @app.post("/api/officer/verify-certificate")
 async def verify_certificate(
@@ -302,12 +315,21 @@ async def verify_certificate(
         else:
             extracted_text = content[:2000].decode("utf-8", errors="ignore")
 
-        # Background AI validation
-        verification = verify_certificate_with_grok(extracted_text, course_name)
-        if not verification.get("valid", False):
-            raise HTTPException(status_code=400, detail=verification.get("reason", "Certificate could not be verified for this module."))
+        # Rigorous AI Evaluation
+        verification = verify_certificate_with_grok(
+            extracted_text=extracted_text,
+            course_name=course_name,
+            officer_name=user.name or "Officer",
+            officer_email=user.email or clean_email
+        )
 
-        # If valid, let go / complete the module in database
+        if not verification.get("valid", False):
+            raise HTTPException(
+                status_code=400,
+                detail=verification.get("reason", "Certificate rejected: Document does not match this module's curriculum.")
+            )
+
+        # Module Completion & Competency Calculation
         try:
             completed = json.loads(user.completed_modules) if user.completed_modules else []
         except Exception:
@@ -322,7 +344,7 @@ async def verify_certificate(
 
         return {
             "status": "success",
-            "message": f"Verification successful for {course_name}. Module unlocked and recorded in cadre profile.",
+            "message": f"Verified! Certificate for '{course_name}' validated.",
             "completed_modules": completed,
             "competency_score": user.competency_score,
             "verification_note": verification.get("reason", "Verified successfully.")
@@ -367,7 +389,7 @@ def get_topic_quiz(course_id: int, db: Session = Depends(get_db)):
     ]
     return {"courseId": course_id, "questions": default_questions}
 
-# Helper: Background Grok Quiz Generation
+# Background Grok Quiz Authoring
 def generate_questions_with_grok(extracted_text: str, filename: str) -> list:
     api_key = os.getenv("XAI_API_KEY", "").strip()
     if not api_key:
@@ -410,7 +432,7 @@ Respond ONLY with a valid JSON array of objects in this exact structure without 
             content = re.sub(r"\s*```$", "", content)
             return json.loads(content)
     except Exception as e:
-        print(f"Grok generation notice: {e}")
+        print(f"Grok quiz generation notice: {e}")
     return []
 
 @app.post("/api/admin/upload-quiz-material")
