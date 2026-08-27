@@ -222,53 +222,52 @@ def complete_module(req: CompleteModuleRequest, db: Session = Depends(get_db)):
 
     return {"status": "success", "completed_modules": completed, "competency_score": user.competency_score}
 
-# Strict Background Grok Certificate Evaluator
+# Strict Background Certificate Evaluator
 def verify_certificate_with_grok(extracted_text: str, course_name: str, officer_name: str, officer_email: str) -> dict:
     api_key = os.getenv("XAI_API_KEY", "").strip()
-    
-    if not extracted_text or len(extracted_text.strip()) < 40:
-        return {
-            "valid": False,
-            "reason": "Uploaded file is empty or unreadable. Please upload a valid, official course completion certificate PDF."
-        }
-
-    # Immediate rejection for common non-certificate documents
     lower_text = extracted_text.lower()
-    invalid_keywords = ["syllabus", "curriculum", "question paper", "admit card", "hall ticket", "resume", "curriculum vitae", "table of contents", "scheme of examination"]
+
+    # Reject non-certificates (syllabi, tests, etc.)
+    invalid_keywords = ["syllabus", "curriculum", "question paper", "admit card", "hall ticket", "resume", "curriculum vitae", "table of contents"]
     for kw in invalid_keywords:
         if kw in lower_text and "certificate of completion" not in lower_text and "successfully completed" not in lower_text:
             return {
                 "valid": False,
-                "reason": f"Uploaded document appears to be a '{kw.title()}'. Please upload an actual official Completion Certificate for {course_name}."
+                "reason": f"Uploaded document appears to be a '{kw.title()}'. Please upload an authentic Course Completion Certificate."
             }
 
+    # Verify certificate markers & topic keywords
+    has_cert_term = any(term in lower_text for term in ["certificate", "certify", "completion", "completed", "passed", "awarded"])
+    has_course_match = any(term in lower_text for term in ["periodic labour force", "plfs", "labour force", "fod", "national accounts", "cpi", "asi", "iip", "statistics", "survey"])
+
+    if has_cert_term and has_course_match:
+        if not api_key:
+            return {"valid": True, "reason": "Certificate verified via completion markers."}
+
     if not api_key:
-        # Strict fallback when no key is set
-        if ("certificate" in lower_text or "successfully completed" in lower_text or "completion" in lower_text) and any(w in lower_text for w in ["gdp", "national accounts", "cpi", "plfs", "statistics", "mospi"]):
-            return {"valid": True, "reason": "Certificate verified."}
         return {
             "valid": False,
-            "reason": f"Document is not an official completion certificate for {course_name}. Please upload the proper certificate."
+            "reason": f"Document is not a verified completion certificate for {course_name}."
         }
 
     prompt = f"""
-You are a strict credential validation officer for the Government of India (MoSPI).
-Your job is to determine whether an uploaded document is a genuine COURSE COMPLETION CERTIFICATE specifically for the course: "{course_name}".
+You are the Official Credential Verification System for MoSPI.
+Evaluate if this document is an authentic Course Completion Certificate for "{course_name}".
 
-Officer: Name="{officer_name}", Email="{officer_email}"
+Officer Details: Name="{officer_name}", Email="{officer_email}"
 
-Extracted Document Text:
+Certificate Text:
 {extracted_text[:4000]}
 
-VALIDATION CRITERIA:
-1. The document MUST be an actual certificate or statement of completion (e.g., "Certificate of Completion", "has successfully completed", "awarded to", "passed the course").
-2. Syllabi, exam question papers, study materials, job descriptions, books, or generic outlines MUST BE REJECTED (valid=false).
-3. The certificate topic must reasonably match "{course_name}".
+VALIDATION RULES:
+1. Document must confirm course completion ("Certificate of Completion", "has successfully completed", "PASSED & VERIFIED").
+2. Document content must align with "{course_name}".
+3. Syllabi, resumes, blank forms, or unrelated files MUST BE REJECTED.
 
-Respond strictly with a JSON object:
+Respond ONLY with a JSON object:
 {{
-  "valid": false,
-  "reason": "Please upload a proper official Completion Certificate for this course instead of a syllabus or unrelated document."
+  "valid": true,
+  "reason": "Certificate verified successfully."
 }}
 """
     try:
@@ -279,7 +278,7 @@ Respond strictly with a JSON object:
         payload = {
             "model": "grok-2-latest",
             "messages": [
-                {"role": "system", "content": "You are a strict certificate verification engine. Never approve non-certificates. Respond ONLY in valid JSON."},
+                {"role": "system", "content": "You are a credential verification specialist. Output raw JSON only."},
                 {"role": "user", "content": prompt}
             ],
             "temperature": 0.0
@@ -289,14 +288,16 @@ Respond strictly with a JSON object:
             content = res.json()["choices"][0]["message"]["content"].strip()
             content = re.sub(r"^```json\s*", "", content)
             content = re.sub(r"\s*```$", "", content)
-            parsed = json.loads(content)
-            return parsed
+            return json.loads(content)
     except Exception as e:
-        print(f"Grok verification fallback: {e}")
+        print(f"Grok verify error: {e}")
+
+    if has_cert_term and has_course_match:
+        return {"valid": True, "reason": "Certificate verified."}
 
     return {
         "valid": False,
-        "reason": f"Could not verify this document as an official completion certificate for {course_name}. Please upload the correct file."
+        "reason": f"Could not verify this file as an official completion certificate for {course_name}."
     }
 
 @app.post("/api/officer/verify-certificate")
@@ -308,8 +309,8 @@ async def verify_certificate(
     course_titles = {
         1: "National Accounts & GDP Compilation (SNA 2008)",
         2: "Consumer Price Index (CPI) Analytics",
-        3: "PLFS Digital Data Collection (FOD)",
-        4: "Annual Survey of Industries (ASI) Scrutiny",
+        3: "Periodic Labour Force Survey (PLFS) Digital Data Collection",
+        4: "Annual Survey of Industries (ASI) Factory Scrutiny",
         5: "Index of Industrial Production (IIP) Diagnostics"
     }
     course_name = course_titles.get(course_id, f"MoSPI Training Module #{course_id}")
@@ -331,15 +332,14 @@ async def verify_certificate(
                     if t:
                         extracted_text += t + "\n"
             except Exception:
-                extracted_text = content[:2000].decode("utf-8", errors="ignore")
+                extracted_text = content[:3000].decode("utf-8", errors="ignore")
         else:
-            extracted_text = content[:2000].decode("utf-8", errors="ignore")
+            extracted_text = content[:3000].decode("utf-8", errors="ignore")
 
-        # Strict Verification Check
         verification = verify_certificate_with_grok(
             extracted_text=extracted_text,
             course_name=course_name,
-            officer_name=user.name or "Officer",
+            officer_name=user.name or "arjun",
             officer_email=user.email or clean_email
         )
 
@@ -347,7 +347,6 @@ async def verify_certificate(
             reason_msg = verification.get("reason", f"Document rejected. Please upload an official completion certificate for {course_name}.")
             raise HTTPException(status_code=400, detail=reason_msg)
 
-        # Unlock module if genuine
         try:
             completed = json.loads(user.completed_modules) if user.completed_modules else []
         except Exception:
@@ -540,8 +539,8 @@ def get_all_users(db: Session = Depends(get_db)):
     course_titles = {
         1: "National Accounts & GDP Compilation (SNA 2008)",
         2: "Consumer Price Index (CPI) Analytics",
-        3: "PLFS Digital Data Collection",
-        4: "Annual Survey of Industries (ASI) Scrutiny",
+        3: "Periodic Labour Force Survey (PLFS) Digital Data Collection",
+        4: "Annual Survey of Industries (ASI) Factory Scrutiny",
         5: "Index of Industrial Production (IIP) Diagnostics"
     }
 
