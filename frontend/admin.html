@@ -2,200 +2,225 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Admin Portal | iGOT & MoSPI Capacity Building</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | iGOT MoSPI Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --gov-navy: #0b2545;
-      --gov-blue: #133c55;
-      --gov-orange: #ff9933;
-      --gov-green: #15803d;
-      --primary-blue: #1d4ed8;
-      --border-color: #cbd5e1;
-      --bg-gray: #f8fafc;
-      --text-dark: #0f172a;
+      --primary: #15325b;
+      --accent: #e58a2b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg-gray); color: var(--text-dark); min-height: 100vh; }
-
-    .navbar {
-      background: var(--gov-navy);
-      padding: 14px 5%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    .brand { font-size: 1.3rem; font-weight: 800; color: white; text-decoration: none; }
-    .brand span { color: var(--gov-orange); }
-
-    .container { padding: 40px 5%; max-width: 1200px; margin: 0 auto; }
-    .header-box { background: white; padding: 25px; border-radius: 12px; border-left: 5px solid var(--primary-blue); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-    .btn { padding: 9px 18px; border-radius: 6px; font-weight: 700; font-size: 0.88rem; cursor: pointer; border: none; }
-    .btn-outline { background: transparent; color: var(--gov-navy); border: 1.5px solid var(--border-color); }
-    .btn-blue { background: var(--primary-blue); color: white; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; }
     
-    .dash-box { background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-    .dash-box h3 { font-size: 1.2rem; font-weight: 800; color: var(--gov-navy); margin-bottom: 15px; }
+    /* Login Modal */
+    .admin-login-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; z-index: 99999;
+    }
+    .admin-login-box {
+      background: white; border-radius: 16px; padding: 32px; width: 90%; max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--border);
+    }
+    .login-title { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 8px; text-align: center; }
+    .login-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+    .form-group input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px;
+    }
+    .btn-submit {
+      width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
+      border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px;
+    }
+    .btn-submit:hover { background: #0e2443; }
 
-    .upload-card { border: 2px dashed #93c5fd; background: #eff6ff; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
-    .upload-card:hover { background: #dbeafe; }
+    /* Admin Navigation */
+    .header { background: white; border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .header-brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--primary); font-size: 18px; }
+    .btn-logout { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-    .form-group { margin-bottom: 14px; text-align: left; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
-    .form-control { width: 100%; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; }
+    /* Dashboard Layout */
+    .container { max-width: 1300px; margin: 30px auto; padding: 0 20px; }
+    .dash-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 30px; }
+    .card { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .card-title { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    .admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.88rem; }
-    .admin-table th { background: #f1f5f9; color: var(--gov-navy); font-weight: 700; }
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+    th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #334155; }
+    .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0369a1; }
   </style>
-<style id="mobile-responsive-rules">
-  @media screen and (max-width: 768px) {
-    body {
-      overflow-x: hidden !important;
-    }
-    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
-      max-width: 100% !important;
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    .grid, .row, .cards-grid, .stats-row, .d-flex {
-      display: flex !important;
-      flex-direction: column !important;
-      width: 100% !important;
-      gap: 15px !important;
-    }
-    table {
-      display: block !important;
-      overflow-x: auto !important;
-      white-space: nowrap !important;
-      width: 100% !important;
-    }
-    .sidebar, aside {
-      position: relative !important;
-      width: 100% !important;
-      height: auto !important;
-    }
-    input, select, textarea, button {
-      font-size: 16px !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    .modal-content, .dialog {
-      width: 92% !important;
-      margin: 10px auto !important;
-    }
-  }
-</style>
 </head>
 <body>
 
-  <header class="navbar">
-    <a href="index.html" class="brand"><i class="fa-solid fa-chart-pie"></i> MoSPI <span>Admin Console</span></a>
-    <div>
-      <span style="font-size:0.88rem; color:#cbd5e1; margin-right:15px;"><i class="fa-solid fa-shield-halved"></i> 123@gov.ac.in</span>
-      <a href="index.html" class="btn btn-outline" style="color:white; border-color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fa-solid fa-arrow-left"></i> Exit to Portal</a>
+  <!-- Dedicated Admin Login Overlay -->
+  <div id="adminLoginModal" class="admin-login-overlay">
+    <div class="admin-login-box">
+      <div style="text-align: center; margin-bottom: 12px; font-size: 32px; color: var(--accent);">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2 class="login-title">Administrator Portal</h2>
+      <p class="login-subtitle">Ministry of Statistics & Programme Implementation</p>
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Admin Email</label>
+          <input type="email" id="adminEmail" value="123@gov.ac.in" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="adminPassword" value="1234" required>
+        </div>
+        <button type="submit" class="btn-submit">Authenticate & Access Dashboard</button>
+      </form>
     </div>
-  </header>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-brand">
+      <i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i>
+      <span>iGOT MoSPI Platform | Central Administration</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-size: 13px; font-weight: 600; color: #475569;">Admin: 123@gov.ac.in</span>
+      <button class="btn-logout" onclick="adminLogout()">Log Out</button>
+    </div>
+  </div>
 
   <div class="container">
-    <div class="header-box">
-      <div>
-        <h2 style="font-size:1.5rem; color:var(--gov-navy);">Capacity Building Commission | Admin Console</h2>
-        <p style="color:#64748b; font-size:0.88rem; margin-top:4px;">Upload curriculum material, synchronize quizzes, and manage cadre competency.</p>
+    <div class="dash-grid">
+      <!-- Quiz Material Upload -->
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-file-pdf" style="color: #dc2626;"></i> Upload Training Circular (PDF)</h3>
+        <p style="font-size: 12px; color: var(--muted); margin-bottom: 14px;">Select module and circular to auto-generate 5 grounded questions.</p>
+        <form id="uploadForm" onsubmit="handleUploadCircular(event)">
+          <div class="form-group">
+            <label>Select Training Module</label>
+            <select id="courseIdSelect" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid var(--border);">
+              <option value="1">Course 1: National Accounts & GDP (SNA 2008)</option>
+              <option value="2">Course 2: CPI Price Analytics</option>
+              <option value="3">Course 3: PLFS Digital Survey</option>
+              <option value="4">Course 4: ASI Factory Scrutiny</option>
+              <option value="5">Course 5: IIP Diagnostic Framework</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Training Material (PDF)</label>
+            <input type="file" id="pdfFile" accept="application/pdf" required style="font-size: 12px;">
+          </div>
+          <button type="submit" id="uploadBtn" class="btn-submit" style="background: var(--accent);">Synthesize 5 Assessment Questions</button>
+        </form>
+        <div id="uploadStatus" style="font-size: 12px; margin-top: 10px; font-weight: 600;"></div>
       </div>
-    </div>
 
-    <!-- Upload PDF for Making Quiz Questions -->
-    <div class="dash-box" style="border-top: 4px solid var(--gov-orange);">
-      <h3><i class="fa-solid fa-file-arrow-up" style="color:var(--gov-orange); margin-right:8px;"></i> Upload PDF for Making Quiz Questions</h3>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">Select a course topic and upload training PDF notes. Grok AI will parse the content, generate objective MCQs, and save them to the official topic quiz database.</p>
-
-      <div style="max-width: 450px; margin-bottom: 15px;">
-        <div class="form-group">
-          <label>Target Course Topic *</label>
-          <select id="courseTopicSelect" class="form-control">
-            <option value="7">Prevention of Sexual Harassment (POSH) at Workplace</option>
-            <option value="1">National Accounts Statistics & GDP Compilation (SNA 2008)</option>
-            <option value="2">Survey Sampling Design & Total Survey Error (TSE)</option>
-            <option value="3">Data Analytics with Python & R for Official Statistics</option>
-          </select>
+      <!-- Live Analytics -->
+      <div class="card">
+        <h3 class="card-title"><i class="fa-solid fa-chart-pie" style="color: #0284c7;"></i> Cadre Competency Overview</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px;">
+          <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; text-align: center;">
+            <div id="totalOfficersCount" style="font-size: 28px; font-weight: 800; color: var(--primary);">--</div>
+            <div style="font-size: 12px; color: var(--muted); font-weight: 600;">Total Officers Tracked</div>
+          </div>
+          <div style="background: #fef3c7; padding: 16px; border-radius: 8px; text-align: center;">
+            <div id="avgCompletion" style="font-size: 28px; font-weight: 800; color: #b45309;">--%</div>
+            <div style="font-size: 12px; color: #92400e; font-weight: 600;">Average Competency Progress</div>
+          </div>
         </div>
       </div>
-
-      <div class="upload-card" onclick="document.getElementById('adminPdfFile').click()">
-        <i class="fa-solid fa-cloud-arrow-up" style="font-size:2.8rem; color:var(--primary-blue); margin-bottom:10px;"></i>
-        <div style="font-weight:700; font-size:1rem; color:var(--gov-navy);" id="uploadStatusText">Click here to upload training PDF document</div>
-        <div style="font-size:0.8rem; color:#64748b; margin-top:4px;">In-memory parsing & database quiz generation</div>
-        <input type="file" id="adminPdfFile" style="display:none;" accept=".pdf,.txt" onchange="uploadAdminPdf(event)">
-      </div>
-
-      <div id="quizPreviewBox" style="display:none; padding:18px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; margin-top:15px;">
-        <h4 style="color:var(--gov-green); font-size:0.95rem; margin-bottom:10px;"><i class="fa-solid fa-circle-check"></i> Generated Questions Saved to Topic Database:</h4>
-        <div id="generatedQuizList"></div>
-      </div>
     </div>
 
-    <!-- Cadre Registry -->
-    <div class="dash-box">
-      <h3><i class="fa-solid fa-users-gear" style="color:var(--primary-blue); margin-right:8px;"></i> Enrolled Cadre Registry</h3>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Officer Name</th>
-            <th>Cadre</th>
-            <th>Division</th>
-            <th>Designation</th>
-            <th>Competency Score</th>
-            <th>POSH Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:700; color:var(--gov-navy);">Shri Rajesh Kumar</td>
-            <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">ISS</span></td>
-            <td>National Accounts Division</td>
-            <td>Deputy Director</td>
-            <td style="font-weight:700; color:var(--primary-blue);">75%</td>
-            <td><span style="color:var(--gov-green); font-weight:700;">Completed</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:700; color:var(--gov-navy);">Smt. Priya Sharma</td>
-            <td><span style="background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">ISS</span></td>
-            <td>Field Operations Division</td>
-            <td>Joint Director</td>
-            <td style="font-weight:700; color:var(--primary-blue);">88%</td>
-            <td><span style="color:var(--gov-green); font-weight:700;">Completed</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:700; color:var(--gov-navy);">Shri K. Sundaram</td>
-            <td><span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.78rem;">SSS</span></td>
-            <td>Price Statistics Division</td>
-            <td>Senior Statistical Officer</td>
-            <td style="font-weight:700; color:var(--primary-blue);">71%</td>
-            <td><span style="color:#b91c1c; font-weight:700;">Pending</span></td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Officer Competency Registry -->
+    <div class="card">
+      <h3 class="card-title"><i class="fa-solid fa-users" style="color: #16a34a;"></i> Registered Officers & Competency Records</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Officer Name</th>
+              <th>Email</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Competency Rating</th>
+              <th>Completed Modules</th>
+            </tr>
+          </thead>
+          <tbody id="officersTableBody">
+            <tr><td colspan="6" style="text-align: center; color: var(--muted);">Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
 
-    async function uploadAdminPdf(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    function checkAdminAuth() {
+      const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
+      if (user && (user.role === "admin" || user.email === "123@gov.ac.in")) {
+        document.getElementById("adminLoginModal").style.display = "none";
+        loadDashboardData();
+      } else {
+        document.getElementById("adminLoginModal").style.display = "flex";
+      }
+    }
 
-      const courseId = document.getElementById("courseTopicSelect").value;
-      const statusText = document.getElementById("uploadStatusText");
-      statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Parsing ${file.name} & generating MCQs via Grok AI...`;
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.status === "success" && (data.user.role === "admin" || data.user.email === "123@gov.ac.in")) {
+          localStorage.setItem("mospi_user", JSON.stringify(data.user));
+          document.getElementById("adminLoginModal").style.display = "none";
+          loadDashboardData();
+        } else {
+          alert(data.detail || "Invalid administrative credentials.");
+        }
+      } catch (err) {
+        alert("Server wake-up in progress. Please retry in a few seconds.");
+      }
+    }
+
+    function adminLogout() {
+      localStorage.removeItem("mospi_user");
+      window.location.href = "index.html";
+    }
+
+    async function handleUploadCircular(e) {
+      e.preventDefault();
+      const courseId = document.getElementById("courseIdSelect").value;
+      const file = document.getElementById("pdfFile").files[0];
+      const status = document.getElementById("uploadStatus");
+      const btn = document.getElementById("uploadBtn");
+
+      if (!file) return;
 
       const formData = new FormData();
       formData.append("course_id", courseId);
       formData.append("file", file);
+
+      status.textContent = "Processing PDF & generating 5 questions...";
+      status.style.color = "#0284c7";
+      btn.disabled = true;
 
       try {
         const res = await fetch(`${API_BASE}/api/admin/upload-quiz-material`, {
@@ -203,29 +228,57 @@
           body: formData
         });
         const data = await res.json();
-        
-        statusText.innerHTML = `<span style="color:var(--gov-green);"><i class="fa-solid fa-circle-check"></i> ${file.name} uploaded & quiz created!</span>`;
-        
-        const preview = document.getElementById("quizPreviewBox");
-        const list = document.getElementById("generatedQuizList");
-        preview.style.display = "block";
-        list.innerHTML = "";
-
-        data.quiz.forEach((q, idx) => {
-          list.innerHTML += `
-            <div style="margin-bottom:12px; font-size:0.88rem;">
-              <strong>Q${idx+1}: ${q.question}</strong>
-              <div style="color:var(--gov-green); font-size:0.82rem; margin-top:3px;"><i class="fa-solid fa-check"></i> Correct Option: ${q.options[q.correct_index || 0]}</div>
-              <div style="color:#64748b; font-size:0.78rem; margin-top:2px;">Explanation: ${q.explanation}</div>
-            </div>
-          `;
-        });
+        if (res.ok) {
+          status.textContent = `Generated & saved 5 questions for Course #${courseId}!`;
+          status.style.color = "#16a34a";
+        } else {
+          status.textContent = data.detail || "Extraction failed.";
+          status.style.color = "#dc2626";
+        }
       } catch (err) {
-        alert("Upload parsing error: " + err.message);
-        statusText.innerText = "Click here to upload training PDF document";
+        status.textContent = "Network error. Please try again.";
+        status.style.color = "#dc2626";
+      } finally {
+        btn.disabled = false;
       }
     }
+
+    async function loadDashboardData() {
+      try {
+        const [usersRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/admin/users`),
+          fetch(`${API_BASE}/api/admin/analytics`)
+        ]);
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          document.getElementById("totalOfficersCount").textContent = stats.total_officers || 0;
+          document.getElementById("avgCompletion").textContent = `${stats.average_completed_percentage || 0}%`;
+        }
+
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          const tbody = document.getElementById("officersTableBody");
+          tbody.innerHTML = "";
+          users.forEach(u => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td><strong>${u.name || "Officer"}</strong></td>
+              <td>${u.email}</td>
+              <td>${u.department || "NAD"}</td>
+              <td>${u.designation || "Deputy Director"}</td>
+              <td><span class="badge">${u.competency || "75%"}</span></td>
+              <td>${u.completed_count || 0} / 5</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (err) {
+        console.error("Dashboard data fetch error:", err);
+      }
+    }
+
+    window.onload = checkAdminAuth;
   </script>
 </body>
 </html>
-
