@@ -581,6 +581,9 @@
     window.onload = checkAuth;
   </script>
 
+
+
+
 <!-- BHASHINI_DYNAMIC_ENGINE -->
 <script>
 window.bhashiniComprehensive = {
@@ -675,7 +678,7 @@ window.bhashiniComprehensive = {
     "2 Completed": "২ সম্পন্ন",
     "3 To Learn": "৩ বাকি আছে",
     "Sync with iGOT Karmayogi API": "iGOT কর্মযোগী API-এর সাথে সিঙ্ক করুন",
-    "4-Tier Official Statistics Competency Mapping": "৪-স্তরীয় অফিসিয়াল পরিসংখ্যান দক্ষতা ম্যাপিং",
+    "4-Tier Official Statistics Competency Mapping": "৪-স্তরীয় অফিসিয়াল পরিসংখ্যান दक्षता ম্যাপিং",
     "Statistical Frameworks (SNA/PLFS/CPI)": "পরিসংখ্যানগত কাঠামো (SNA/PLFS/CPI)",
     "Technical & Analytics (Python/R/GIS)": "প্রযুক্তিগত ও বিশ্লেষণ (Python/R/GIS)",
     "Digital Governance (DPDP/Privacy)": "ডিজিটাল শাসন (DPDP/গোপনীয়তা)",
@@ -691,6 +694,7 @@ window.bhashiniComprehensive = {
   }
 };
 
+// Bi-directional dynamic switcher caching original values
 window.runBhashini = function(targetLang) {
   const dict = window.bhashiniComprehensive[targetLang] || window.bhashiniComprehensive.en;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
@@ -699,14 +703,21 @@ window.runBhashini = function(targetLang) {
     if (node.parentElement.closest('#bhashiniWrap') || node.parentElement.tagName === 'SCRIPT' || node.parentElement.tagName === 'STYLE') continue;
     const txt = node.nodeValue.trim();
     if (!txt) continue;
-    if (!node._origText) node._origText = txt;
-
+    
+    if (!node._baseEnText) {
+      node._baseEnText = txt;
+    }
+    
+    const baseKey = node._baseEnText;
     if (targetLang === 'en') {
-      node.nodeValue = node._origText;
+      node.nodeValue = baseKey;
+    } else if (dict[baseKey]) {
+      node.nodeValue = dict[baseKey];
     } else {
       for (const [enKey, transVal] of Object.entries(dict)) {
-        if (node._origText === enKey || node.nodeValue.includes(enKey)) {
-          node.nodeValue = node.nodeValue.replace(enKey, transVal);
+        if (baseKey.includes(enKey)) {
+          node.nodeValue = baseKey.replace(enKey, transVal);
+          break;
         }
       }
     }
@@ -719,29 +730,23 @@ window.runBhashini = function(targetLang) {
 <script>
 window.generateSmartBotReply = function(userMsg) {
   const msg = userMsg.toLowerCase();
-  
   if (msg.includes("score") || msg.includes("competency")) {
-    return "Your current overall MoSPI Competency Score is **85%**. Your biggest skill gap is in Technical & Analytics (Python/R/GIS) at 67% (Target: 90%).";
+    return "Your overall MoSPI Competency Score is **85%**. Technical & Analytics is currently at 67% (Target: 90%).";
   } else if (msg.includes("igot") || msg.includes("sync")) {
-    return "Your profile is synced in real-time with the iGOT Karmayogi API. 2 modules are verified and 3 pending courses are recommended by NSSTA.";
+    return "Synced with iGOT API: 2 modules verified, 3 pending courses recommended by NSSTA.";
   } else if (msg.includes("nssta") || msg.includes("pathway") || msg.includes("course") || msg.includes("recommend")) {
-    return "NSSTA recommends taking: 1. 'Official Data Analytics with Python & Big Data' and 2. 'Digital Personal Data Protection (DPDP) Act' to reach 95% compliance.";
-  } else if (msg.includes("quiz") || msg.includes("test") || msg.includes("exam")) {
-    return "You can take the interactive evaluation quiz under 'Periodic Labour Force Survey (PLFS) Digital Survey' to unlock your verified competency badge.";
-  } else if (msg.includes("cadre") || msg.includes("role") || msg.includes("ben10")) {
-    return "Officer Profile: Indian Statistical Service (ISS) | National Accounts Division (NAD) | Deputy Director / Assistant Director.";
-  } else if (msg.includes("bhashini") || msg.includes("language") || msg.includes("hindi") || msg.includes("telugu")) {
-    return "You can use the Bhashini dropdown at the top right to switch between English, Hindi, Telugu, Tamil, and Bengali in real-time.";
+    return "NSSTA recommends: 1. Official Data Analytics with Python & Big Data, 2. Digital Personal Data Protection (DPDP) Act.";
+  } else if (msg.includes("quiz") || msg.includes("test")) {
+    return "Click 'Take Quiz' under the Periodic Labour Force Survey module to complete assessment.";
   } else {
-    return "Hello Officer! I am your MoSPI AI Learning Assistant. You can ask me about your competency gaps, recommended iGOT/NSSTA courses, quiz verification, or sync status.";
+    return "MoSPI AI Assistant: I can help with competency scoring, NSSTA pathway recommendations, iGOT sync, or quiz evaluations.";
   }
 };
 
-// Wire up chatbot send button and enter key
-document.addEventListener("DOMContentLoaded", function() {
-  const chatInput = document.querySelector("#chatInput, input[placeholder*='Ask'], input[placeholder*='message']");
-  const sendBtn = document.querySelector("#sendChatBtn, button:has(.fa-paper-plane), .chat-send-btn");
-  const chatBox = document.querySelector("#chatMessages, .chat-body, .chatbot-messages");
+function initChatEngine() {
+  const chatInput = document.querySelector("#chatInput, input[type='text'][placeholder*='Ask'], input[type='text'][placeholder*='message'], .chat-input");
+  const sendBtn = document.querySelector("#sendChatBtn, button:has(.fa-paper-plane), .chat-send-btn, button[onclick*='send']");
+  const chatBox = document.querySelector("#chatMessages, .chat-body, .chatbot-messages, #chatBody");
 
   function sendChatMessage() {
     if (!chatInput || !chatInput.value.trim()) return;
@@ -750,21 +755,31 @@ document.addEventListener("DOMContentLoaded", function() {
     
     if (chatBox) {
       chatBox.innerHTML += `<div style="margin: 6px 0; text-align: right;"><span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 12px 12px 0 12px; display: inline-block; font-size: 13px;">${txt}</span></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
       setTimeout(() => {
         const reply = window.generateSmartBotReply(txt);
         chatBox.innerHTML += `<div style="margin: 6px 0; text-align: left;"><span style="background: #f1f5f9; color: #0f172a; padding: 6px 12px; border-radius: 12px 12px 12px 0; display: inline-block; font-size: 13px; border: 1px solid #cbd5e1;">${reply}</span></div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-      }, 400);
+      }, 350);
     }
   }
 
   if (sendBtn) sendBtn.onclick = sendChatMessage;
   if (chatInput) {
-    chatInput.onkeypress = function(e) {
-      if (e.key === 'Enter') sendChatMessage();
+    chatInput.onkeydown = function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendChatMessage();
+      }
     };
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", initChatEngine);
+} else {
+  initChatEngine();
+}
 </script>
 <!-- END_CHATBOT_AI_ENGINE -->
 </body>
