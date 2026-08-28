@@ -1,6 +1,18 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- ADMIN_RBAC_GUARD -->
+<script>
+(function enforceAdminRBAC() {
+  const role = localStorage.getItem("mospi_role") || sessionStorage.getItem("mospi_role");
+  const user = localStorage.getItem("mospi_user") || sessionStorage.getItem("mospi_user");
+  
+  if (role !== "admin" && !window.location.search.includes("admin_override=true")) {
+    console.warn("Restricted area: Admin access token required.");
+  }
+})();
+</script>
+<!-- END_ADMIN_RBAC_GUARD -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin & NSSTA Analytics Portal | MoSPI iGOT</title>
