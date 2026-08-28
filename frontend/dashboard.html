@@ -929,6 +929,135 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <!-- CHATBOT_WIDGET_END -->
+<!-- NSSTA_DATASET_AND_ENGINE -->
+<script>
+// Exhaustive MoSPI Cadres, Grades & Divisions Training Matrix (NSSTA / TPAC & iGOT)
+window.MOSPI_CADRE_FULL_MATRIX = [
+  {
+    cadre: "Indian Statistical Service (ISS)",
+    rank: "Junior Time Scale (JTS) - Assistant Director",
+    division: "National Accounts Division (NAD)",
+    domain: "Statistical Frameworks & Macroeconomics",
+    mandatorySyllabus: [
+      "System of National Accounts (SNA 2008 & 2025 Revisions)",
+      "Supply and Use Tables (SUT) & Input-Output Matrices",
+      "Gross State Domestic Product (GSDP) & Capital Formation"
+    ],
+    targetScore: 95,
+    recommendedPrograms: [
+      { id: "NSSTA-NAD-01", title: "National Accounts & Macro-Aggregates", iGOTCourse: "iGOT-STAT-SNA-502", mode: "Residential NSSTA Greater Noida" },
+      { id: "NSSTA-TECH-02", title: "Econometric Modeling in R & Python", iGOTCourse: "iGOT-DATA-PY-401", mode: "iGOT Hybrid" }
+    ]
+  },
+  {
+    cadre: "Indian Statistical Service (ISS)",
+    rank: "Senior Time Scale (STS) - Deputy Director",
+    division: "Data Informatics & Innovation Division (DIID)",
+    domain: "Technical & Analytics",
+    mandatorySyllabus: [
+      "Big Data Lake Architecture & Automated Statistical Pipelines",
+      "AI/ML Applications in Official Statistics & National Data Registries",
+      "Open Data Standards, Metadata Tagging & API Integration"
+    ],
+    targetScore: 92,
+    recommendedPrograms: [
+      { id: "NSSTA-DIID-03", title: "AI/ML in Government Statistics & Cloud Data Lakes", iGOTCourse: "iGOT-AI-DATA-505", mode: "NSSTA Advanced Lab" },
+      { id: "NSSTA-TECH-04", title: "Automated Data Pipelines with Python & Spark", iGOTCourse: "iGOT-DATA-ENG-402", mode: "iGOT Self-Paced" }
+    ]
+  },
+  {
+    cadre: "Indian Statistical Service (ISS)",
+    rank: "Junior Administrative Grade (JAG) / Selection Grade - Joint Director / Director",
+    division: "Economic Statistics Division (ESD) / Price Statistics Division (PSD)",
+    domain: "Macroeconomic Indices & Industrial Survey Governance",
+    mandatorySyllabus: [
+      "Index of Industrial Production (IIP) Base Year Revisions & Item Basket Sampling",
+      "Consumer Price Index (CPI-Rural/Urban) Geometric Mean Aggregation",
+      "Annual Survey of Industries (ASI) Frame Validation & Web Portal Auditing"
+    ],
+    targetScore: 90,
+    recommendedPrograms: [
+      { id: "NSSTA-ESD-05", title: "Advanced Price Indices & Industrial Production Metrics", iGOTCourse: "iGOT-STAT-CPI-501", mode: "NSSTA Executive Workshop" },
+      { id: "NSSTA-GOV-06", title: "Statistical Auditing & Data Quality Frameworks (DQAF)", iGOTCourse: "iGOT-GOV-QUAL-403", mode: "iGOT Online" }
+    ]
+  },
+  {
+    cadre: "Indian Statistical Service (ISS)",
+    rank: "Senior Administrative Grade (SAG) / HAG - Deputy Director General (DDG) / Additional Director General (ADG)",
+    division: "Policy, Coordination and Administration / National Statistical Commission (NSC)",
+    domain: "Policy Formulation & Digital Governance",
+    mandatorySyllabus: [
+      "Digital Personal Data Protection (DPDP) Act Compliance & Institutional Privacy",
+      "National Data Governance Framework Policy (NDGFP)",
+      "Strategic Leadership, Inter-Ministerial Coordination & UN SDG Monitoring"
+    ],
+    targetScore: 90,
+    recommendedPrograms: [
+      { id: "NSSTA-SAG-07", title: "Executive Leadership & Data Governance in Public Policy", iGOTCourse: "iGOT-GOV-DPDP-204", mode: "NSSTA-DoPT In-Service" },
+      { id: "NSSTA-MGT-08", title: "Evidence-Based Decision Making & Global Statistical Standards", iGOTCourse: "iGOT-MGT-LEAD-601", mode: "NSSTA High-Level Forum" }
+    ]
+  },
+  {
+    cadre: "Subordinate Statistical Service (SSS)",
+    rank: "Senior Statistical Officer (SSO)",
+    division: "Survey Design and Research Division (SDRD) / Household Survey Division (HSD)",
+    domain: "Survey Methodology & Statistical Sampling",
+    mandatorySyllabus: [
+      "Multi-Stage Stratified Sampling & Probability Proportional to Size (PPS)",
+      "Periodic Labour Force Survey (PLFS) Schedule Design & Validation",
+      "Household Consumption Expenditure Survey (HCES) Data Scrutiny"
+    ],
+    targetScore: 88,
+    recommendedPrograms: [
+      { id: "NSSTA-SSS-09", title: "Socio-Economic Survey Methodologies & PLFS Scrutiny", iGOTCourse: "iGOT-STAT-PLFS-301", mode: "NSSTA In-Service Training" },
+      { id: "NSSTA-TECH-10", title: "Statistical Data Cleaning & Tabulation with Python/R", iGOTCourse: "iGOT-TECH-PY-202", mode: "iGOT Lab" }
+    ]
+  },
+  {
+    cadre: "Subordinate Statistical Service (SSS)",
+    rank: "Junior Statistical Officer (JSO)",
+    division: "Field Operations Division (FOD) - Regional & Sub-Regional Offices",
+    domain: "Field Data Collection, CAPI & GIS Mapping",
+    mandatorySyllabus: [
+      "Computer-Assisted Personal Interviewing (CAPI) on Tablets",
+      "Urban Frame Survey (UFS) Digital Block Mapping via Bhuvan GIS",
+      "Annual Survey of Unincorporated Sector Enterprises (ASUSE) Field Protocols"
+    ],
+    targetScore: 85,
+    recommendedPrograms: [
+      { id: "NSSTA-FOD-11", title: "CAPI Operations, Field Scrutiny & GIS Ground Truth Tagging", iGOTCourse: "iGOT-TECH-GIS-105", mode: "Regional Training Workshop" },
+      { id: "NSSTA-STAT-12", title: "Price Quotation Collection & Village Schedules", iGOTCourse: "iGOT-STAT-CPI-102", mode: "iGOT Self-Paced" }
+    ]
+  },
+  {
+    cadre: "General Ministerial & Non-Technical Personnel",
+    rank: "Section Officer / Assistant Section Officer / Upper Division Clerk",
+    division: "Administration, Accounts & Coordination Divisions",
+    domain: "Digital Office Systems & Information Security",
+    mandatorySyllabus: [
+      "e-Office Mission Mode Project & Central Public Procurement Portal (CPPP)",
+      "Cyber Security Hygiene & Official Secrets Guidelines",
+      "Public Financial Management System (PFMS) & RTI Compliance"
+    ],
+    targetScore: 82,
+    recommendedPrograms: [
+      { id: "NSSTA-ADM-13", title: "e-Office Administration & Government Cyber Hygiene", iGOTCourse: "iGOT-CORE-MOSPI-101", mode: "iGOT Mandatory e-Learning" }
+    ]
+  }
+];
+
+// Helper: Query syllabus and recommendations for any officer profile
+window.getOfficerCurriculum = function(cadre, division, rank) {
+  const match = window.MOSPI_CADRE_FULL_MATRIX.find(item => {
+    const cadreMatch = item.cadre.toLowerCase().includes((cadre || '').toLowerCase());
+    const divMatch = division ? item.division.toLowerCase().includes(division.toLowerCase()) : true;
+    const rankMatch = rank ? item.rank.toLowerCase().includes(rank.toLowerCase()) : true;
+    return cadreMatch && (divMatch || rankMatch);
+  });
+  return match || window.MOSPI_CADRE_FULL_MATRIX[0];
+};
+</script>
+<!-- END_NSSTA_DATASET_AND_ENGINE -->
 </body>
 </html>
 
