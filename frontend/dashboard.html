@@ -141,7 +141,16 @@
     </div>
     <div style="display: flex; align-items: center; gap: 12px;">
       <span id="userBadge" style="font-size: 12px; font-weight: 700; color: #334155;">Officer</span>
-      <button class="btn-logout" onclick="logout()">Log Out</button>
+      <div id="bhashiniWrap" style="display:inline-flex;align-items:center;gap:6px;margin-right:12px;color:#1e293b;font-size:12px;">
+  <i class="fa-solid fa-language"></i><b>Bhashini:</b>
+  <select id="bhashiniLangSelect" onchange="runBhashini(this.value)" style="padding:3px 8px;border-radius:4px;border:1px solid #cbd5e1;font-size:11px;font-weight:700;background:#ffffff;color:#0f172a;cursor:pointer;">
+    <option value="en">English</option>
+    <option value="hi">हिन्दी (Hindi)</option>
+    <option value="te">తెలుగు (Telugu)</option>
+    <option value="ta">தமிழ் (Tamil)</option>
+    <option value="bn">বাংলা (Bengali)</option>
+  </select>
+</div><button class="btn-logout" onclick="logout()">Log Out</button>
     </div>
   </div>
 
@@ -571,5 +580,42 @@
 
     window.onload = checkAuth;
   </script>
+<!-- BHASHINI_DYNAMIC_ENGINE -->
+<script>
+const bhashiniMap = {
+  "iGOT MoSPI Intelligence Platform": { hi: "आईगॉट सांख्यिकी मंत्रालय इंटेलिजेंस प्लेटफॉर्म", te: "iGOT MoSPI ఇంటెలిజెన్స్ ప్లాట్‌ఫారమ్", ta: "iGOT MoSPI நுண்ணறிவு தளம்", bn: "iGOT MoSPI ইন্টেলিজেন্স প্ল্যাটফর্ম" },
+  "Competency Score:": { hi: "क्षमता स्कोर:", te: "సామర్థ్య స్కోరు:", ta: "திறன் மதிப்பெண்:", bn: "দক্ষতা স্কোর:" },
+  "CURRICULUM STATUS": { hi: "पाठ्यक्रम स्थिति", te: "పాఠ్యాంశాల స్థితి", ta: "பாடத்திட்ட நிலை", bn: "পাঠ্যক্রমের স্থিতি" },
+  "Completed": { hi: "पूर्ण", te: "పూర్తయింది", ta: "முடிந்தது", bn: "সম্পন্ন" },
+  "To Learn": { hi: "शेष", te: "నేర్చుకోవలసినవి", ta: "கற்க வேண்டியவை", bn: "বাকি আছে" },
+  "Sync with iGOT Karmayogi API": { hi: "आईगॉट कर्मयोगी एपीआई के साथ सिंक करें", te: "iGOT కర్మయోగి API తో సమకాలీకరించు", ta: "iGOT கர்மயோகி API உடன் ஒத்திசைக்கவும்", bn: "iGOT কর্মযোগী API-এর সাথে সিঙ্ক করুন" },
+  "4-Tier Official Statistics Competency Mapping": { hi: "4-स्तरीय आधिकारिक सांख्यिकी क्षमता मानचित्रण", te: "4-దశల అధికారిక గణాంకాల సామర్థ్య మ్యాపింగ్", ta: "4-அடுக்கு அதிகாரப்பூர்வ புள்ளிவிவர திறன் வரைபடம்", bn: "৪-স্তরীয় অফিসিয়াল পরিসংখ্যান দক্ষতা ম্যাপিং" },
+  "Statistical Frameworks (SNA/PLFS/CPI)": { hi: "सांख्यिकीय रूपरेखा (SNA/PLFS/CPI)", te: "గణాంక ఫ్రేమ్‌వర్క్‌లు (SNA/PLFS/CPI)", ta: "புள்ளிவிவர கட்டமைப்புகள் (SNA/PLFS/CPI)", bn: "পরিসংখ্যানগত কাঠামো (SNA/PLFS/CPI)" },
+  "Technical & Analytics (Python/R/GIS)": { hi: "तकनीकी और विश्लेषण (Python/R/GIS)", te: "సాంకేతిక & విశ్లేషణలు (Python/R/GIS)", ta: "தொழில்நுட்பம் & பகுப்பாய்வு (Python/R/GIS)", bn: "প্রযুক্তিগত ও বিশ্লেষণ (Python/R/GIS)" },
+  "Digital Governance (DPDP/Privacy)": { hi: "डिजिटल गवर्नेंस (DPDP/गोपनीयता)", te: "డిజిటల్ గవర్నెన్స్ (DPDP/గోప్యత)", ta: "டிஜிட்டல் ஆளுகை (DPDP/தனியுரிமை)", bn: "ডিজিটাল শাসন (DPDP/গোপনীয়তা)" },
+  "Managerial & Policy Decision Making": { hi: "प्रबंधकीय एवं नीतिगत निर्णय", te: "నిర్వహణ & విధాన నిర్ణయాలు", ta: "மேலாண்மை & கொள்கை முடிவெடுத்தல்", bn: "ব্যবস্থাপনা ও নীতিগত সিদ্ধান্ত গ্রহণ" },
+  "Personalized Learning Pathways (iGOT + NSSTA)": { hi: "व्यक्तिगत शिक्षण मार्ग (iGOT + NSSTA)", te: "వ్యక్తిగతీకరించిన లెర్నింగ్ పాత్‌వేస్ (iGOT + NSSTA)", ta: "தனிப்பயனாக்கப்பட்ட கற்றல் வழிகள் (iGOT + NSSTA)", bn: "ব্যক্তিগতকৃত শিক্ষার পথ (iGOT + NSSTA)" },
+  "MoSPI Core Competency Modules & Video Lectures": { hi: "सांख्यिकी मंत्रालय मुख्य क्षमता मॉड्यूल और वीडियो व्याख्यान", te: "MoSPI ప్రధాన సామర్థ్య మాడ్యూల్స్ & వీడియో లెక్చర్స్", ta: "MoSPI முக்கிய திறன் தொகுதிகள் & வீடியோ விரிவுரைகள்", bn: "MoSPI মূল দক্ষতা মডিউল এবং ভিডিও বক্তৃতা" }
+};
+
+window.runBhashini = function(targetLang) {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  let node;
+  while (node = walker.nextNode()) {
+    if (node.parentElement.closest('#bhashiniWrap') || node.parentElement.tagName === 'SCRIPT') continue;
+    const txt = node.nodeValue.trim();
+    if (!txt) continue;
+    if (!node._origText) node._origText = txt;
+    
+    if (targetLang === 'en') {
+      node.nodeValue = node.nodeValue.replace(txt, node._origText);
+    } else if (bhashiniMap[node._origText] && bhashiniMap[node._origText][targetLang]) {
+      node.nodeValue = node.nodeValue.replace(txt, bhashiniMap[node._origText][targetLang]);
+    }
+  }
+};
+</script>
+<!-- END_BHASHINI_DYNAMIC_ENGINE -->
 </body>
 </html>
+
