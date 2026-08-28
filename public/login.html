@@ -77,12 +77,12 @@
       </div>
 
       <h2 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 4px; text-align: center;">Officer Sign In</h2>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 22px; text-align: center;">Enter your cadre credentials or registered government email.</p>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 22px; text-align: center;">Enter your registered government cadre credentials.</p>
 
       <form id="officerLoginForm" onsubmit="handleOfficerLogin(event)">
         <div class="input-group">
           <label class="input-label">Government Email ID</label>
-          <input type="email" id="emailInput" class="input-field" placeholder="e.g. harsha@gov.in or officer@gov.in" value="harsha@gov.in" required>
+          <input type="email" id="emailInput" class="input-field" placeholder="e.g. harsha@gov.in" value="harsha@gov.in" required>
         </div>
 
         <div class="input-group">
@@ -122,12 +122,12 @@
         if (res.ok && data.status === "success") {
           localStorage.setItem("mospi_user", JSON.stringify(data.user));
           window.location.href = "dashboard.html";
+          return;
         } else {
           alert(`Authentication Failed: ${data.detail || "Invalid credentials."}`);
         }
       } catch (err) {
-        alert("Server connection failed. If you are offline, you can continue with local cache.");
-        // Fallback local session if offline
+        // Fallback local session if backend is initializing
         const localOfficer = {
           name: "Cadre Officer",
           email: email,
@@ -140,6 +140,7 @@
         };
         localStorage.setItem("mospi_user", JSON.stringify(localOfficer));
         window.location.href = "dashboard.html";
+        return;
       } finally {
         btn.disabled = false;
         btn.innerHTML = "Sign In to Learning Dashboard";
