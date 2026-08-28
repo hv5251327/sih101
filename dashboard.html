@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Officer Learning & Competency Dashboard | MoSPI iGOT</title>
+  <title>Officer Dashboard | MoSPI iGOT</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#15325b">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
       --text-muted: #64748b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 60px; }
+    body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
 
     .top-strip {
       background: #0d213a; color: #f1f5f9; padding: 6px 36px; font-size: 11px;
@@ -34,7 +34,7 @@
     .header-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: var(--primary); }
     
     .lang-btn {
-      padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white;
+      padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;
       font-size: 11px; font-weight: 700; cursor: pointer; color: var(--primary);
     }
     .btn-sync {
@@ -51,15 +51,6 @@
     .card { background: white; border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 24px; }
     .section-title { font-size: 17px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
 
-    .badge-grid { display: flex; gap: 12px; flex-wrap: wrap; }
-    .badge-item {
-      display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px;
-      background: #f1f5f9; border: 1px solid var(--border); flex: 1; min-width: 200px;
-    }
-    .badge-item.unlocked { background: #f0fdf4; border-color: #bbf7d0; }
-    .badge-icon { font-size: 24px; color: #94a3b8; }
-    .badge-item.unlocked .badge-icon { color: #16a34a; }
-
     .course-item {
       display: flex; justify-content: space-between; align-items: center; padding: 14px;
       border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #fafafa;
@@ -69,13 +60,32 @@
     }
     .btn-take { background: var(--primary); color: white; }
     .btn-done { background: #16a34a; color: white; cursor: default; }
+
+    /* Floating Chatbot Assistant */
+    .chatbot-fab {
+      position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white;
+      width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 22px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 9999;
+    }
+    .chat-window {
+      position: fixed; bottom: 90px; right: 24px; width: 350px; height: 450px; background: white;
+      border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      display: none; flex-direction: column; z-index: 9999; overflow: hidden;
+    }
+    .chat-header { background: var(--primary); color: white; padding: 12px 16px; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex: 1; padding: 14px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; }
+    .msg-user { align-self: flex-end; background: var(--primary); color: white; padding: 8px 12px; border-radius: 10px 10px 0 10px; max-width: 80%; }
+    .msg-bot { align-self: flex-start; background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 10px 10px 10px 0; max-width: 80%; }
+    .chat-input-row { display: flex; padding: 8px; border-top: 1px solid var(--border); background: white; }
+    .chat-input { flex: 1; border: 1px solid var(--border); padding: 8px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+    .chat-send-btn { background: var(--accent); color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div class="top-strip">
     <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Capacity Building Commission</div>
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="display: flex; gap: 8px; align-items: center;">
       <span>Bhashini Localization:</span>
       <button class="lang-btn" onclick="toggleLang('en')">English</button>
       <button class="lang-btn" onclick="toggleLang('hi')">हिन्दी</button>
@@ -95,7 +105,7 @@
   </div>
 
   <div class="container">
-    <!-- Top Stat Badges -->
+    <!-- Top KPI Cards -->
     <div class="grid-3">
       <div class="card">
         <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lblCompScore">Overall Competency Score</div>
@@ -107,35 +117,7 @@
       </div>
       <div class="card">
         <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lblCadre">Assigned MoSPI Cadre</div>
-        <div id="statCadre" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 10px;">ISS Cadre</div>
-      </div>
-    </div>
-
-    <!-- Gamification Milestone Badges -->
-    <div class="card">
-      <h3 class="section-title"><i class="fa-solid fa-award" style="color: var(--accent);"></i> <span id="txtMilestones">Capacity Building Milestone Badges</span></h3>
-      <div class="badge-grid">
-        <div class="badge-item" id="badgeStarter">
-          <i class="fa-solid fa-certificate badge-icon"></i>
-          <div>
-            <strong style="font-size: 12px; display: block;">MoSPI Cadre Starter</strong>
-            <span style="font-size: 11px; color: var(--text-muted);">Enrolled & verified on portal</span>
-          </div>
-        </div>
-        <div class="badge-item" id="badgeProficient">
-          <i class="fa-solid fa-medal badge-icon"></i>
-          <div>
-            <strong style="font-size: 12px; display: block;">Statistical Specialist</strong>
-            <span style="font-size: 11px; color: var(--text-muted);">Complete >= 2 Training Modules</span>
-          </div>
-        </div>
-        <div class="badge-item" id="badgeMaster">
-          <i class="fa-solid fa-crown badge-icon"></i>
-          <div>
-            <strong style="font-size: 12px; display: block;">Karmayogi Champion</strong>
-            <span style="font-size: 11px; color: var(--text-muted);">Attain 90%+ Overall Competency</span>
-          </div>
-        </div>
+        <div id="statCadre" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 10px;">Indian Statistical Service (ISS)</div>
       </div>
     </div>
 
@@ -164,10 +146,26 @@
       </div>
     </div>
 
-    <!-- Mandatory & Specialized Courses Catalog -->
+    <!-- Official Courses Catalog & Assessment -->
     <div class="card">
       <h3 class="section-title"><i class="fa-solid fa-book-bookmark" style="color: #16a34a;"></i> <span id="txtCatalog">Official MoSPI Training Modules</span></h3>
       <div id="coursesCatalogList"></div>
+    </div>
+  </div>
+
+  <!-- Floating Chatbot Assistant -->
+  <div class="chatbot-fab" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></div>
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <span><i class="fa-solid fa-robot"></i> MoSPI Karmayogi Assistant</span>
+      <span onclick="toggleChat()" style="cursor:pointer;"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    <div class="chat-messages" id="chatMsgs">
+      <div class="msg-bot">Namaste Officer! How can I assist you with official statistics, iGOT training pathways, or general knowledge today?</div>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Type query (e.g. SNA 2008 GVA)..." onkeydown="if(event.key==='Enter') sendChat()">
+      <button class="chat-send-btn" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 
@@ -175,7 +173,6 @@
     const API_BASE = "https://sih101.onrender.com";
     let doughnutChart = null;
     let radarChartObj = null;
-    let currentLang = 'en';
 
     const translations = {
       en: {
@@ -184,7 +181,6 @@
         compScore: "Overall Competency Score",
         modDone: "Verified Modules Done",
         cadre: "Assigned MoSPI Cadre",
-        milestones: "Capacity Building Milestone Badges",
         progressChart: "Course Completion Status",
         radarChart: "4-Domain Competency Radar",
         pathways: "Personalized Learning Pathways (iGOT + NSSTA)",
@@ -197,7 +193,6 @@
         compScore: "कुल क्षमता स्कोर",
         modDone: "पूर्ण किए गए मॉड्यूल",
         cadre: "आवंटित सांख्यिकी संवर्ग",
-        milestones: "क्षमता निर्माण मील का पत्थर बैज",
         progressChart: "पाठ्यक्रम पूर्णता स्थिति",
         radarChart: "4-क्षेत्रीय क्षमता रडार विश्लेषण",
         pathways: "व्यक्तिगत शिक्षण मार्ग (आईगॉट + एनएसएसटीए)",
@@ -215,14 +210,12 @@
     ];
 
     function toggleLang(lang) {
-      currentLang = lang;
       const t = translations[lang];
       document.getElementById("txtPortalBrand").textContent = t.portalBrand;
       document.getElementById("txtSyncBtn").textContent = t.syncBtn;
       document.getElementById("lblCompScore").textContent = t.compScore;
       document.getElementById("lblModDone").textContent = t.modDone;
       document.getElementById("lblCadre").textContent = t.cadre;
-      document.getElementById("txtMilestones").textContent = t.milestones;
       document.getElementById("txtProgressChart").textContent = t.progressChart;
       document.getElementById("txtRadarChart").textContent = t.radarChart;
       document.getElementById("txtPathways").textContent = t.pathways;
@@ -243,15 +236,8 @@
       const completed = user.completed_modules || [];
       document.getElementById("statModulesDone").textContent = `${completed.length} / 5`;
 
-      updateBadges(completed.length, parseInt(user.competency_score) || 75);
       renderCatalog(completed);
       loadSkillGapData(user.email, completed);
-    }
-
-    function updateBadges(doneCount, score) {
-      document.getElementById("badgeStarter").classList.add("unlocked");
-      if (doneCount >= 2) document.getElementById("badgeProficient").classList.add("unlocked");
-      if (score >= 90) document.getElementById("badgeMaster").classList.add("unlocked");
     }
 
     function renderCatalog(completed) {
@@ -292,7 +278,7 @@
           checkAuth();
         }
       } catch (err) {
-        alert("Action saved locally. Will sync when online.");
+        alert("Server error during module completion.");
       }
     }
 
@@ -313,7 +299,7 @@
           checkAuth();
         }
       } catch (err) {
-        alert("Failed to connect to iGOT central registry.");
+        alert("Failed to sync with iGOT central registry.");
       }
     }
 
@@ -384,13 +370,42 @@
       });
     }
 
+    function toggleChat() {
+      const w = document.getElementById("chatWindow");
+      w.style.display = w.style.display === "flex" ? "none" : "flex";
+    }
+
+    async function sendChat() {
+      const inp = document.getElementById("chatInput");
+      const msg = inp.value.trim();
+      if (!msg) return;
+
+      const msgs = document.getElementById("chatMsgs");
+      msgs.innerHTML += `<div class="msg-user">${msg}</div>`;
+      inp.value = "";
+      msgs.scrollTop = msgs.scrollHeight;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/chat/assistant`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        msgs.innerHTML += `<div class="msg-bot">${data.reply || "Assistant responding..."}</div>`;
+      } catch (err) {
+        msgs.innerHTML += `<div class="msg-bot">Network connectivity issue. Please retry.</div>`;
+      }
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
     function logout() {
       localStorage.removeItem("mospi_user");
       window.location.href = "login.html";
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration note:', err));
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW note:', err));
     }
 
     window.onload = checkAuth;

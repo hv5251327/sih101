@@ -4,7 +4,7 @@ import json
 import re
 import requests
 from datetime import datetime
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends, Request
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -184,27 +184,8 @@ def call_ai_api(prompt: str, system_instruction: str = "") -> str:
                 if res.status_code == 200:
                     data = res.json()
                     return data["candidates"][0]["content"]["parts"][0]["text"].strip()
-            except Exception as e:
-                print(f"Gemini error with {m}: {e}")
-
-    grok_key = os.getenv("XAI_API_KEY", "").strip()
-    if grok_key:
-        try:
-            headers = {"Authorization": f"Bearer {grok_key}", "Content-Type": "application/json"}
-            payload = {
-                "model": "grok-2-latest",
-                "messages": [
-                    {"role": "system", "content": system_instruction or "You are an intelligent assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.3
-            }
-            res = requests.post("https://api.x.ai/v1/chat/completions", headers=headers, json=payload, timeout=20)
-            if res.status_code == 200:
-                return res.json()["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            print(f"Grok error: {e}")
-
+            except Exception:
+                pass
     return ""
 
 def generate_questions_with_ai(extracted_text: str, filename: str, course_name: str) -> list:
@@ -218,14 +199,14 @@ TEXT:
 Respond ONLY with a valid JSON array of 5 objects:
 [
   {{
-    "question": "Clear question text based on the document?",
+    "question": "Question based on document?",
     "options": ["Option A", "Option B", "Option C", "Option D"],
     "correct_index": 0,
-    "explanation": "Detailed explanation citing specific concepts from the text."
+    "explanation": "Detailed explanation citing concepts from the text."
   }}
 ]
 """
-    raw_res = call_ai_api(prompt, "You are an official MoSPI examination system. Output raw JSON array only.")
+    raw_res = call_ai_api(prompt, "You are an official MoSPI examination generator. Output raw JSON array only.")
     if raw_res:
         try:
             raw_clean = re.sub(r"^```json\s*", "", raw_res)
@@ -237,11 +218,11 @@ Respond ONLY with a valid JSON array of 5 objects:
             pass
 
     return [
-        {"question": f"Under the guidelines of {course_name}, what protocol governs data verification?", "options": ["Systematic benchmark reconciliation against core registry data", "Discretionary non-compliance", "Arbitrary numerical averaging", "Manual unverified reporting"], "correct_index": 0, "explanation": f"Mandated quality standard as outlined in {filename}."},
-        {"question": f"Which standard methodology applies to data validation under {course_name}?", "options": ["Dual independent enumeration cross-checking", "Single-point non-verified entry", "Heuristic random sampling", "External unverified estimates"], "correct_index": 0, "explanation": "Ensures statistical validity and consistency."},
-        {"question": f"What is the frequency of monitoring required according to {filename}?", "options": ["Periodic structured auditing cycles", "Ad-hoc irregular spot checks", "No formal review necessary", "Annual summary estimation"], "correct_index": 0, "explanation": "Ensures systematic administrative compliance."},
-        {"question": f"How are discrepancies reconciled during field operations for {course_name}?", "options": ["Immediate re-scrutiny and supervisor verification", "Automatic omission of variance", "Forced balance reconciliation", "Postponement to subsequent cycle"], "correct_index": 0, "explanation": "Standard Operating Procedure requires immediate re-verification."},
-        {"question": f"What is the compliance threshold mandated in {course_name}?", "options": ["100% adherence to MoSPI framework protocols", "80% approximate matching", "Discretionary divisional target", "Informal guidelines only"], "correct_index": 0, "explanation": "Official framework mandates complete protocol adherence."}
+        {"question": f"Under {course_name}, what standard protocol governs quality assurance?", "options": ["Systematic benchmark reconciliation against core registry data", "Discretionary non-compliance", "Arbitrary numerical averaging", "Manual unverified reporting"], "correct_index": 0, "explanation": f"Mandated quality standard as outlined in {filename}."},
+        {"question": f"Which methodology applies to data validation under {course_name}?", "options": ["Dual independent enumeration cross-checking", "Single-point non-verified entry", "Heuristic random sampling", "External unverified estimates"], "correct_index": 0, "explanation": "Ensures statistical validity and consistency."},
+        {"question": f"What monitoring cycle is mandated according to {filename}?", "options": ["Periodic structured auditing cycles", "Ad-hoc irregular spot checks", "No formal review necessary", "Annual summary estimation"], "correct_index": 0, "explanation": "Ensures systematic administrative compliance."},
+        {"question": f"How are discrepancies resolved during operations for {course_name}?", "options": ["Immediate re-scrutiny and supervisor verification", "Automatic omission of variance", "Forced balance reconciliation", "Postponement to subsequent cycle"], "correct_index": 0, "explanation": "Standard Operating Procedure requires immediate re-verification."},
+        {"question": f"What is the compliance standard mandated in {course_name}?", "options": ["100% adherence to MoSPI framework protocols", "80% approximate matching", "Discretionary divisional target", "Informal guidelines only"], "correct_index": 0, "explanation": "Official framework mandates complete protocol adherence."}
     ]
 
 def generate_dynamic_recommendations(officer: UserRecord, completed_ids: list, radar_scores: dict) -> list:
@@ -320,10 +301,6 @@ class IGOTSyncRequest(BaseModel):
 class MockCourseCompletionRequest(BaseModel):
     officer_email: str
     course_id: int
-
-class OfflineSyncBatch(BaseModel):
-    email: str
-    completed_module_ids: List[int]
 
 @app.get("/")
 def root():
@@ -551,26 +528,6 @@ def igot_sync_officer_learning(req: IGOTSyncRequest, db: Session = Depends(get_d
         "completed_modules": merged,
         "competency_score": user.competency_score
     }
-
-@app.post("/api/officer/offline-sync")
-def sync_offline_queue(req: OfflineSyncBatch, db: Session = Depends(get_db)):
-    clean_email = req.email.strip().lower()
-    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Officer not found.")
-
-    try:
-        current = set(json.loads(user.completed_modules or "[]"))
-    except Exception:
-        current = set()
-
-    updated = sorted(list(current.union(set(req.completed_module_ids))))
-    user.completed_modules = json.dumps(updated)
-    user.competency_score = f"{min(100, 75 + len(updated) * 5)}%"
-    db.commit()
-
-    log_audit_event(db, clean_email, "OFFLINE_CACHE_SYNC", f"Synced {len(req.completed_module_ids)} queued offline modules")
-    return {"status": "success", "synced_count": len(req.completed_module_ids), "completed_modules": updated}
 
 @app.post("/api/igot/webhook")
 def igot_incoming_webhook(payload: IGOTWebhookPayload, db: Session = Depends(get_db)):
