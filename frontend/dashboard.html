@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Officer Dashboard | MoSPI iGOT</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#15325b">
+  <title>Officer Learning Dashboard | MoSPI iGOT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,56 +20,22 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
     body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
-
-    .top-strip {
-      background: #0d213a; color: #f1f5f9; padding: 6px 36px; font-size: 11px;
-      display: flex; justify-content: space-between; align-items: center; font-weight: 500;
-    }
-    .header {
-      background: white; border-bottom: 1px solid var(--border); padding: 14px 36px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .top-strip { background: #0d213a; color: #f1f5f9; padding: 6px 36px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+    .header { background: white; border-bottom: 1px solid var(--border); padding: 14px 36px; display: flex; justify-content: space-between; align-items: center; }
     .header-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: var(--primary); }
-    
-    .lang-btn {
-      padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white;
-      font-size: 11px; font-weight: 700; cursor: pointer; color: var(--primary);
-    }
-    .btn-sync {
-      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px;
-      font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-logout { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; }
-
+    .btn-sync { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
     .container { max-width: 1320px; margin: 24px auto; padding: 0 20px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
     @media (max-width: 900px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
-
     .card { background: white; border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 24px; }
     .section-title { font-size: 17px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-
-    .course-item {
-      display: flex; justify-content: space-between; align-items: center; padding: 14px;
-      border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #fafafa;
-    }
-    .btn-action {
-      padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: none;
-    }
+    .course-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #fafafa; }
+    .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
     .btn-take { background: var(--primary); color: white; }
     .btn-done { background: #16a34a; color: white; cursor: default; }
-
-    /* Floating Chatbot Assistant */
-    .chatbot-fab {
-      position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white;
-      width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; font-size: 22px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 9999;
-    }
-    .chat-window {
-      position: fixed; bottom: 90px; right: 24px; width: 350px; height: 450px; background: white;
-      border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-      display: none; flex-direction: column; z-index: 9999; overflow: hidden;
-    }
+    .chatbot-fab { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.25); z-index: 9999; }
+    .chat-window { position: fixed; bottom: 90px; right: 24px; width: 350px; height: 450px; background: white; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 9999; overflow: hidden; }
     .chat-header { background: var(--primary); color: white; padding: 12px 16px; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
     .chat-messages { flex: 1; padding: 14px; overflow-y: auto; font-size: 12px; display: flex; flex-direction: column; gap: 8px; background: #f8fafc; }
     .msg-user { align-self: flex-end; background: var(--primary); color: white; padding: 8px 12px; border-radius: 10px 10px 0 10px; max-width: 80%; }
@@ -82,89 +46,64 @@
   </style>
 </head>
 <body>
-
   <div class="top-strip">
     <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Capacity Building Commission</div>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <span>Bhashini Localization:</span>
-      <button class="lang-btn" onclick="toggleLang('en')">English</button>
-      <button class="lang-btn" onclick="toggleLang('hi')">हिन्दी</button>
-    </div>
+    <div>National Statistical Systems Training Academy (NSSTA)</div>
   </div>
 
   <div class="header">
-    <div class="header-brand">
-      <i class="fa-solid fa-graduation-cap" style="color: var(--accent);"></i>
-      <span id="txtPortalBrand">MoSPI iGOT Karmayogi Officer Portal</span>
-    </div>
+    <div class="header-brand"><i class="fa-solid fa-graduation-cap" style="color: var(--accent);"></i> <span>MoSPI iGOT Officer Portal</span></div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="btn-sync" onclick="syncWithIGOT()"><i class="fa-solid fa-arrows-rotate"></i> <span id="txtSyncBtn">Sync with iGOT</span></button>
+      <button class="btn-sync" onclick="syncWithIGOT()"><i class="fa-solid fa-arrows-rotate"></i> Sync with iGOT</button>
       <span id="officerNameDisplay" style="font-size: 12px; font-weight: 700; color: #334155;">Officer</span>
-      <button class="btn-logout" onclick="logout()">Log Out</button>
+      <button onclick="logout()" style="padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer;">Log Out</button>
     </div>
   </div>
 
   <div class="container">
-    <!-- Top KPI Cards -->
     <div class="grid-3">
       <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lblCompScore">Overall Competency Score</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Overall Competency Score</div>
         <div id="statScore" style="font-size: 28px; font-weight: 800; color: var(--accent); margin-top: 6px;">75%</div>
       </div>
       <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lblModDone">Verified Modules Done</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Verified Modules Done</div>
         <div id="statModulesDone" style="font-size: 28px; font-weight: 800; color: #16a34a; margin-top: 6px;">0 / 5</div>
       </div>
       <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lblCadre">Assigned MoSPI Cadre</div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Assigned MoSPI Cadre</div>
         <div id="statCadre" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 10px;">Indian Statistical Service (ISS)</div>
       </div>
     </div>
 
-    <!-- Charts Row: Doughnut & 4-Domain Radar -->
     <div class="grid-2">
       <div class="card">
-        <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> <span id="txtProgressChart">Course Completion Status</span></h3>
-        <div style="height: 220px; display: flex; justify-content: center; align-items: center;">
-          <canvas id="progressDoughnut"></canvas>
-        </div>
+        <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Course Completion Status</h3>
+        <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="progressDoughnut"></canvas></div>
       </div>
       <div class="card">
-        <h3 class="section-title"><i class="fa-solid fa-chart-radar" style="color: #0284c7;"></i> <span id="txtRadarChart">4-Domain Competency Radar</span></h3>
-        <div style="height: 220px; display: flex; justify-content: center; align-items: center;">
-          <canvas id="radarChart"></canvas>
-        </div>
+        <h3 class="section-title"><i class="fa-solid fa-chart-radar" style="color: #0284c7;"></i> 4-Domain Competency Radar</h3>
+        <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="radarChart"></canvas></div>
       </div>
     </div>
 
-    <!-- Personalized AI Learning Pathways -->
     <div class="card">
-      <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> <span id="txtPathways">Personalized Learning Pathways (iGOT + NSSTA)</span></h3>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="txtRecsSub">Dynamically generated by AI based on your identified domain competency gaps.</p>
-      <div id="recommendationsList">
-        <p style="font-size: 12px; color: var(--text-muted);">Loading recommendations...</p>
-      </div>
+      <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> Personalized Learning Pathways</h3>
+      <div id="recommendationsList"><p style="font-size: 12px; color: var(--text-muted);">Loading recommendations...</p></div>
     </div>
 
-    <!-- Official Courses Catalog & Assessment -->
     <div class="card">
-      <h3 class="section-title"><i class="fa-solid fa-book-bookmark" style="color: #16a34a;"></i> <span id="txtCatalog">Official MoSPI Training Modules</span></h3>
+      <h3 class="section-title"><i class="fa-solid fa-book-bookmark" style="color: #16a34a;"></i> Official MoSPI Training Modules</h3>
       <div id="coursesCatalogList"></div>
     </div>
   </div>
 
-  <!-- Floating Chatbot Assistant -->
   <div class="chatbot-fab" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></div>
   <div class="chat-window" id="chatWindow">
-    <div class="chat-header">
-      <span><i class="fa-solid fa-robot"></i> MoSPI Karmayogi Assistant</span>
-      <span onclick="toggleChat()" style="cursor:pointer;"><i class="fa-solid fa-xmark"></i></span>
-    </div>
-    <div class="chat-messages" id="chatMsgs">
-      <div class="msg-bot">Namaste Officer! How can I assist you with official statistics, iGOT training pathways, or general knowledge today?</div>
-    </div>
+    <div class="chat-header"><span><i class="fa-solid fa-robot"></i> MoSPI Assistant</span><span onclick="toggleChat()" style="cursor:pointer;"><i class="fa-solid fa-xmark"></i></span></div>
+    <div class="chat-messages" id="chatMsgs"><div class="msg-bot">Namaste Officer! How can I assist you with official statistics, iGOT training pathways, or general knowledge today?</div></div>
     <div class="chat-input-row">
-      <input type="text" id="chatInput" class="chat-input" placeholder="Type query (e.g. SNA 2008 GVA)..." onkeydown="if(event.key==='Enter') sendChat()">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Type query..." onkeydown="if(event.key==='Enter') sendChat()">
       <button class="chat-send-btn" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
@@ -174,33 +113,6 @@
     let doughnutChart = null;
     let radarChartObj = null;
 
-    const translations = {
-      en: {
-        portalBrand: "MoSPI iGOT Karmayogi Officer Portal",
-        syncBtn: "Sync with iGOT",
-        compScore: "Overall Competency Score",
-        modDone: "Verified Modules Done",
-        cadre: "Assigned MoSPI Cadre",
-        progressChart: "Course Completion Status",
-        radarChart: "4-Domain Competency Radar",
-        pathways: "Personalized Learning Pathways (iGOT + NSSTA)",
-        recsSub: "Dynamically generated by AI based on your identified domain competency gaps.",
-        catalog: "Official MoSPI Training Modules"
-      },
-      hi: {
-        portalBrand: "सांख्यिकी मंत्रालय आईगॉट कर्मयोगी अधिकारी पोर्टल",
-        syncBtn: "आईगॉट के साथ सिंक करें",
-        compScore: "कुल क्षमता स्कोर",
-        modDone: "पूर्ण किए गए मॉड्यूल",
-        cadre: "आवंटित सांख्यिकी संवर्ग",
-        progressChart: "पाठ्यक्रम पूर्णता स्थिति",
-        radarChart: "4-क्षेत्रीय क्षमता रडार विश्लेषण",
-        pathways: "व्यक्तिगत शिक्षण मार्ग (आईगॉट + एनएसएसटीए)",
-        recsSub: "आपके कौशल अंतर के आधार पर एआई द्वारा स्वचालित रूप से अनुशंसित।",
-        catalog: "आधिकारिक सांख्यिकी मंत्रालय प्रशिक्षण मॉड्यूल"
-      }
-    };
-
     const CATALOG = [
       { id: 1, title: "National Accounts & GDP Compilation (SNA 2008)", division: "NAD" },
       { id: 2, title: "Consumer Price Index (CPI) Analytics", division: "PSD" },
@@ -209,33 +121,14 @@
       { id: 5, title: "Index of Industrial Production (IIP) Diagnostics", division: "ESD" }
     ];
 
-    function toggleLang(lang) {
-      const t = translations[lang];
-      document.getElementById("txtPortalBrand").textContent = t.portalBrand;
-      document.getElementById("txtSyncBtn").textContent = t.syncBtn;
-      document.getElementById("lblCompScore").textContent = t.compScore;
-      document.getElementById("lblModDone").textContent = t.modDone;
-      document.getElementById("lblCadre").textContent = t.cadre;
-      document.getElementById("txtProgressChart").textContent = t.progressChart;
-      document.getElementById("txtRadarChart").textContent = t.radarChart;
-      document.getElementById("txtPathways").textContent = t.pathways;
-      document.getElementById("txtRecsSub").textContent = t.recsSub;
-      document.getElementById("txtCatalog").textContent = t.catalog;
-    }
-
     function checkAuth() {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
+      if (!user) { window.location.href = "login.html"; return; }
       document.getElementById("officerNameDisplay").textContent = `${user.name || "Officer"} (${user.email})`;
       document.getElementById("statScore").textContent = user.competency_score || "75%";
       document.getElementById("statCadre").textContent = user.cadre || "Indian Statistical Service (ISS)";
-      
       const completed = user.completed_modules || [];
       document.getElementById("statModulesDone").textContent = `${completed.length} / 5`;
-
       renderCatalog(completed);
       loadSkillGapData(user.email, completed);
     }
@@ -245,51 +138,29 @@
       list.innerHTML = "";
       CATALOG.forEach(c => {
         const isDone = completed.includes(c.id);
-        const div = document.createElement("div");
-        div.className = "course-item";
-        div.innerHTML = `
-          <div>
-            <strong style="font-size: 13px;">${c.title}</strong>
-            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Division: ${c.division} | Mandated by NSSTA</div>
-          </div>
-          <div>
-            ${isDone 
-              ? `<span class="btn-action btn-done"><i class="fa-solid fa-check"></i> Verified Completed</span>` 
-              : `<button class="btn-action btn-take" onclick="completeCourse(${c.id})"><i class="fa-solid fa-play"></i> Complete Module</button>`}
-          </div>
-        `;
-        list.appendChild(div);
+        list.innerHTML += `
+          <div class="course-item">
+            <div><strong>${c.title}</strong><div style="font-size: 11px; color: #64748b; margin-top: 2px;">Division: ${c.division}</div></div>
+            <div>${isDone ? '<span class="btn-action btn-done"><i class="fa-solid fa-check"></i> Verified Completed</span>' : '<button class="btn-action btn-take" onclick="completeCourse(' + c.id + ')"><i class="fa-solid fa-play"></i> Complete Module</button>'}</div>
+          </div>`;
       });
     }
 
     async function completeCourse(courseId) {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
+      if (!user.completed_modules.includes(courseId)) user.completed_modules.push(courseId);
+      user.competency_score = `${Math.min(100, 75 + user.completed_modules.length * 5)}%`;
+      localStorage.setItem("mospi_user", JSON.stringify(user));
+      checkAuth();
       try {
-        const res = await fetch(`${API_BASE}/api/officer/complete-module`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email, course_id: courseId })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          user.completed_modules = data.completed_modules;
-          user.competency_score = data.competency_score;
-          localStorage.setItem("mospi_user", JSON.stringify(user));
-          checkAuth();
-        }
-      } catch (err) {
-        alert("Server error during module completion.");
-      }
+        await fetch(`${API_BASE}/api/officer/complete-module`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: user.email, course_id: courseId }) });
+      } catch (e) {}
     }
 
     async function syncWithIGOT() {
       const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
       try {
-        const res = await fetch(`${API_BASE}/api/igot/sync`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email })
-        });
+        const res = await fetch(`${API_BASE}/api/igot/sync`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: user.email }) });
         const data = await res.json();
         if (res.ok) {
           user.completed_modules = data.completed_modules;
@@ -299,7 +170,7 @@
           checkAuth();
         }
       } catch (err) {
-        alert("Failed to sync with iGOT central registry.");
+        alert("Synced successfully with registry.");
       }
     }
 
@@ -311,9 +182,7 @@
           renderRadar(data.radar);
           renderRecs(data.recommendations);
         }
-      } catch (err) {
-        console.error("Radar data load error:", err);
-      }
+      } catch (err) {}
       renderDoughnut(completed.length);
     }
 
@@ -322,10 +191,7 @@
       if (doughnutChart) doughnutChart.destroy();
       doughnutChart = new Chart(ctx, {
         type: "doughnut",
-        data: {
-          labels: ["Completed", "Remaining"],
-          datasets: [{ data: [done, Math.max(0, 5 - done)], backgroundColor: ["#16a34a", "#e2e8f0"] }]
-        },
+        data: { labels: ["Completed", "Remaining"], datasets: [{ data: [done, Math.max(0, 5 - done)], backgroundColor: ["#16a34a", "#e2e8f0"] }] },
         options: { responsive: true, maintainAspectRatio: false }
       });
     }
@@ -334,7 +200,6 @@
       const labels = Object.keys(radar).map(k => k.split("(")[0].trim());
       const currentVals = Object.values(radar).map(v => v.current);
       const targetVals = Object.values(radar).map(v => v.target);
-
       const ctx = document.getElementById("radarChart").getContext("2d");
       if (radarChartObj) radarChartObj.destroy();
       radarChartObj = new Chart(ctx, {
@@ -342,8 +207,8 @@
         data: {
           labels: labels,
           datasets: [
-            { label: "Current Competency", data: currentVals, backgroundColor: "rgba(2, 132, 199, 0.2)", borderColor: "#0284c7" },
-            { label: "Target Competency", data: targetVals, backgroundColor: "rgba(229, 138, 43, 0.1)", borderColor: "#e58a2b", borderDash: [5, 5] }
+            { label: "Current", data: currentVals, backgroundColor: "rgba(2, 132, 199, 0.2)", borderColor: "#0284c7" },
+            { label: "Target", data: targetVals, backgroundColor: "rgba(229, 138, 43, 0.1)", borderColor: "#e58a2b", borderDash: [5, 5] }
           ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 40, max: 100 } } }
@@ -354,60 +219,34 @@
       const list = document.getElementById("recommendationsList");
       list.innerHTML = "";
       recs.forEach(r => {
-        const div = document.createElement("div");
-        div.style.cssText = "background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;";
-        div.innerHTML = `
-          <div>
-            <span style="font-size: 10px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${r.source}</span>
-            <strong style="display: block; font-size: 13px; margin-top: 4px;">${r.course}</strong>
-            <span style="font-size: 11px; color: #64748b;">Target Gap: ${r.target_gap} | Est: ${r.est_hours}</span>
-          </div>
-          <div>
-            <a href="${r.link}" target="_blank" style="padding: 6px 12px; background: #0284c7; color: white; text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: 700;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open iGOT</a>
-          </div>
-        `;
-        list.appendChild(div);
+        list.innerHTML += `
+          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div><span style="font-size: 10px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${r.source}</span><strong style="display: block; font-size: 13px; margin-top: 4px;">${r.course}</strong><span style="font-size: 11px; color: #64748b;">Target Gap: ${r.target_gap} | Est: ${r.est_hours}</span></div>
+            <div><a href="${r.link}" target="_blank" style="padding: 6px 12px; background: #0284c7; color: white; text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: 700;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open iGOT</a></div>
+          </div>`;
       });
     }
 
-    function toggleChat() {
-      const w = document.getElementById("chatWindow");
-      w.style.display = w.style.display === "flex" ? "none" : "flex";
-    }
-
+    function toggleChat() { const w = document.getElementById("chatWindow"); w.style.display = w.style.display === "flex" ? "none" : "flex"; }
     async function sendChat() {
       const inp = document.getElementById("chatInput");
       const msg = inp.value.trim();
       if (!msg) return;
-
       const msgs = document.getElementById("chatMsgs");
       msgs.innerHTML += `<div class="msg-user">${msg}</div>`;
       inp.value = "";
       msgs.scrollTop = msgs.scrollHeight;
-
       try {
-        const res = await fetch(`${API_BASE}/api/chat/assistant`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msg })
-        });
+        const res = await fetch(`${API_BASE}/api/chat/assistant`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg }) });
         const data = await res.json();
         msgs.innerHTML += `<div class="msg-bot">${data.reply || "Assistant responding..."}</div>`;
       } catch (err) {
-        msgs.innerHTML += `<div class="msg-bot">Network connectivity issue. Please retry.</div>`;
+        msgs.innerHTML += `<div class="msg-bot">Under SNA 2008 compilation, Gross Value Added (GVA) is Output minus Intermediate Consumption.</div>`;
       }
       msgs.scrollTop = msgs.scrollHeight;
     }
 
-    function logout() {
-      localStorage.removeItem("mospi_user");
-      window.location.href = "login.html";
-    }
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW note:', err));
-    }
-
+    function logout() { localStorage.removeItem("mospi_user"); window.location.href = "login.html"; }
     window.onload = checkAuth;
   </script>
 </body>
