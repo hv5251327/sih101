@@ -580,42 +580,193 @@
 
     window.onload = checkAuth;
   </script>
+
 <!-- BHASHINI_DYNAMIC_ENGINE -->
 <script>
-const bhashiniMap = {
-  "iGOT MoSPI Intelligence Platform": { hi: "आईगॉट सांख्यिकी मंत्रालय इंटेलिजेंस प्लेटफॉर्म", te: "iGOT MoSPI ఇంటెలిజెన్స్ ప్లాట్‌ఫారమ్", ta: "iGOT MoSPI நுண்ணறிவு தளம்", bn: "iGOT MoSPI ইন্টেলিজেন্স প্ল্যাটফর্ম" },
-  "Competency Score:": { hi: "क्षमता स्कोर:", te: "సామర్థ్య స్కోరు:", ta: "திறன் மதிப்பெண்:", bn: "দক্ষতা স্কোর:" },
-  "CURRICULUM STATUS": { hi: "पाठ्यक्रम स्थिति", te: "పాఠ్యాంశాల స్థితి", ta: "பாடத்திட்ட நிலை", bn: "পাঠ্যক্রমের স্থিতি" },
-  "Completed": { hi: "पूर्ण", te: "పూర్తయింది", ta: "முடிந்தது", bn: "সম্পন্ন" },
-  "To Learn": { hi: "शेष", te: "నేర్చుకోవలసినవి", ta: "கற்க வேண்டியவை", bn: "বাকি আছে" },
-  "Sync with iGOT Karmayogi API": { hi: "आईगॉट कर्मयोगी एपीआई के साथ सिंक करें", te: "iGOT కర్మయోగి API తో సమకాలీకరించు", ta: "iGOT கர்மயோகி API உடன் ஒத்திசைக்கவும்", bn: "iGOT কর্মযোগী API-এর সাথে সিঙ্ক করুন" },
-  "4-Tier Official Statistics Competency Mapping": { hi: "4-स्तरीय आधिकारिक सांख्यिकी क्षमता मानचित्रण", te: "4-దశల అధికారిక గణాంకాల సామర్థ్య మ్యాపింగ్", ta: "4-அடுக்கு அதிகாரப்பூர்வ புள்ளிவிவர திறன் வரைபடம்", bn: "৪-স্তরীয় অফিসিয়াল পরিসংখ্যান দক্ষতা ম্যাপিং" },
-  "Statistical Frameworks (SNA/PLFS/CPI)": { hi: "सांख्यिकीय रूपरेखा (SNA/PLFS/CPI)", te: "గణాంక ఫ్రేమ్‌వర్క్‌లు (SNA/PLFS/CPI)", ta: "புள்ளிவிவர கட்டமைப்புகள் (SNA/PLFS/CPI)", bn: "পরিসংখ্যানগত কাঠামো (SNA/PLFS/CPI)" },
-  "Technical & Analytics (Python/R/GIS)": { hi: "तकनीकी और विश्लेषण (Python/R/GIS)", te: "సాంకేతిక & విశ్లేషణలు (Python/R/GIS)", ta: "தொழில்நுட்பம் & பகுப்பாய்வு (Python/R/GIS)", bn: "প্রযুক্তিগত ও বিশ্লেষণ (Python/R/GIS)" },
-  "Digital Governance (DPDP/Privacy)": { hi: "डिजिटल गवर्नेंस (DPDP/गोपनीयता)", te: "డిజిటల్ గవర్నెన్స్ (DPDP/గోప్యత)", ta: "டிஜிட்டல் ஆளுகை (DPDP/தனியுரிமை)", bn: "ডিজিটাল শাসন (DPDP/গোপনীয়তা)" },
-  "Managerial & Policy Decision Making": { hi: "प्रबंधकीय एवं नीतिगत निर्णय", te: "నిర్వహణ & విధాన నిర్ణయాలు", ta: "மேலாண்மை & கொள்கை முடிவெடுத்தல்", bn: "ব্যবস্থাপনা ও নীতিগত সিদ্ধান্ত গ্রহণ" },
-  "Personalized Learning Pathways (iGOT + NSSTA)": { hi: "व्यक्तिगत शिक्षण मार्ग (iGOT + NSSTA)", te: "వ్యక్తిగతీకరించిన లెర్నింగ్ పాత్‌వేస్ (iGOT + NSSTA)", ta: "தனிப்பயனாக்கப்பட்ட கற்றல் வழிகள் (iGOT + NSSTA)", bn: "ব্যক্তিগতকৃত শিক্ষার পথ (iGOT + NSSTA)" },
-  "MoSPI Core Competency Modules & Video Lectures": { hi: "सांख्यिकी मंत्रालय मुख्य क्षमता मॉड्यूल और वीडियो व्याख्यान", te: "MoSPI ప్రధాన సామర్థ్య మాడ్యూల్స్ & వీడియో లెక్చర్స్", ta: "MoSPI முக்கிய திறன் தொகுதிகள் & வீடியோ விரிவுரைகள்", bn: "MoSPI মূল দক্ষতা মডিউল এবং ভিডিও বক্তৃতা" }
+window.bhashiniComprehensive = {
+  en: {
+    "iGOT MoSPI Intelligence Platform": "iGOT MoSPI Intelligence Platform",
+    "Competency Score:": "Competency Score:",
+    "CURRICULUM STATUS": "CURRICULUM STATUS",
+    "2 Completed": "2 Completed",
+    "3 To Learn": "3 To Learn",
+    "Sync with iGOT Karmayogi API": "Sync with iGOT Karmayogi API",
+    "4-Tier Official Statistics Competency Mapping": "4-Tier Official Statistics Competency Mapping",
+    "Statistical Frameworks (SNA/PLFS/CPI)": "Statistical Frameworks (SNA/PLFS/CPI)",
+    "Technical & Analytics (Python/R/GIS)": "Technical & Analytics (Python/R/GIS)",
+    "Digital Governance (DPDP/Privacy)": "Digital Governance (DPDP/Privacy)",
+    "Managerial & Policy Decision Making": "Managerial & Policy Decision Making",
+    "Personalized Learning Pathways (iGOT + NSSTA)": "Personalized Learning Pathways (iGOT + NSSTA)",
+    "MoSPI Core Competency Modules & Video Lectures": "MoSPI Core Competency Modules & Video Lectures",
+    "Watch Lecture": "Watch Lecture",
+    "IGOT Portal": "IGOT Portal",
+    "Download Certificate": "Download Certificate",
+    "Take Quiz": "Take Quiz",
+    "Verify Cert": "Verify Cert",
+    "Log Out": "Log Out"
+  },
+  hi: {
+    "iGOT MoSPI Intelligence Platform": "आईगॉट सांख्यिकी मंत्रालय इंटेलिजेंस प्लेटफॉर्म",
+    "Competency Score:": "क्षमता स्कोर:",
+    "CURRICULUM STATUS": "पाठ्यक्रम स्थिति",
+    "2 Completed": "2 पूर्ण",
+    "3 To Learn": "3 शेष",
+    "Sync with iGOT Karmayogi API": "आईगॉट कर्मयोगी एपीआई के साथ सिंक करें",
+    "4-Tier Official Statistics Competency Mapping": "4-स्तरीय आधिकारिक सांख्यिकी क्षमता मानचित्रण",
+    "Statistical Frameworks (SNA/PLFS/CPI)": "सांख्यिकीय रूपरेखा (SNA/PLFS/CPI)",
+    "Technical & Analytics (Python/R/GIS)": "तकनीकी और डेटा विश्लेषण (Python/R/GIS)",
+    "Digital Governance (DPDP/Privacy)": "डिजिटल गवर्नेंस (DPDP/डेटा गोपनीयता)",
+    "Managerial & Policy Decision Making": "प्रबंधकीय एवं नीतिगत निर्णय प्रक्रिया",
+    "Personalized Learning Pathways (iGOT + NSSTA)": "व्यक्तिगत शिक्षण मार्ग (iGOT + NSSTA)",
+    "MoSPI Core Competency Modules & Video Lectures": "सांख्यिकी मंत्रालय मुख्य क्षमता मॉड्यूल एवं व्याख्यान",
+    "Watch Lecture": "व्याख्यान देखें",
+    "IGOT Portal": "आईगॉट पोर्टल",
+    "Download Certificate": "प्रमाणपत्र डाउनलोड करें",
+    "Take Quiz": "प्रश्नोत्तरी शुरू करें",
+    "Verify Cert": "सत्यापित करें",
+    "Log Out": "लॉग आउट"
+  },
+  te: {
+    "iGOT MoSPI Intelligence Platform": "iGOT MoSPI ఇంటెలిజెన్స్ ప్లాట్‌ఫారమ్",
+    "Competency Score:": "సామర్థ్య స్కోరు:",
+    "CURRICULUM STATUS": "పాఠ్యాంశాల స్థితి",
+    "2 Completed": "2 పూర్తయింది",
+    "3 To Learn": "3 నేర్చుకోవలసినవి",
+    "Sync with iGOT Karmayogi API": "iGOT కర్మయోగి API తో సమకాలీకరించు",
+    "4-Tier Official Statistics Competency Mapping": "4-దశల అధికారిక గణాంకాల సామర్థ్య మ్యాపింగ్",
+    "Statistical Frameworks (SNA/PLFS/CPI)": "గణాంక ఫ్రేమ్‌వర్క్‌లు (SNA/PLFS/CPI)",
+    "Technical & Analytics (Python/R/GIS)": "సాంకేతిక & విశ్లేషణలు (Python/R/GIS)",
+    "Digital Governance (DPDP/Privacy)": "డిజిటల్ గవర్నెన్స్ (DPDP/గోప్యత)",
+    "Managerial & Policy Decision Making": "నిర్వహణ & విధాన నిర్ణయాలు",
+    "Personalized Learning Pathways (iGOT + NSSTA)": "వ్యక్తిగతీకరించిన అభ్యాస మార్గాలు (iGOT + NSSTA)",
+    "MoSPI Core Competency Modules & Video Lectures": "MoSPI ప్రధాన సామర్థ్య మాడ్యూల్స్ & లెక్చర్స్",
+    "Watch Lecture": "వీడియో చూడండి",
+    "IGOT Portal": "iGOT పోర్టల్",
+    "Download Certificate": "సర్టిఫికెట్ డౌన్‌లోడ్",
+    "Take Quiz": "క్విజ్ రాయండి",
+    "Verify Cert": "ధృవీకరించు",
+    "Log Out": "లాగ్ అవుట్"
+  },
+  ta: {
+    "iGOT MoSPI Intelligence Platform": "iGOT MoSPI நுண்ணறிவு தளம்",
+    "Competency Score:": "திறன் மதிப்பெண்:",
+    "CURRICULUM STATUS": "பாடத்திட்ட நிலை",
+    "2 Completed": "2 முடிந்தது",
+    "3 To Learn": "3 கற்க வேண்டியவை",
+    "Sync with iGOT Karmayogi API": "iGOT கர்மயோகி API உடன் ஒத்திசைக்கவும்",
+    "4-Tier Official Statistics Competency Mapping": "4-அடுக்கு அதிகாரப்பூர்வ புள்ளிவிவர திறன் வரைபடம்",
+    "Statistical Frameworks (SNA/PLFS/CPI)": "புள்ளிவிவர கட்டமைப்புகள் (SNA/PLFS/CPI)",
+    "Technical & Analytics (Python/R/GIS)": "தொழில்நுட்பம் & பகுப்பாய்வு (Python/R/GIS)",
+    "Digital Governance (DPDP/Privacy)": "டிஜிட்டல் ஆளுகை (DPDP/தனியுரிமை)",
+    "Managerial & Policy Decision Making": "மேலாண்மை & கொள்கை முடிவெடுத்தல்",
+    "Personalized Learning Pathways (iGOT + NSSTA)": "தனிப்பயனாக்கப்பட்ட கற்றல் வழிகள் (iGOT + NSSTA)",
+    "MoSPI Core Competency Modules & Video Lectures": "MoSPI முக்கிய திறன் தொகுதிகள் & விரிவுரைகள்",
+    "Watch Lecture": "விரிவுரையைப் பாருங்கள்",
+    "IGOT Portal": "iGOT போர்டல்",
+    "Download Certificate": "சான்றிதழ் பதிவிறக்கம்",
+    "Take Quiz": "வினாடி வினா எடுங்கள்",
+    "Verify Cert": "சரிபார்க்கவும்",
+    "Log Out": "வெளியேறு"
+  },
+  bn: {
+    "iGOT MoSPI Intelligence Platform": "iGOT MoSPI ইন্টেলিজেন্স প্ল্যাটফর্ম",
+    "Competency Score:": "দক্ষতা স্কোর:",
+    "CURRICULUM STATUS": "পাঠ্যক্রমের স্থিতি",
+    "2 Completed": "২ সম্পন্ন",
+    "3 To Learn": "৩ বাকি আছে",
+    "Sync with iGOT Karmayogi API": "iGOT কর্মযোগী API-এর সাথে সিঙ্ক করুন",
+    "4-Tier Official Statistics Competency Mapping": "৪-স্তরীয় অফিসিয়াল পরিসংখ্যান দক্ষতা ম্যাপিং",
+    "Statistical Frameworks (SNA/PLFS/CPI)": "পরিসংখ্যানগত কাঠামো (SNA/PLFS/CPI)",
+    "Technical & Analytics (Python/R/GIS)": "প্রযুক্তিগত ও বিশ্লেষণ (Python/R/GIS)",
+    "Digital Governance (DPDP/Privacy)": "ডিজিটাল শাসন (DPDP/গোপনীয়তা)",
+    "Managerial & Policy Decision Making": "ব্যবস্থাপনা ও নীতিগত সিদ্ধান্ত গ্রহণ",
+    "Personalized Learning Pathways (iGOT + NSSTA)": "ব্যক্তিগতকৃত শিক্ষার পথ (iGOT + NSSTA)",
+    "MoSPI Core Competency Modules & Video Lectures": "MoSPI মূল দক্ষতা মডিউল এবং ভিডিও বক্তৃতা",
+    "Watch Lecture": "লেকচার দেখুন",
+    "IGOT Portal": "iGOT পোর্টাল",
+    "Download Certificate": "সার্টিফিকেট ডাউনলোড",
+    "Take Quiz": "কুইজ দিন",
+    "Verify Cert": "যাচাই করুন",
+    "Log Out": "লগ আউট"
+  }
 };
 
 window.runBhashini = function(targetLang) {
+  const dict = window.bhashiniComprehensive[targetLang] || window.bhashiniComprehensive.en;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
   let node;
   while (node = walker.nextNode()) {
-    if (node.parentElement.closest('#bhashiniWrap') || node.parentElement.tagName === 'SCRIPT') continue;
+    if (node.parentElement.closest('#bhashiniWrap') || node.parentElement.tagName === 'SCRIPT' || node.parentElement.tagName === 'STYLE') continue;
     const txt = node.nodeValue.trim();
     if (!txt) continue;
     if (!node._origText) node._origText = txt;
-    
+
     if (targetLang === 'en') {
-      node.nodeValue = node.nodeValue.replace(txt, node._origText);
-    } else if (bhashiniMap[node._origText] && bhashiniMap[node._origText][targetLang]) {
-      node.nodeValue = node.nodeValue.replace(txt, bhashiniMap[node._origText][targetLang]);
+      node.nodeValue = node._origText;
+    } else {
+      for (const [enKey, transVal] of Object.entries(dict)) {
+        if (node._origText === enKey || node.nodeValue.includes(enKey)) {
+          node.nodeValue = node.nodeValue.replace(enKey, transVal);
+        }
+      }
     }
   }
 };
 </script>
 <!-- END_BHASHINI_DYNAMIC_ENGINE -->
+
+<!-- CHATBOT_AI_ENGINE -->
+<script>
+window.generateSmartBotReply = function(userMsg) {
+  const msg = userMsg.toLowerCase();
+  
+  if (msg.includes("score") || msg.includes("competency")) {
+    return "Your current overall MoSPI Competency Score is **85%**. Your biggest skill gap is in Technical & Analytics (Python/R/GIS) at 67% (Target: 90%).";
+  } else if (msg.includes("igot") || msg.includes("sync")) {
+    return "Your profile is synced in real-time with the iGOT Karmayogi API. 2 modules are verified and 3 pending courses are recommended by NSSTA.";
+  } else if (msg.includes("nssta") || msg.includes("pathway") || msg.includes("course") || msg.includes("recommend")) {
+    return "NSSTA recommends taking: 1. 'Official Data Analytics with Python & Big Data' and 2. 'Digital Personal Data Protection (DPDP) Act' to reach 95% compliance.";
+  } else if (msg.includes("quiz") || msg.includes("test") || msg.includes("exam")) {
+    return "You can take the interactive evaluation quiz under 'Periodic Labour Force Survey (PLFS) Digital Survey' to unlock your verified competency badge.";
+  } else if (msg.includes("cadre") || msg.includes("role") || msg.includes("ben10")) {
+    return "Officer Profile: Indian Statistical Service (ISS) | National Accounts Division (NAD) | Deputy Director / Assistant Director.";
+  } else if (msg.includes("bhashini") || msg.includes("language") || msg.includes("hindi") || msg.includes("telugu")) {
+    return "You can use the Bhashini dropdown at the top right to switch between English, Hindi, Telugu, Tamil, and Bengali in real-time.";
+  } else {
+    return "Hello Officer! I am your MoSPI AI Learning Assistant. You can ask me about your competency gaps, recommended iGOT/NSSTA courses, quiz verification, or sync status.";
+  }
+};
+
+// Wire up chatbot send button and enter key
+document.addEventListener("DOMContentLoaded", function() {
+  const chatInput = document.querySelector("#chatInput, input[placeholder*='Ask'], input[placeholder*='message']");
+  const sendBtn = document.querySelector("#sendChatBtn, button:has(.fa-paper-plane), .chat-send-btn");
+  const chatBox = document.querySelector("#chatMessages, .chat-body, .chatbot-messages");
+
+  function sendChatMessage() {
+    if (!chatInput || !chatInput.value.trim()) return;
+    const txt = chatInput.value.trim();
+    chatInput.value = "";
+    
+    if (chatBox) {
+      chatBox.innerHTML += `<div style="margin: 6px 0; text-align: right;"><span style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 12px 12px 0 12px; display: inline-block; font-size: 13px;">${txt}</span></div>`;
+      setTimeout(() => {
+        const reply = window.generateSmartBotReply(txt);
+        chatBox.innerHTML += `<div style="margin: 6px 0; text-align: left;"><span style="background: #f1f5f9; color: #0f172a; padding: 6px 12px; border-radius: 12px 12px 12px 0; display: inline-block; font-size: 13px; border: 1px solid #cbd5e1;">${reply}</span></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 400);
+    }
+  }
+
+  if (sendBtn) sendBtn.onclick = sendChatMessage;
+  if (chatInput) {
+    chatInput.onkeypress = function(e) {
+      if (e.key === 'Enter') sendChatMessage();
+    };
+  }
+});
+</script>
+<!-- END_CHATBOT_AI_ENGINE -->
 </body>
 </html>
 
