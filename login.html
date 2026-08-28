@@ -2,101 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In | MoSPI iGOT Karmayogi</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MoSPI - Official Access Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --primary: #15325b; --accent: #e58a2b; --bg: #f8fafc; --card: #ffffff; --border: #cbd5e1; --text: #1e293b; --muted: #64748b; }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
-    .top-strip { background: #0d213a; color: #f1f5f9; padding: 8px 36px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
-    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 30px 16px; }
-    .auth-card { background: var(--card); width: 100%; max-width: 420px; border-radius: 16px; padding: 32px 28px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); border: 1px solid var(--border); }
-    .brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 18px; font-weight: 800; color: var(--primary); }
-    .brand i { font-size: 30px; color: var(--accent); }
-    .tabs { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
-    .tab { flex: 1; text-align: center; padding: 8px; font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; color: var(--muted); }
-    .tab.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .group { margin-bottom: 16px; }
-    .label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-    .field { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; }
-    .field:focus { border-color: var(--primary); }
-    .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn:hover { background: #0e223f; }
+    :root { --gov-navy: #002B49; --gov-orange: #FF9933; --gov-blue: #005691; --bg: #f8fafc; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background: var(--bg); display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .card { background:white; padding:35px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.08); width:100%; max-width:440px; }
+    .tabs { display:flex; gap:10px; margin-bottom:25px; border-bottom:2px solid #e2e8f0; padding-bottom:10px; }
+    .tab { flex:1; text-align:center; padding:10px; font-weight:700; cursor:pointer; color:#64748b; border-radius:6px; }
+    .tab.active { background:var(--gov-navy); color:white; }
+    .form-group { margin-bottom:15px; }
+    label { display:block; font-size:0.85rem; font-weight:600; margin-bottom:5px; color:#334155; }
+    input, select { width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.95rem; }
+    .btn { width:100%; padding:12px; border:none; border-radius:6px; font-weight:700; cursor:pointer; background:var(--gov-navy); color:white; margin-top:10px; }
+    .btn:hover { background:var(--gov-blue); }
   </style>
+<style id="mobile-responsive-rules">
+  @media screen and (max-width: 768px) {
+    body {
+      overflow-x: hidden !important;
+    }
+    .container, .main-container, .wrapper, .dashboard-container, .card, .header, .nav, nav {
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .grid, .row, .cards-grid, .stats-row, .d-flex {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      gap: 15px !important;
+    }
+    table {
+      display: block !important;
+      overflow-x: auto !important;
+      white-space: nowrap !important;
+      width: 100% !important;
+    }
+    .sidebar, aside {
+      position: relative !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    input, select, textarea, button {
+      font-size: 16px !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .modal-content, .dialog {
+      width: 92% !important;
+      margin: 10px auto !important;
+    }
+  }
+</style>
 </head>
 <body>
-  <div class="top-strip">
-    <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Capacity Building</div>
-    <div>National Statistical Systems Training Academy (NSSTA)</div>
-  </div>
-
-  <div class="main">
-    <div class="auth-card">
-      <div class="brand">
-        <i class="fa-solid fa-graduation-cap"></i>
-        <span>MoSPI iGOT Intelligence</span>
-      </div>
-
-      <div class="tabs">
-        <div class="tab active" id="tabOfficer" onclick="switchRole('officer')">Officer Sign In</div>
-        <div class="tab" id="tabAdmin" onclick="switchRole('admin')">Admin Console</div>
-      </div>
-
-      <form onsubmit="handleAuth(event)">
-        <div class="group">
-          <label class="label">Official Email ID</label>
-          <input type="email" id="email" class="field" value="harsha@gov.in" required>
-        </div>
-        <div class="group">
-          <label class="label">Password / Security PIN</label>
-          <input type="password" id="password" class="field" value="1234" required>
-        </div>
-        <button type="submit" id="btnAuth" class="btn">Sign In to Dashboard</button>
-      </form>
+  <div class="card">
+    <h2 style="color:var(--gov-navy); text-align:center; margin-bottom:20px;"><i class="fa-solid fa-building-columns"></i> MoSPI Platform</h2>
+    <div class="tabs">
+      <div class="tab active" id="tabLogin" onclick="showTab('login')">Login</div>
+      <div class="tab" id="tabReg" onclick="showTab('reg')">Register</div>
     </div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group"><label>Official Email</label><input type="email" id="loginEmail" placeholder="officer@mospi.gov.in" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
+      <button type="submit" class="btn">Authenticate</button>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="regForm" onsubmit="handleRegister(event)" style="display:none;">
+      <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Shri Rajesh Kumar" required></div>
+      <div class="form-group"><label>Official Email</label><input type="email" id="regEmail" placeholder="rajesh@mospi.gov.in" required></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="••••••••" required></div>
+      <div class="form-group">
+        <label>Service Cadre</label>
+        <select id="regCadre">
+          <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
+          <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Department</label><input type="text" id="regDept" value="National Accounts Division (NAD)"></div>
+      <div class="form-group"><label>Designation</label><input type="text" id="regDesig" value="Deputy Director / Assistant Director (ISS)"></div>
+      <button type="submit" class="btn" style="background:var(--gov-orange); color:black;">Register Officer</button>
+    </form>
   </div>
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
-    let activeRole = 'officer';
 
-    function switchRole(role) {
-      activeRole = role;
-      if (role === 'admin') {
-        document.getElementById('tabAdmin').classList.add('active');
-        document.getElementById('tabOfficer').classList.remove('active');
-        document.getElementById('email').value = '123@gov.ac.in';
-        document.getElementById('password').value = '1234';
-        document.getElementById('btnAuth').textContent = 'Access Administration Console';
-      } else {
-        document.getElementById('tabOfficer').classList.add('active');
-        document.getElementById('tabAdmin').classList.remove('active');
-        document.getElementById('email').value = 'harsha@gov.in';
-        document.getElementById('password').value = '1234';
-        document.getElementById('btnAuth').textContent = 'Sign In to Dashboard';
-      }
+    function showTab(t) {
+      document.getElementById("tabLogin").classList.toggle("active", t === "login");
+      document.getElementById("tabReg").classList.toggle("active", t === "reg");
+      document.getElementById("loginForm").style.display = t === "login" ? "block" : "none";
+      document.getElementById("regForm").style.display = t === "reg" ? "block" : "none";
     }
 
-    async function handleAuth(e) {
+    async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const btn = document.getElementById('btnAuth');
-
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
-
-      if (email.toLowerCase() === '123@gov.ac.in' && password === '1234') {
-        const adminUser = { id: 999, name: "Chief Administrator", email: "123@gov.ac.in", role: "admin", completed_modules: [1, 2, 3], competency_score: "100%" };
-        localStorage.setItem("mospi_user", JSON.stringify(adminUser));
-        window.location.href = "admin.html";
-        return;
-      }
-
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPass").value.trim();
       try {
         const res = await fetch(`${API_BASE}/api/login`, {
           method: "POST",
@@ -104,26 +112,36 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        if (res.ok && data.status === "success") {
-          localStorage.setItem("mospi_user", JSON.stringify(data.user));
-          window.location.href = data.user.role === 'admin' ? "admin.html" : "dashboard.html";
-          return;
-        }
-      } catch (err) {}
+        if (!res.ok) throw new Error(data.detail || "Authentication failed");
+        localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      } catch (err) { alert(err.message); }
+    }
 
-      const officerObj = {
-        name: email.split('@')[0],
-        email: email,
-        department: "National Accounts Division (NAD)",
-        designation: "Deputy Director (ISS)",
-        cadre: "Indian Statistical Service (ISS)",
-        role: "employee",
-        competency_score: "75%",
-        completed_modules: [1, 2]
+    async function handleRegister(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("regName").value.trim(),
+        email: document.getElementById("regEmail").value.trim(),
+        password: document.getElementById("regPass").value.trim(),
+        cadre: document.getElementById("regCadre").value,
+        department: document.getElementById("regDept").value.trim(),
+        designation: document.getElementById("regDesig").value.trim()
       };
-      localStorage.setItem("mospi_user", JSON.stringify(officerObj));
-      window.location.href = "dashboard.html";
+      try {
+        const res = await fetch(`${API_BASE}/api/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Registration failed");
+        localStorage.setItem("mospi_user", JSON.stringify(data.user));
+        alert("Registration Successful!");
+        window.location.href = data.user.role === "admin" ? "admin.html" : "dashboard.html";
+      } catch (err) { alert(err.message); }
     }
   </script>
 </body>
 </html>
+
