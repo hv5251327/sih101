@@ -929,133 +929,256 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 <!-- CHATBOT_WIDGET_END -->
+
+<!-- CADRE_REGISTRATION_MODAL -->
+<!-- Registration / Cadre Switcher Bar -->
+<div id="cadre-profile-bar" style="background: #0f172a; color: #fff; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; border-bottom: 1px solid #334155;">
+  <div>
+    <span style="color: #94a3b8;">Active Officer Profile: </span>
+    <strong id="activeCadreDisplay" style="color: #38bdf8;">Indian Statistical Service (ISS) - Assistant Director</strong> |
+    <span id="activeMinistryDisplay" style="color: #cbd5e1;">MoSPI - National Accounts Division (NAD)</span>
+  </div>
+  <button onclick="window.openCadreRegistrationModal()" style="background: #2563eb; color: #fff; border: none; padding: 5px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
+    <i class="fa-solid fa-id-card"></i> Register / Switch Cadre
+  </button>
+</div>
+
+<!-- Cadre Registration Dialog -->
+<div id="cadreRegisterModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: #ffffff; width: 520px; max-width: 92%; border-radius: 10px; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: inherit;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+      <h3 style="margin: 0; color: #0f172a; font-size: 16px;"><i class="fa-solid fa-user-gear"></i> NSSTA Cadre & Ministry Registration</h3>
+      <span onclick="window.closeCadreRegistrationModal()" style="cursor: pointer; font-size: 18px; color: #64748b;">✕</span>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Ministry / Department</label>
+        <select id="regMinistrySelect" onchange="window.updateDivisionOptions()" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+          <option value="MoSPI">Ministry of Statistics and Programme Implementation (MoSPI)</option>
+          <option value="Agriculture">Ministry of Agriculture & Farmers Welfare</option>
+          <option value="Health">Ministry of Health & Family Welfare</option>
+          <option value="Finance">Ministry of Finance (Economic Affairs / Revenue)</option>
+          <option value="Commerce">Ministry of Commerce & Industry (DPIIT / DGCI&S)</option>
+          <option value="Labour">Ministry of Labour & Employment (Labour Bureau)</option>
+          <option value="DES_State">State Directorate of Economics & Statistics (DES)</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Statistical Cadre & Grade</label>
+        <select id="regCadreSelect" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+          <option value="ISS_JTS">Indian Statistical Service (ISS) - Assistant Director / JTS</option>
+          <option value="ISS_STS">Indian Statistical Service (ISS) - Deputy Director / STS</option>
+          <option value="ISS_JAG">Indian Statistical Service (ISS) - Director / Joint Director / JAG</option>
+          <option value="ISS_SAG">Indian Statistical Service (ISS) - DDG / SAG / HAG</option>
+          <option value="SSS_SSO">Subordinate Statistical Service (SSS) - Senior Statistical Officer (SSO)</option>
+          <option value="SSS_JSO">Subordinate Statistical Service (SSS) - Junior Statistical Officer (JSO)</option>
+          <option value="STATE_DES">State Statistical Cadre - Statistical Officer / Research Officer (DES)</option>
+          <option value="MIN_STAFF">Central Secretariat / Non-Technical Ministerial Staff (ASO/SO)</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Assigned Division / Section</label>
+        <select id="regDivisionSelect" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+          <option value="NAD">National Accounts Division (NAD) - GDP & SUT</option>
+          <option value="FOD">Field Operations Division (FOD) - Survey Operations</option>
+          <option value="SDRD">Survey Design & Research Division (SDRD) - Sampling & Schedules</option>
+          <option value="ESD_PSD">Economic & Price Statistics (ESD/PSD) - CPI & IIP</option>
+          <option value="DIID">Data Informatics & Innovation Division (DIID) - IT & AI</option>
+          <option value="POLICY_DIV">Economic Policy & Monitoring Division</option>
+        </select>
+      </div>
+
+      <button onclick="window.saveOfficerRegistration()" style="background: #1e3a8a; color: #fff; padding: 10px; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 6px;">
+        Save Registration & Update Syllabus
+      </button>
+    </div>
+  </div>
+</div>
+<!-- END_CADRE_REGISTRATION_MODAL -->
+
 <!-- NSSTA_DATASET_AND_ENGINE -->
 <script>
-// Exhaustive MoSPI Cadres, Grades & Divisions Training Matrix (NSSTA / TPAC & iGOT)
-window.MOSPI_CADRE_FULL_MATRIX = [
-  {
-    cadre: "Indian Statistical Service (ISS)",
-    rank: "Junior Time Scale (JTS) - Assistant Director",
-    division: "National Accounts Division (NAD)",
+// Exhaustive Cadre & Ministry Training Matrix based on NSSTA TPAC & iGOT Syllabi
+window.MOSPI_CADRE_FULL_MATRIX = {
+  "ISS_JTS": {
+    cadreName: "Indian Statistical Service (ISS) - Assistant Director",
     domain: "Statistical Frameworks & Macroeconomics",
-    mandatorySyllabus: [
+    targetScore: 95,
+    syllabus: [
       "System of National Accounts (SNA 2008 & 2025 Revisions)",
       "Supply and Use Tables (SUT) & Input-Output Matrices",
-      "Gross State Domestic Product (GSDP) & Capital Formation"
+      "Econometric Modeling with Python & R for Official Statistics"
     ],
-    targetScore: 95,
-    recommendedPrograms: [
-      { id: "NSSTA-NAD-01", title: "National Accounts & Macro-Aggregates", iGOTCourse: "iGOT-STAT-SNA-502", mode: "Residential NSSTA Greater Noida" },
-      { id: "NSSTA-TECH-02", title: "Econometric Modeling in R & Python", iGOTCourse: "iGOT-DATA-PY-401", mode: "iGOT Hybrid" }
+    courses: [
+      { id: "NSSTA-NAD-01", title: "National Accounts & Macroeconomic Aggregates", iGOT: "iGOT-STAT-SNA-502" },
+      { id: "NSSTA-TECH-02", title: "Official Data Analytics with Python & Big Data", iGOT: "iGOT-DATA-PY-401" }
     ]
   },
-  {
-    cadre: "Indian Statistical Service (ISS)",
-    rank: "Senior Time Scale (STS) - Deputy Director",
-    division: "Data Informatics & Innovation Division (DIID)",
-    domain: "Technical & Analytics",
-    mandatorySyllabus: [
+  "ISS_STS": {
+    cadreName: "Indian Statistical Service (ISS) - Deputy Director",
+    domain: "Technical & Data Lake Architecture",
+    targetScore: 92,
+    syllabus: [
       "Big Data Lake Architecture & Automated Statistical Pipelines",
       "AI/ML Applications in Official Statistics & National Data Registries",
-      "Open Data Standards, Metadata Tagging & API Integration"
+      "Data Governance & DPDP Act 2023 Implementation"
     ],
-    targetScore: 92,
-    recommendedPrograms: [
-      { id: "NSSTA-DIID-03", title: "AI/ML in Government Statistics & Cloud Data Lakes", iGOTCourse: "iGOT-AI-DATA-505", mode: "NSSTA Advanced Lab" },
-      { id: "NSSTA-TECH-04", title: "Automated Data Pipelines with Python & Spark", iGOTCourse: "iGOT-DATA-ENG-402", mode: "iGOT Self-Paced" }
+    courses: [
+      { id: "NSSTA-DIID-03", title: "AI/ML in Government Statistics & Cloud Architecture", iGOT: "iGOT-AI-DATA-505" },
+      { id: "NSSTA-GOV-04", title: "Digital Personal Data Protection Act Compliance", iGOT: "iGOT-GOV-DPDP-204" }
     ]
   },
-  {
-    cadre: "Indian Statistical Service (ISS)",
-    rank: "Junior Administrative Grade (JAG) / Selection Grade - Joint Director / Director",
-    division: "Economic Statistics Division (ESD) / Price Statistics Division (PSD)",
+  "ISS_JAG": {
+    cadreName: "Indian Statistical Service (ISS) - Director / Joint Director",
     domain: "Macroeconomic Indices & Industrial Survey Governance",
-    mandatorySyllabus: [
-      "Index of Industrial Production (IIP) Base Year Revisions & Item Basket Sampling",
-      "Consumer Price Index (CPI-Rural/Urban) Geometric Mean Aggregation",
-      "Annual Survey of Industries (ASI) Frame Validation & Web Portal Auditing"
-    ],
     targetScore: 90,
-    recommendedPrograms: [
-      { id: "NSSTA-ESD-05", title: "Advanced Price Indices & Industrial Production Metrics", iGOTCourse: "iGOT-STAT-CPI-501", mode: "NSSTA Executive Workshop" },
-      { id: "NSSTA-GOV-06", title: "Statistical Auditing & Data Quality Frameworks (DQAF)", iGOTCourse: "iGOT-GOV-QUAL-403", mode: "iGOT Online" }
+    syllabus: [
+      "Index of Industrial Production (IIP) Base Year Revisions",
+      "Consumer Price Index (CPI-Rural/Urban) Geometric Mean Aggregations",
+      "Data Quality Assessment Framework (DQAF) & Survey Scrutiny"
+    ],
+    courses: [
+      { id: "NSSTA-ESD-05", title: "Advanced Price Statistics & Industrial Metrics", iGOT: "iGOT-STAT-CPI-501" },
+      { id: "NSSTA-GOV-06", title: "Statistical Auditing & Quality Frameworks", iGOT: "iGOT-GOV-QUAL-403" }
     ]
   },
-  {
-    cadre: "Indian Statistical Service (ISS)",
-    rank: "Senior Administrative Grade (SAG) / HAG - Deputy Director General (DDG) / Additional Director General (ADG)",
-    division: "Policy, Coordination and Administration / National Statistical Commission (NSC)",
-    domain: "Policy Formulation & Digital Governance",
-    mandatorySyllabus: [
-      "Digital Personal Data Protection (DPDP) Act Compliance & Institutional Privacy",
+  "ISS_SAG": {
+    cadreName: "Indian Statistical Service (ISS) - DDG / ADG",
+    domain: "Policy Formulation & Strategic Decision Making",
+    targetScore: 90,
+    syllabus: [
       "National Data Governance Framework Policy (NDGFP)",
-      "Strategic Leadership, Inter-Ministerial Coordination & UN SDG Monitoring"
+      "Strategic Leadership, Inter-Ministerial Data Exchange & UN SDGs",
+      "Evidence-Based Policy Formulation & Institutional Leadership"
     ],
-    targetScore: 90,
-    recommendedPrograms: [
-      { id: "NSSTA-SAG-07", title: "Executive Leadership & Data Governance in Public Policy", iGOTCourse: "iGOT-GOV-DPDP-204", mode: "NSSTA-DoPT In-Service" },
-      { id: "NSSTA-MGT-08", title: "Evidence-Based Decision Making & Global Statistical Standards", iGOTCourse: "iGOT-MGT-LEAD-601", mode: "NSSTA High-Level Forum" }
+    courses: [
+      { id: "NSSTA-SAG-07", title: "Executive Leadership & Data Governance in Public Policy", iGOT: "iGOT-MGT-LEAD-601" }
     ]
   },
-  {
-    cadre: "Subordinate Statistical Service (SSS)",
-    rank: "Senior Statistical Officer (SSO)",
-    division: "Survey Design and Research Division (SDRD) / Household Survey Division (HSD)",
+  "SSS_SSO": {
+    cadreName: "Subordinate Statistical Service (SSS) - Senior Statistical Officer",
     domain: "Survey Methodology & Statistical Sampling",
-    mandatorySyllabus: [
-      "Multi-Stage Stratified Sampling & Probability Proportional to Size (PPS)",
-      "Periodic Labour Force Survey (PLFS) Schedule Design & Validation",
-      "Household Consumption Expenditure Survey (HCES) Data Scrutiny"
-    ],
     targetScore: 88,
-    recommendedPrograms: [
-      { id: "NSSTA-SSS-09", title: "Socio-Economic Survey Methodologies & PLFS Scrutiny", iGOTCourse: "iGOT-STAT-PLFS-301", mode: "NSSTA In-Service Training" },
-      { id: "NSSTA-TECH-10", title: "Statistical Data Cleaning & Tabulation with Python/R", iGOTCourse: "iGOT-TECH-PY-202", mode: "iGOT Lab" }
+    syllabus: [
+      "Multi-Stage Stratified Sampling & PPS Methodologies",
+      "Periodic Labour Force Survey (PLFS) & Household Consumption (HCES) Validation",
+      "Data Cleaning, Scrubbing & Tabulation with Python/R"
+    ],
+    courses: [
+      { id: "NSSTA-SSS-09", title: "Socio-Economic Survey Methodologies & PLFS Scrutiny", iGOT: "iGOT-STAT-PLFS-301" },
+      { id: "NSSTA-TECH-10", title: "Statistical Data Cleaning with Python", iGOT: "iGOT-TECH-PY-202" }
     ]
   },
-  {
-    cadre: "Subordinate Statistical Service (SSS)",
-    rank: "Junior Statistical Officer (JSO)",
-    division: "Field Operations Division (FOD) - Regional & Sub-Regional Offices",
+  "SSS_JSO": {
+    cadreName: "Subordinate Statistical Service (SSS) - Junior Statistical Officer",
     domain: "Field Data Collection, CAPI & GIS Mapping",
-    mandatorySyllabus: [
+    targetScore: 85,
+    syllabus: [
       "Computer-Assisted Personal Interviewing (CAPI) on Tablets",
       "Urban Frame Survey (UFS) Digital Block Mapping via Bhuvan GIS",
       "Annual Survey of Unincorporated Sector Enterprises (ASUSE) Field Protocols"
     ],
-    targetScore: 85,
-    recommendedPrograms: [
-      { id: "NSSTA-FOD-11", title: "CAPI Operations, Field Scrutiny & GIS Ground Truth Tagging", iGOTCourse: "iGOT-TECH-GIS-105", mode: "Regional Training Workshop" },
-      { id: "NSSTA-STAT-12", title: "Price Quotation Collection & Village Schedules", iGOTCourse: "iGOT-STAT-CPI-102", mode: "iGOT Self-Paced" }
+    courses: [
+      { id: "NSSTA-FOD-11", title: "CAPI Operations, Field Scrutiny & GIS Tagging", iGOT: "iGOT-TECH-GIS-105" },
+      { id: "NSSTA-STAT-12", title: "Price Quotation Collection Methodologies", iGOT: "iGOT-STAT-CPI-102" }
     ]
   },
-  {
-    cadre: "General Ministerial & Non-Technical Personnel",
-    rank: "Section Officer / Assistant Section Officer / Upper Division Clerk",
-    division: "Administration, Accounts & Coordination Divisions",
-    domain: "Digital Office Systems & Information Security",
-    mandatorySyllabus: [
-      "e-Office Mission Mode Project & Central Public Procurement Portal (CPPP)",
-      "Cyber Security Hygiene & Official Secrets Guidelines",
-      "Public Financial Management System (PFMS) & RTI Compliance"
+  "STATE_DES": {
+    cadreName: "State Statistical Cadre (Directorate of Economics & Statistics)",
+    domain: "State Domestic Product & Sub-National Surveys",
+    targetScore: 88,
+    syllabus: [
+      "Gross State Domestic Product (GSDP) & District Domestic Product (DDP)",
+      "State-Level SDG Indicator Framework & Localization",
+      "State Sample Survey Processing & Pool Estimates"
     ],
+    courses: [
+      { id: "NSSTA-DES-13", title: "Sub-National & State Income Estimation Methodologies", iGOT: "iGOT-STAT-GSDP-302" },
+      { id: "NSSTA-SDG-14", title: "SDG Local Indicator Framework & State Planning", iGOT: "iGOT-SDG-LOC-201" }
+    ]
+  },
+  "MIN_STAFF": {
+    cadreName: "Central Secretariat / Non-Technical Ministerial Staff",
+    domain: "Digital Office Systems & Administration",
     targetScore: 82,
-    recommendedPrograms: [
-      { id: "NSSTA-ADM-13", title: "e-Office Administration & Government Cyber Hygiene", iGOTCourse: "iGOT-CORE-MOSPI-101", mode: "iGOT Mandatory e-Learning" }
+    syllabus: [
+      "e-Office Mission Mode Administration & CPPP Procurement",
+      "Government Cyber Security Hygiene & NIC MeghRaj Standards",
+      "Public Financial Management System (PFMS) & RTI Guidelines"
+    ],
+    courses: [
+      { id: "NSSTA-ADM-15", title: "e-Office Administration & Government Cyber Hygiene", iGOT: "iGOT-CORE-MOSPI-101" }
     ]
   }
-];
-
-// Helper: Query syllabus and recommendations for any officer profile
-window.getOfficerCurriculum = function(cadre, division, rank) {
-  const match = window.MOSPI_CADRE_FULL_MATRIX.find(item => {
-    const cadreMatch = item.cadre.toLowerCase().includes((cadre || '').toLowerCase());
-    const divMatch = division ? item.division.toLowerCase().includes(division.toLowerCase()) : true;
-    const rankMatch = rank ? item.rank.toLowerCase().includes(rank.toLowerCase()) : true;
-    return cadreMatch && (divMatch || rankMatch);
-  });
-  return match || window.MOSPI_CADRE_FULL_MATRIX[0];
 };
+
+window.openCadreRegistrationModal = function() {
+  const m = document.getElementById("cadreRegisterModal");
+  if (m) m.style.display = "flex";
+};
+
+window.closeCadreRegistrationModal = function() {
+  const m = document.getElementById("cadreRegisterModal");
+  if (m) m.style.display = "none";
+};
+
+window.updateDivisionOptions = function() {
+  const min = document.getElementById("regMinistrySelect").value;
+  const divSelect = document.getElementById("regDivisionSelect");
+  if (!divSelect) return;
+  
+  if (min === "MoSPI") {
+    divSelect.innerHTML = `
+      <option value="NAD">National Accounts Division (NAD) - GDP & SUT</option>
+      <option value="FOD">Field Operations Division (FOD) - Survey Operations</option>
+      <option value="SDRD">Survey Design & Research Division (SDRD) - Sampling & Schedules</option>
+      <option value="ESD_PSD">Economic & Price Statistics (ESD/PSD) - CPI & IIP</option>
+      <option value="DIID">Data Informatics & Innovation Division (DIID) - IT & AI</option>
+    `;
+  } else if (min === "DES_State") {
+    divSelect.innerHTML = `
+      <option value="STATE_HQ">State DES Headquarters (State Income & GSDP)</option>
+      <option value="DIST_STAT">District Statistical Office (DSO)</option>
+    `;
+  } else {
+    divSelect.innerHTML = `
+      <option value="MIN_STAT_WING">Statistical Division / Economic Wing</option>
+      <option value="MIN_POLICY">Policy, Planning & Monitoring Cell</option>
+    `;
+  }
+};
+
+window.saveOfficerRegistration = function() {
+  const ministry = document.getElementById("regMinistrySelect").value;
+  const cadreKey = document.getElementById("regCadreSelect").value;
+  const division = document.getElementById("regDivisionSelect").value;
+  
+  localStorage.setItem("mospi_registered_ministry", ministry);
+  localStorage.setItem("mospi_registered_cadre", cadreKey);
+  localStorage.setItem("mospi_registered_division", division);
+  
+  window.applyCadreCurriculum(cadreKey, ministry, division);
+  window.closeCadreRegistrationModal();
+};
+
+window.applyCadreCurriculum = function(cadreKey, ministry, division) {
+  const data = window.MOSPI_CADRE_FULL_MATRIX[cadreKey] || window.MOSPI_CADRE_FULL_MATRIX["ISS_JTS"];
+  
+  const cadreDisp = document.getElementById("activeCadreDisplay");
+  const minDisp = document.getElementById("activeMinistryDisplay");
+  if (cadreDisp) cadreDisp.innerText = data.cadreName;
+  if (minDisp) minDisp.innerText = (ministry || "MoSPI") + " - " + (division || "NAD");
+};
+
+document.addEventListener("DOMContentLoaded", function() {
+  const savedCadre = localStorage.getItem("mospi_registered_cadre") || "ISS_JTS";
+  const savedMin = localStorage.getItem("mospi_registered_ministry") || "MoSPI";
+  const savedDiv = localStorage.getItem("mospi_registered_division") || "NAD";
+  window.applyCadreCurriculum(savedCadre, savedMin, savedDiv);
+});
 </script>
 <!-- END_NSSTA_DATASET_AND_ENGINE -->
 </body>
