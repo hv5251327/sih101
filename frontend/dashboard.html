@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Officer Learning Dashboard | MoSPI iGOT</title>
+  <title>MoSPI iGOT Karmayogi Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,22 +14,40 @@
       --primary: #15325b;
       --accent: #e58a2b;
       --bg: #f8fafc;
-      --border: #e2e8f0;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --card: #ffffff;
+      --border: #cbd5e1;
+      --text: #1e293b;
+      --muted: #64748b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 80px; }
-    .top-strip { background: #0d213a; color: #f1f5f9; padding: 6px 36px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    .top-strip { background: #0d213a; color: #f1f5f9; padding: 8px 24px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
     .header { background: white; border-bottom: 1px solid var(--border); padding: 14px 36px; display: flex; justify-content: space-between; align-items: center; }
     .header-brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 800; color: var(--primary); }
-    .btn-sync { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-    .container { max-width: 1320px; margin: 24px auto; padding: 0 20px; }
+    .container { max-width: 1320px; margin: 24px auto; padding: 0 20px; width: 100%; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
     @media (max-width: 900px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
     .card { background: white; border-radius: 12px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 24px; }
     .section-title { font-size: 17px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .auth-box { max-width: 440px; margin: 60px auto; background: white; border-radius: 16px; padding: 32px 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    .tabs { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; color: var(--muted); }
+    .tab.active { background: white; color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .group { margin-bottom: 16px; text-align: left; }
+    .label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .field { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; }
+    .field:focus { border-color: var(--primary); }
+    .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn:hover { background: #0e223f; }
+    .btn-sync { background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-logout { padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .lang-btn { padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; font-size: 11px; font-weight: 700; cursor: pointer; color: var(--primary); }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f8fafc; font-weight: 700; color: #475569; }
     .course-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #fafafa; }
     .btn-action { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: none; }
     .btn-take { background: var(--primary); color: white; }
@@ -46,72 +64,152 @@
   </style>
 </head>
 <body>
+
   <div class="top-strip">
     <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Capacity Building Commission</div>
-    <div>National Statistical Systems Training Academy (NSSTA)</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <span>Bhashini:</span>
+      <button class="lang-btn" onclick="setLang('en')">English</button>
+      <button class="lang-btn" onclick="setLang('hi')">हिन्दी</button>
+    </div>
   </div>
 
   <div class="header">
-    <div class="header-brand"><i class="fa-solid fa-graduation-cap" style="color: var(--accent);"></i> <span>MoSPI iGOT Officer Portal</span></div>
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <button class="btn-sync" onclick="syncWithIGOT()"><i class="fa-solid fa-arrows-rotate"></i> Sync with iGOT</button>
-      <span id="officerNameDisplay" style="font-size: 12px; font-weight: 700; color: #334155;">Officer</span>
-      <button onclick="logout()" style="padding: 6px 14px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 12px; font-weight: 600; cursor: pointer;">Log Out</button>
+    <div class="header-brand">
+      <i class="fa-solid fa-graduation-cap" style="color: var(--accent);"></i>
+      <span id="txtBrand">MoSPI iGOT Karmayogi Portal</span>
+    </div>
+    <div id="headerNav" style="display: none; align-items: center; gap: 12px;">
+      <button class="btn-sync" id="btnSyncNav" onclick="syncIGOT()"><i class="fa-solid fa-arrows-rotate"></i> Sync iGOT</button>
+      <span id="userDisplay" style="font-size: 12px; font-weight: 700; color: #334155;">Officer</span>
+      <button class="btn-logout" onclick="logout()">Log Out</button>
     </div>
   </div>
 
-  <div class="container">
-    <div class="grid-3">
-      <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Overall Competency Score</div>
-        <div id="statScore" style="font-size: 28px; font-weight: 800; color: var(--accent); margin-top: 6px;">75%</div>
+  <!-- 1. LOGIN VIEW -->
+  <div id="viewLogin" class="view-section active">
+    <div class="auth-box">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 36px; color: var(--accent);"></i>
+        <h2 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 8px;">Portal Authentication</h2>
       </div>
-      <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Verified Modules Done</div>
-        <div id="statModulesDone" style="font-size: 28px; font-weight: 800; color: #16a34a; margin-top: 6px;">0 / 5</div>
-      </div>
-      <div class="card">
-        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Assigned MoSPI Cadre</div>
-        <div id="statCadre" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 10px;">Indian Statistical Service (ISS)</div>
-      </div>
-    </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Course Completion Status</h3>
-        <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="progressDoughnut"></canvas></div>
+      <div class="tabs">
+        <div class="tab active" id="tabOfficer" onclick="selectRole('officer')">Officer / Field Login</div>
+        <div class="tab" id="tabAdmin" onclick="selectRole('admin')">Admin Console</div>
       </div>
-      <div class="card">
-        <h3 class="section-title"><i class="fa-solid fa-chart-radar" style="color: #0284c7;"></i> 4-Domain Competency Radar</h3>
-        <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="radarChart"></canvas></div>
-      </div>
-    </div>
 
-    <div class="card">
-      <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> Personalized Learning Pathways</h3>
-      <div id="recommendationsList"><p style="font-size: 12px; color: var(--text-muted);">Loading recommendations...</p></div>
-    </div>
-
-    <div class="card">
-      <h3 class="section-title"><i class="fa-solid fa-book-bookmark" style="color: #16a34a;"></i> Official MoSPI Training Modules</h3>
-      <div id="coursesCatalogList"></div>
+      <form onsubmit="handleAuth(event)">
+        <div class="group">
+          <label class="label">Official Email ID</label>
+          <input type="email" id="authEmail" class="field" value="harsha@gov.in" required>
+        </div>
+        <div class="group">
+          <label class="label">Security Password</label>
+          <input type="password" id="authPass" class="field" value="1234" required>
+        </div>
+        <button type="submit" id="btnAuth" class="btn">Sign In to Dashboard</button>
+      </form>
     </div>
   </div>
 
+  <!-- 2. OFFICER DASHBOARD VIEW -->
+  <div id="viewOfficer" class="view-section">
+    <div class="container">
+      <div class="grid-3">
+        <div class="card">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Overall Competency Score</div>
+          <div id="officerScore" style="font-size: 28px; font-weight: 800; color: var(--accent); margin-top: 6px;">75%</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Verified Modules Done</div>
+          <div id="officerDone" style="font-size: 28px; font-weight: 800; color: #16a34a; margin-top: 6px;">2 / 5</div>
+        </div>
+        <div class="card">
+          <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Assigned MoSPI Cadre</div>
+          <div id="officerCadre" style="font-size: 16px; font-weight: 800; color: var(--primary); margin-top: 10px;">Indian Statistical Service (ISS)</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Course Completion Status</h3>
+          <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="progressDoughnut"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 class="section-title"><i class="fa-solid fa-chart-radar" style="color: #0284c7;"></i> 4-Domain Competency Radar</h3>
+          <div style="height: 220px; display: flex; justify-content: center; align-items: center;"><canvas id="radarChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-compass" style="color: #0284c7;"></i> Personalized Learning Pathways (AI Recommended)</h3>
+        <div id="recsList"><p style="font-size: 12px; color: var(--text-muted);">Loading recommendations...</p></div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-book-bookmark" style="color: #16a34a;"></i> Official MoSPI Training Modules</h3>
+        <div id="coursesCatalog"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ADMIN DASHBOARD VIEW -->
+  <div id="viewAdmin" class="view-section">
+    <div class="container">
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent);"></i> Cadre Completion Ratio</h3>
+          <div style="height: 240px; display: flex; justify-content: center; align-items: center;"><canvas id="cadrePieChart"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 class="section-title"><i class="fa-solid fa-chart-line" style="color: #0284c7;"></i> Ministry Competency Distribution</h3>
+          <div style="height: 240px; display: flex; justify-content: center; align-items: center;"><canvas id="compDoughnutChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-layer-group" style="color: var(--accent);"></i> Divisional Competency Heatmap Matrix</h3>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr><th>MoSPI Division</th><th>Officers</th><th>Statistical</th><th>Analytics</th><th>Governance</th><th>Management</th><th>Critical Lag Domain</th></tr>
+            </thead>
+            <tbody id="heatmapBody"><tr><td colspan="7" style="text-align:center;">Loading matrix...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title"><i class="fa-solid fa-cloud-arrow-up" style="color: #0284c7;"></i> Upload NSSTA Training Material (AI Assessment Generator)</h3>
+        <form onsubmit="handleUpload(event)" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <select id="courseSelect" style="padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px;">
+            <option value="1">National Accounts & GDP Compilation (SNA 2008)</option>
+            <option value="2">Consumer Price Index (CPI) Analytics</option>
+            <option value="3">Periodic Labour Force Survey (PLFS)</option>
+          </select>
+          <input type="file" id="pdfFileInput" accept=".pdf" required style="font-size: 12px;">
+          <button type="submit" class="btn-sync">Parse & Generate Assessment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chatbot Assistant -->
   <div class="chatbot-fab" onclick="toggleChat()"><i class="fa-solid fa-robot"></i></div>
   <div class="chat-window" id="chatWindow">
     <div class="chat-header"><span><i class="fa-solid fa-robot"></i> MoSPI Assistant</span><span onclick="toggleChat()" style="cursor:pointer;"><i class="fa-solid fa-xmark"></i></span></div>
-    <div class="chat-messages" id="chatMsgs"><div class="msg-bot">Namaste Officer! How can I assist you with official statistics, iGOT training pathways, or general knowledge today?</div></div>
+    <div class="chat-messages" id="chatMsgs"><div class="msg-bot">Namaste Officer! How can I assist you with official statistics or iGOT pathways today?</div></div>
     <div class="chat-input-row">
-      <input type="text" id="chatInput" class="chat-input" placeholder="Type query..." onkeydown="if(event.key==='Enter') sendChat()">
+      <input type="text" id="chatInput" class="chat-input" placeholder="Type query (e.g., SNA 2008 GVA)..." onkeydown="if(event.key==='Enter') sendChat()">
       <button class="chat-send-btn" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
-    let doughnutChart = null;
-    let radarChartObj = null;
+    let chartProgress = null, chartRadar = null, chartCadre = null, chartComp = null;
+    let currentUser = null;
 
     const CATALOG = [
       { id: 1, title: "National Accounts & GDP Compilation (SNA 2008)", division: "NAD" },
@@ -121,133 +219,171 @@
       { id: 5, title: "Index of Industrial Production (IIP) Diagnostics", division: "ESD" }
     ];
 
-    function checkAuth() {
-      const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
-      if (!user) { window.location.href = "login.html"; return; }
-      document.getElementById("officerNameDisplay").textContent = `${user.name || "Officer"} (${user.email})`;
-      document.getElementById("statScore").textContent = user.competency_score || "75%";
-      document.getElementById("statCadre").textContent = user.cadre || "Indian Statistical Service (ISS)";
-      const completed = user.completed_modules || [];
-      document.getElementById("statModulesDone").textContent = `${completed.length} / 5`;
-      renderCatalog(completed);
-      loadSkillGapData(user.email, completed);
-    }
-
-    function renderCatalog(completed) {
-      const list = document.getElementById("coursesCatalogList");
-      list.innerHTML = "";
-      CATALOG.forEach(c => {
-        const isDone = completed.includes(c.id);
-        list.innerHTML += `
-          <div class="course-item">
-            <div><strong>${c.title}</strong><div style="font-size: 11px; color: #64748b; margin-top: 2px;">Division: ${c.division}</div></div>
-            <div>${isDone ? '<span class="btn-action btn-done"><i class="fa-solid fa-check"></i> Verified Completed</span>' : '<button class="btn-action btn-take" onclick="completeCourse(' + c.id + ')"><i class="fa-solid fa-play"></i> Complete Module</button>'}</div>
-          </div>`;
-      });
-    }
-
-    async function completeCourse(courseId) {
-      const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
-      if (!user.completed_modules.includes(courseId)) user.completed_modules.push(courseId);
-      user.competency_score = `${Math.min(100, 75 + user.completed_modules.length * 5)}%`;
-      localStorage.setItem("mospi_user", JSON.stringify(user));
-      checkAuth();
-      try {
-        await fetch(`${API_BASE}/api/officer/complete-module`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: user.email, course_id: courseId }) });
-      } catch (e) {}
-    }
-
-    async function syncWithIGOT() {
-      const user = JSON.parse(localStorage.getItem("mospi_user") || "null");
-      try {
-        const res = await fetch(`${API_BASE}/api/igot/sync`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: user.email }) });
-        const data = await res.json();
-        if (res.ok) {
-          user.completed_modules = data.completed_modules;
-          user.competency_score = data.competency_score;
-          localStorage.setItem("mospi_user", JSON.stringify(user));
-          alert(data.message);
-          checkAuth();
-        }
-      } catch (err) {
-        alert("Synced successfully with registry.");
+    function selectRole(role) {
+      if (role === 'admin') {
+        document.getElementById('tabAdmin').classList.add('active');
+        document.getElementById('tabOfficer').classList.remove('active');
+        document.getElementById('authEmail').value = '123@gov.ac.in';
+        document.getElementById('authPass').value = '1234';
+        document.getElementById('btnAuth').textContent = 'Access Administration Console';
+      } else {
+        document.getElementById('tabOfficer').classList.add('active');
+        document.getElementById('tabAdmin').classList.remove('active');
+        document.getElementById('authEmail').value = 'harsha@gov.in';
+        document.getElementById('authPass').value = '1234';
+        document.getElementById('btnAuth').textContent = 'Sign In to Dashboard';
       }
     }
 
-    async function loadSkillGapData(email, completed) {
-      try {
-        const res = await fetch(`${API_BASE}/api/officer/skill-gap?email=${encodeURIComponent(email)}`);
-        if (res.ok) {
-          const data = await res.json();
-          renderRadar(data.radar);
-          renderRecs(data.recommendations);
-        }
-      } catch (err) {}
-      renderDoughnut(completed.length);
+    async function handleAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPass').value.trim();
+
+      if (email === '123@gov.ac.in' && pass === '1234') {
+        currentUser = { name: "Chief Administrator", email: email, role: "admin", completed: [1, 2, 3] };
+        showView('admin');
+        return;
+      }
+
+      currentUser = {
+        name: email.split('@')[0],
+        email: email,
+        role: "employee",
+        cadre: "Indian Statistical Service (ISS)",
+        completed: [1, 2],
+        score: "85%"
+      };
+      showView('officer');
     }
 
-    function renderDoughnut(done) {
-      const ctx = document.getElementById("progressDoughnut").getContext("2d");
-      if (doughnutChart) doughnutChart.destroy();
-      doughnutChart = new Chart(ctx, {
-        type: "doughnut",
-        data: { labels: ["Completed", "Remaining"], datasets: [{ data: [done, Math.max(0, 5 - done)], backgroundColor: ["#16a34a", "#e2e8f0"] }] },
+    function showView(view) {
+      document.getElementById('viewLogin').classList.remove('active');
+      document.getElementById('viewOfficer').classList.remove('active');
+      document.getElementById('viewAdmin').classList.remove('active');
+      document.getElementById('headerNav').style.display = 'flex';
+      document.getElementById('userDisplay').textContent = `${currentUser.name} (${currentUser.email})`;
+
+      if (view === 'admin') {
+        document.getElementById('viewAdmin').classList.add('active');
+        document.getElementById('btnSyncNav').style.display = 'none';
+        initAdminCharts();
+        loadHeatmap();
+      } else {
+        document.getElementById('viewOfficer').classList.add('active');
+        document.getElementById('btnSyncNav').style.display = 'inline-flex';
+        renderOfficer();
+      }
+    }
+
+    function renderOfficer() {
+      document.getElementById('officerScore').textContent = currentUser.score || '85%';
+      document.getElementById('officerDone').textContent = `${currentUser.completed.length} / 5`;
+      document.getElementById('officerCadre').textContent = currentUser.cadre;
+
+      const list = document.getElementById('coursesCatalog');
+      list.innerHTML = "";
+      CATALOG.forEach(c => {
+        const isDone = currentUser.completed.includes(c.id);
+        list.innerHTML += `
+          <div class="course-item">
+            <div><strong>${c.title}</strong><div style="font-size:11px;color:#64748b;">Division: ${c.division}</div></div>
+            <div>${isDone ? '<span class="btn-action btn-done"><i class="fa-solid fa-check"></i> Verified Completed</span>' : '<button class="btn-action btn-take" onclick="completeCourse(' + c.id + ')"><i class="fa-solid fa-play"></i> Complete Module</button>'}</div>
+          </div>`;
+      });
+
+      const recs = document.getElementById('recsList');
+      recs.innerHTML = `
+        <div style="background:#f8fafc; border:1px solid var(--border); padding:12px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+          <div><span style="font-size:10px; background:#e0f2fe; color:#0369a1; padding:2px 6px; border-radius:4px; font-weight:700;">iGOT Karmayogi</span><strong style="display:block; font-size:13px; margin-top:4px;">Advanced Official Statistics for ISS Cadre</strong></div>
+          <a href="https://igotkarmayogi.gov.in" target="_blank" style="padding:6px 12px; background:#0284c7; color:white; text-decoration:none; border-radius:6px; font-size:11px; font-weight:700;">Open iGOT</a>
+        </div>`;
+
+      initOfficerCharts();
+    }
+
+    function completeCourse(id) {
+      if (!currentUser.completed.includes(id)) currentUser.completed.push(id);
+      currentUser.score = `${Math.min(100, 75 + currentUser.completed.length * 5)}%`;
+      renderOfficer();
+    }
+
+    function syncIGOT() {
+      alert("Synchronized latest completions with central iGOT registry.");
+      currentUser.completed = [1, 2, 3];
+      currentUser.score = "90%";
+      renderOfficer();
+    }
+
+    function initOfficerCharts() {
+      const ctxP = document.getElementById('progressDoughnut').getContext('2d');
+      if (chartProgress) chartProgress.destroy();
+      chartProgress = new Chart(ctxP, {
+        type: 'doughnut',
+        data: { labels: ['Completed', 'Remaining'], datasets: [{ data: [currentUser.completed.length, Math.max(0, 5 - currentUser.completed.length)], backgroundColor: ['#16a34a', '#e2e8f0'] }] },
         options: { responsive: true, maintainAspectRatio: false }
       });
-    }
 
-    function renderRadar(radar) {
-      const labels = Object.keys(radar).map(k => k.split("(")[0].trim());
-      const currentVals = Object.values(radar).map(v => v.current);
-      const targetVals = Object.values(radar).map(v => v.target);
-      const ctx = document.getElementById("radarChart").getContext("2d");
-      if (radarChartObj) radarChartObj.destroy();
-      radarChartObj = new Chart(ctx, {
-        type: "radar",
+      const ctxR = document.getElementById('radarChart').getContext('2d');
+      if (chartRadar) chartRadar.destroy();
+      chartRadar = new Chart(ctxR, {
+        type: 'radar',
         data: {
-          labels: labels,
+          labels: ['Statistical', 'Analytics', 'Governance', 'Management'],
           datasets: [
-            { label: "Current", data: currentVals, backgroundColor: "rgba(2, 132, 199, 0.2)", borderColor: "#0284c7" },
-            { label: "Target", data: targetVals, backgroundColor: "rgba(229, 138, 43, 0.1)", borderColor: "#e58a2b", borderDash: [5, 5] }
+            { label: 'Current Competency', data: [85, 75, 90, 80], backgroundColor: 'rgba(2,132,199,0.2)', borderColor: '#0284c7' },
+            { label: 'Target Benchmark', data: [95, 90, 95, 90], backgroundColor: 'rgba(229,138,43,0.1)', borderColor: '#e58a2b', borderDash: [5,5] }
           ]
         },
         options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 40, max: 100 } } }
       });
     }
 
-    function renderRecs(recs) {
-      const list = document.getElementById("recommendationsList");
-      list.innerHTML = "";
-      recs.forEach(r => {
-        list.innerHTML += `
-          <div style="background: #f8fafc; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-            <div><span style="font-size: 10px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${r.source}</span><strong style="display: block; font-size: 13px; margin-top: 4px;">${r.course}</strong><span style="font-size: 11px; color: #64748b;">Target Gap: ${r.target_gap} | Est: ${r.est_hours}</span></div>
-            <div><a href="${r.link}" target="_blank" style="padding: 6px 12px; background: #0284c7; color: white; text-decoration: none; border-radius: 6px; font-size: 11px; font-weight: 700;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open iGOT</a></div>
-          </div>`;
+    function initAdminCharts() {
+      const ctxC = document.getElementById('cadrePieChart').getContext('2d');
+      if (chartCadre) chartCadre.destroy();
+      chartCadre = new Chart(ctxC, {
+        type: 'pie',
+        data: { labels: ['Completed (>=3)', 'In-Progress (1-2)', 'Pending'], datasets: [{ data: [62, 28, 10], backgroundColor: ['#16a34a', '#e58a2b', '#ef4444'] }] },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const ctxD = document.getElementById('compDoughnutChart').getContext('2d');
+      if (chartComp) chartComp.destroy();
+      chartComp = new Chart(ctxD, {
+        type: 'doughnut',
+        data: { labels: ['Statistical', 'Analytics', 'Governance', 'Management'], datasets: [{ data: [35, 25, 20, 20], backgroundColor: ['#15325b', '#0284c7', '#8b5cf6', '#10b981'] }] },
+        options: { responsive: true, maintainAspectRatio: false }
       });
     }
 
-    function toggleChat() { const w = document.getElementById("chatWindow"); w.style.display = w.style.display === "flex" ? "none" : "flex"; }
-    async function sendChat() {
-      const inp = document.getElementById("chatInput");
-      const msg = inp.value.trim();
-      if (!msg) return;
-      const msgs = document.getElementById("chatMsgs");
-      msgs.innerHTML += `<div class="msg-user">${msg}</div>`;
-      inp.value = "";
-      msgs.scrollTop = msgs.scrollHeight;
-      try {
-        const res = await fetch(`${API_BASE}/api/chat/assistant`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg }) });
-        const data = await res.json();
-        msgs.innerHTML += `<div class="msg-bot">${data.reply || "Assistant responding..."}</div>`;
-      } catch (err) {
-        msgs.innerHTML += `<div class="msg-bot">Under SNA 2008 compilation, Gross Value Added (GVA) is Output minus Intermediate Consumption.</div>`;
-      }
-      msgs.scrollTop = msgs.scrollHeight;
+    function loadHeatmap() {
+      const tbody = document.getElementById('heatmapBody');
+      tbody.innerHTML = `
+        <tr><td><strong>National Accounts Division (NAD)</strong></td><td>14</td><td style="color:#16a34a;font-weight:700;">88.5%</td><td>72.0%</td><td>90.0%</td><td>84.0%</td><td><span style="color:#dc2626;font-weight:700;">Technical Analytics (Python/GIS)</span></td></tr>
+        <tr><td><strong>Field Operations Division (FOD)</strong></td><td>28</td><td>79.0%</td><td>65.5%</td><td>85.0%</td><td>76.0%</td><td><span style="color:#dc2626;font-weight:700;">Digital Survey (PLFS CAPI)</span></td></tr>
+        <tr><td><strong>Price Statistics Division (PSD)</strong></td><td>9</td><td style="color:#16a34a;font-weight:700;">92.0%</td><td>78.0%</td><td>88.0%</td><td>80.0%</td><td><span style="color:#dc2626;font-weight:700;">Digital Governance & DPDP</span></td></tr>`;
     }
 
-    function logout() { localStorage.removeItem("mospi_user"); window.location.href = "login.html"; }
-    window.onload = checkAuth;
+    function toggleChat() { const w = document.getElementById('chatWindow'); w.style.display = w.style.display === 'flex' ? 'none' : 'flex'; }
+    function sendChat() {
+      const inp = document.getElementById('chatInput');
+      if (!inp.value.trim()) return;
+      document.getElementById('chatMsgs').innerHTML += `<div class="msg-user">${inp.value}</div><div class="msg-bot">Under SNA 2008, Gross Value Added (GVA) at basic prices is Output minus Intermediate Consumption.</div>`;
+      inp.value = "";
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('headerNav').style.display = 'none';
+      document.getElementById('viewOfficer').classList.remove('active');
+      document.getElementById('viewAdmin').classList.remove('active');
+      document.getElementById('viewLogin').classList.add('active');
+    }
+
+    function setLang(lang) {
+      document.getElementById('txtBrand').textContent = lang === 'hi' ? 'सांख्यिकी मंत्रालय आईगॉट कर्मयोगी पोर्टल' : 'MoSPI iGOT Karmayogi Portal';
+    }
   </script>
 </body>
 </html>
