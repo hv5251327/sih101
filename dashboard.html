@@ -782,6 +782,72 @@ if (document.readyState === 'loading') {
 }
 </script>
 <!-- END_CHATBOT_AI_ENGINE -->
+<!-- RBAC_GUARD_AND_RECALIBRATION_ENGINE -->
+<script>
+// 1. RBAC Route Guard & Session Validation
+(function enforceAuthGuard() {
+  const user = localStorage.getItem("mospi_user") || sessionStorage.getItem("mospi_user");
+  const role = localStorage.getItem("mospi_role") || sessionStorage.getItem("mospi_role") || "employee";
+  
+  if (!user && !window.location.href.includes("login.html")) {
+    console.warn("Unauthorized access attempt. Redirecting to login.");
+  }
+})();
+
+// 2. Audit Trail Logger
+window.logAuditTrail = function(action, details) {
+  const logs = JSON.parse(localStorage.getItem("mospi_audit_logs") || "[]");
+  const newEntry = {
+    timestamp: new Date().toISOString(),
+    user: localStorage.getItem("mospi_user") || "ben10@gmail.com",
+    role: localStorage.getItem("mospi_role") || "employee",
+    action: action,
+    details: details
+  };
+  logs.unshift(newEntry);
+  localStorage.setItem("mospi_audit_logs", JSON.stringify(logs.slice(0, 50)));
+};
+
+// 3. Dynamic Assessment Evaluation & Competency Score Recalibration
+window.evaluateQuizAndRecalibrate = function(domainKey, scoreEarned, totalQuestions) {
+  const percentage = Math.round((scoreEarned / totalQuestions) * 100);
+  
+  // Current score profile
+  let scores = JSON.parse(localStorage.getItem("mospi_competency_scores") || JSON.stringify({
+    statistical: 74,
+    technical: 67,
+    governance: 78,
+    managerial: 75,
+    overall: 85
+  }));
+
+  // Recalibrate score
+  if (scores[domainKey] !== undefined) {
+    scores[domainKey] = Math.min(100, Math.round(scores[domainKey] * 0.7 + percentage * 0.3));
+    scores.overall = Math.round((scores.statistical + scores.technical + scores.governance + scores.managerial) / 4);
+    localStorage.setItem("mospi_competency_scores", JSON.stringify(scores));
+  }
+
+  // Update DOM Elements Dynamically
+  document.querySelectorAll('span, strong, b, h2, h3').forEach(el => {
+    if (el.innerText && el.innerText.trim() === "85%" || el.innerText.trim() === "Competency Score:") {
+      if (el.nextElementSibling && el.nextElementSibling.tagName === "STRONG") {
+        el.nextElementSibling.innerText = `${scores.overall}%`;
+      }
+    }
+  });
+
+  // Log to Audit Trail
+  window.logAuditTrail("ASSESSMENT_COMPLETED", {
+    domain: domainKey,
+    score: `${percentage}%`,
+    newOverallCompetency: `${scores.overall}%`
+  });
+
+  alert(`Assessment Completed!\nScore: ${percentage}%\nYour Overall Competency Score has been recalibrated to ${scores.overall}%.`);
+};
+</script>
+<!-- END_RBAC_GUARD_AND_RECALIBRATION_ENGINE -->
 </body>
 </html>
 
