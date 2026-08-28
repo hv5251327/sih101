@@ -252,99 +252,73 @@
       }
     }
   </script>
+
 <!-- NSSTA_FULL_REGISTRATION_ENGINE -->
 <script>
-// Official NSSTA Hierarchical Cadre, Ministry & Designation Directory
 window.NSSTA_DIRECTORY = {
-  "MoSPI - National Accounts Division (NAD)": {
-    cadres: ["Indian Statistical Service (ISS)", "General Central Service (GCS)"],
-    designations: ["Additional Director General (ADG)", "Deputy Director General (DDG)", "Director / Joint Director", "Deputy Director (STS)", "Assistant Director (JTS)"]
+  "National Accounts Division (NAD)": {
+    cadre: "Indian Statistical Service (ISS)",
+    designations: ["Deputy Director / Assistant Director (ISS)", "Joint Director / Director (ISS)", "Additional Director General (ADG)"]
   },
-  "MoSPI - Field Operations Division (FOD)": {
-    cadres: ["Subordinate Statistical Service (SSS)", "Indian Statistical Service (ISS)"],
-    designations: ["Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)", "Field Investigator (Contractual)", "Regional Director / DDG (ISS)"]
+  "Field Operations Division (FOD)": {
+    cadre: "Subordinate Statistical Service (SSS)",
+    designations: ["Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)", "Regional Director / DDG (ISS)"]
   },
-  "MoSPI - Survey Design & Research Division (SDRD)": {
-    cadres: ["Indian Statistical Service (ISS)", "Subordinate Statistical Service (SSS)"],
-    designations: ["Director (Sampling Methodology)", "Joint Director (SDRD)", "Senior Statistical Officer (SSO)"]
+  "Survey Design & Research Division (SDRD)": {
+    cadre: "Indian Statistical Service (ISS)",
+    designations: ["Director (SDRD / Sampling)", "Senior Statistical Officer (SSO)", "Joint Director (ISS)"]
   },
-  "MoSPI - Economic & Price Statistics (ESD/PSD)": {
-    cadres: ["Indian Statistical Service (ISS)", "Subordinate Statistical Service (SSS)"],
+  "Economic & Price Statistics Division (ESD/PSD)": {
+    cadre: "Indian Statistical Service (ISS)",
     designations: ["Director (CPI/IIP Indices)", "Deputy Director (Price Statistics)", "Senior Statistical Officer (SSO)"]
   },
-  "MoSPI - Data Informatics & Innovation Division (DIID)": {
-    cadres: ["Indian Statistical Service (ISS)", "Information Technology Cadre"],
+  "Data Informatics & Innovation Division (DIID)": {
+    cadre: "Indian Statistical Service (ISS)",
     designations: ["Director (Big Data & AI)", "Senior System Analyst", "Assistant Director (IT/Database)"]
   },
-  "Ministry of Agriculture & Farmers Welfare": {
-    cadres: ["Indian Statistical Service (ISS)", "Agriculture Statistical Cadre"],
+  "Ministry of Agriculture & Farmers Welfare (DES)": {
+    cadre: "Indian Statistical Service (ISS)",
     designations: ["Adviser (Agriculture Statistics)", "Deputy Director (Crops & Yields)", "Statistical Officer"]
   },
   "Ministry of Finance (Dept of Economic Affairs)": {
-    cadres: ["Indian Statistical Service (ISS)", "Indian Economic Service (IES)"],
+    cadre: "Indian Statistical Service (ISS)",
     designations: ["Senior Adviser", "Director (Macro-Fiscal Analysis)", "Deputy Director (Economic Statistics)"]
   },
-  "Ministry of Health & Family Welfare": {
-    cadres: ["Indian Statistical Service (ISS)", "Health Statistics Cadre"],
-    designations: ["Chief Director (Statistics)", "Director (HMIS/NFHS)", "Assistant Director"]
-  },
   "State Directorate of Economics & Statistics (DES)": {
-    cadres: ["State Statistical Cadre (DES)", "District Statistical Cadre"],
-    designations: ["Director of Economics & Statistics", "Joint Director (State Income/GSDP)", "District Statistical Officer (DSO)", "Research Officer (Statistical)"]
+    cadre: "State Statistical Cadre (DES)",
+    designations: ["Director of Economics & Statistics", "District Statistical Officer (DSO)", "Statistical Officer / Research Officer"]
   },
   "Central Secretariat / General Administration": {
-    cadres: ["Central Secretariat Service (CSS)", "General Ministerial Cadre"],
+    cadre: "Central Secretariat Service (CSS)",
     designations: ["Under Secretary", "Section Officer (SO)", "Assistant Section Officer (ASO)"]
   }
 };
 
-function initDynamicRegistrationFields() {
-  const deptSelect = document.querySelector("select[name*='dept'], select[id*='dept'], select:has(option[value*='National Accounts'])") || document.querySelectorAll("select")[0];
-  let desigSelect = document.querySelector("select[name*='desig'], select[id*='desig'], select:has(option[value*='Director'])") || document.querySelectorAll("select")[1];
-  let cadreInput = document.querySelector("input[name*='cadre'], input[id*='cadre'], input[placeholder*='Statistical Service'], input[value*='Statistical Service']");
+function setupNSSTARegistration() {
+  const selects = document.querySelectorAll("select");
+  const deptSelect = selects[0];
+  const desigSelect = selects[1];
+  const cadreInput = document.querySelector("input[placeholder*='Statistical Service'], input[value*='Statistical Service']") || document.querySelectorAll("input")[3];
+  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
 
   if (!deptSelect) return;
 
-  // 1. Populate all Department/Ministry options from NSSTA Directory
+  // 1. Populate all Official NSSTA Departments & Ministries
   deptSelect.innerHTML = "";
-  Object.keys(window.NSSTA_DIRECTORY).forEach(deptName => {
+  Object.keys(window.NSSTA_DIRECTORY).forEach(dept => {
     const opt = document.createElement("option");
-    opt.value = deptName;
-    opt.innerText = deptName;
+    opt.value = dept;
+    opt.innerText = dept;
     deptSelect.appendChild(opt);
   });
 
-  // 2. Convert Cadre Input into a Select Dropdown if it's currently a text input
-  if (cadreInput && cadreInput.tagName === "INPUT") {
-    const cadreSelect = document.createElement("select");
-    cadreSelect.id = cadreInput.id || "cadreSelect";
-    cadreSelect.className = cadreInput.className;
-    cadreSelect.style.cssText = cadreInput.style.cssText;
-    cadreSelect.style.width = "100%";
-    cadreSelect.style.padding = "10px";
-    cadreSelect.style.border = "1px solid #cbd5e1";
-    cadreSelect.style.borderRadius = "6px";
-    cadreInput.parentNode.replaceChild(cadreSelect, cadreInput);
-    cadreInput = cadreSelect;
-  }
-
-  // 3. Dynamic Cascade Handler
-  function updateCadreAndDesignations() {
+  // 2. Cascade update Designations and Cadre
+  function syncFields() {
     const selectedDept = deptSelect.value;
-    const data = window.NSSTA_DIRECTORY[selectedDept] || window.NSSTA_DIRECTORY["MoSPI - National Accounts Division (NAD)"];
+    const data = window.NSSTA_DIRECTORY[selectedDept] || window.NSSTA_DIRECTORY["National Accounts Division (NAD)"];
 
-    // Update Cadre Dropdown
-    if (cadreInput) {
-      cadreInput.innerHTML = "";
-      data.cadres.forEach(cadre => {
-        const opt = document.createElement("option");
-        opt.value = cadre;
-        opt.innerText = cadre;
-        cadreInput.appendChild(opt);
-      });
-    }
+    if (cadreInput) cadreInput.value = data.cadre;
 
-    // Update Designation Dropdown
     if (desigSelect) {
       desigSelect.innerHTML = "";
       data.designations.forEach(desig => {
@@ -356,43 +330,38 @@ function initDynamicRegistrationFields() {
     }
   }
 
-  deptSelect.onchange = updateCadreAndDesignations;
-  updateCadreAndDesignations();
+  deptSelect.addEventListener("change", syncFields);
+  syncFields();
 
-  // 4. Form Submit Handler: Store selected profile into localStorage
-  const regForm = document.querySelector("form") || document.querySelector("button[type='submit']").closest("div");
-  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button:last-of-type");
+  // 3. Save profile to storage and navigate
+  if (regBtn) {
+    regBtn.onclick = function(e) {
+      if (e) e.preventDefault();
+      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
+      const emailInp = document.querySelector("input[type='email']");
 
-  function handleRegistration(e) {
-    if (e) e.preventDefault();
-    const nameInput = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
-    const emailInput = document.querySelector("input[type='email']");
-    
-    const selectedDept = deptSelect ? deptSelect.value : "MoSPI - National Accounts Division (NAD)";
-    const selectedCadre = cadreInput ? cadreInput.value : "Indian Statistical Service (ISS)";
-    const selectedDesig = desigSelect ? desigSelect.value : "Deputy Director (STS)";
-    const officerName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "Harsha Vardhan";
-    const officerEmail = (emailInput && emailInput.value.trim()) ? emailInput.value.trim() : "officer@gov.in";
+      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
+      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
+      const dept = deptSelect.value;
+      const desig = desigSelect ? desigSelect.value : "";
+      const cadre = cadreInput ? cadreInput.value : "Indian Statistical Service (ISS)";
 
-    // Save profile for dashboard.html synchronization
-    localStorage.setItem("mospi_user", officerEmail);
-    localStorage.setItem("mospi_user_name", officerName);
-    localStorage.setItem("mospi_registered_ministry", selectedDept);
-    localStorage.setItem("mospi_registered_cadre", selectedCadre);
-    localStorage.setItem("mospi_registered_designation", selectedDesig);
-    localStorage.setItem("mospi_role", "employee");
+      localStorage.setItem("mospi_user", email);
+      localStorage.setItem("mospi_user_name", name);
+      localStorage.setItem("mospi_registered_ministry", dept);
+      localStorage.setItem("mospi_registered_cadre", cadre);
+      localStorage.setItem("mospi_registered_designation", desig);
 
-    alert(`Registration Successful for ${officerName}!\nCadre: ${selectedCadre}\nDepartment: ${selectedDept}`);
-    window.location.href = "dashboard.html";
+      alert(`Registration Successful for ${name}!\nCadre: ${cadre}\nDepartment: ${dept}`);
+      window.location.href = "dashboard.html";
+    };
   }
-
-  if (regBtn) regBtn.onclick = handleRegistration;
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initDynamicRegistrationFields);
+  document.addEventListener("DOMContentLoaded", setupNSSTARegistration);
 } else {
-  initDynamicRegistrationFields();
+  setupNSSTARegistration();
 }
 </script>
 <!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
