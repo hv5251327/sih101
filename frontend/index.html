@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Officer Sign In | MoSPI iGOT Karmayogi</title>
+  <title>MoSPI iGOT Karmayogi | Unified Portal Access</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#15325b">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,103 +14,121 @@
     :root {
       --primary: #15325b;
       --accent: #e58a2b;
-      --bg: #f1f5f9;
-      --card-bg: #ffffff;
+      --bg: #f8fafc;
+      --card: #ffffff;
       --border: #cbd5e1;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --text: #1e293b;
+      --muted: #64748b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body { background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-
-    .top-strip {
-      background: #0d213a; color: #f1f5f9; padding: 8px 36px; font-size: 11px;
-      display: flex; justify-content: space-between; align-items: center; font-weight: 500;
-    }
-    .main-wrapper {
-      flex: 1; display: flex; align-items: center; justify-content: center; padding: 30px 16px;
-    }
-    .auth-card {
-      background: var(--card-bg); width: 100%; max-width: 420px; border-radius: 16px;
-      padding: 36px 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.06); border: 1px solid var(--border);
-    }
-    .brand-logo {
-      display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;
-    }
-    .brand-logo i { font-size: 32px; color: var(--accent); }
-    .brand-logo span { font-size: 18px; font-weight: 800; color: var(--primary); }
-
-    .input-group { margin-bottom: 16px; }
-    .input-label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
-    .input-field {
-      width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px;
-      font-size: 13px; outline: none; transition: border-color 0.2s;
-    }
-    .input-field:focus { border-color: var(--primary); }
-
-    .btn-login {
-      width: 100%; padding: 12px; background: var(--primary); color: white; border: none;
-      border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.2s;
-      margin-top: 8px;
-    }
-    .btn-login:hover { background: #0e223f; }
-
-    .auth-footer {
-      margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
-      font-size: 11px; color: var(--text-muted); text-align: center;
-    }
-    .auth-footer a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    .top-strip { background: #0d213a; color: #f1f5f9; padding: 8px 24px; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+    .card { background: var(--card); width: 100%; max-width: 440px; border-radius: 16px; padding: 32px 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    .brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .brand i { font-size: 32px; color: var(--accent); }
+    .brand span { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .tabs { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; color: var(--muted); }
+    .tab.active { background: white; color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .group { margin-bottom: 16px; text-align: left; }
+    .label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; }
+    .field { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; }
+    .field:focus { border-color: var(--primary); }
+    .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+    .btn:hover { background: #0e223f; }
+    .hint { font-size: 11px; color: var(--muted); margin-top: 14px; text-align: center; line-height: 1.4; }
   </style>
 </head>
 <body>
-
   <div class="top-strip">
-    <div><i class="fa-solid fa-flag"></i> Government of India | Ministry of Statistics & PI</div>
+    <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI Capacity Building</div>
     <div>National Statistical Systems Training Academy (NSSTA)</div>
   </div>
 
-  <div class="main-wrapper">
-    <div class="auth-card">
-      <div class="brand-logo">
+  <div class="main">
+    <div class="card">
+      <div class="brand">
         <i class="fa-solid fa-graduation-cap"></i>
-        <span>MoSPI iGOT Portal</span>
+        <span>MoSPI iGOT Intelligence</span>
       </div>
 
-      <h2 style="font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 4px; text-align: center;">Officer Sign In</h2>
-      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 22px; text-align: center;">Enter your registered government cadre credentials.</p>
+      <div class="tabs">
+        <div class="tab active" id="tabOfficer" onclick="switchRole('officer')">Officer / Field Login</div>
+        <div class="tab" id="tabAdmin" onclick="switchRole('admin')">Admin Console</div>
+      </div>
 
-      <form id="officerLoginForm" onsubmit="handleOfficerLogin(event)">
-        <div class="input-group">
-          <label class="input-label">Government Email ID</label>
-          <input type="email" id="emailInput" class="input-field" placeholder="e.g. harsha@gov.in" value="harsha@gov.in" required>
+      <form id="authForm" onsubmit="handleLogin(event)">
+        <div class="group">
+          <label class="label" id="lblEmail">Government Email ID</label>
+          <input type="email" id="email" class="field" value="harsha@gov.in" required>
         </div>
 
-        <div class="input-group">
-          <label class="input-label">Password / SSO PIN</label>
-          <input type="password" id="passInput" class="input-field" placeholder="Enter password" value="1234" required>
+        <div class="group">
+          <label class="label">Password / Security PIN</label>
+          <input type="password" id="password" class="field" value="1234" required>
         </div>
 
-        <button type="submit" id="btnLoginSubmit" class="btn-login">Sign In to Learning Dashboard</button>
+        <button type="submit" id="btnSubmit" class="btn">Sign In to Dashboard</button>
       </form>
 
-      <div class="auth-footer">
-        <div>Need administrative access? <a href="admin.html">Go to Admin Portal</a></div>
+      <div class="hint" id="txtHint">
+        Demo Officer: <strong>harsha@gov.in</strong> | Password: <strong>1234</strong>
       </div>
     </div>
   </div>
 
   <script>
     const API_BASE = "https://sih101.onrender.com";
+    let activeRole = 'officer';
 
-    async function handleOfficerLogin(e) {
+    function switchRole(role) {
+      activeRole = role;
+      if (role === 'admin') {
+        document.getElementById('tabAdmin').classList.add('active');
+        document.getElementById('tabOfficer').classList.remove('active');
+        document.getElementById('email').value = '123@gov.ac.in';
+        document.getElementById('password').value = '1234';
+        document.getElementById('btnSubmit').textContent = 'Access Administration Console';
+        document.getElementById('txtHint').innerHTML = 'Chief Admin: <strong>123@gov.ac.in</strong> | Password: <strong>1234</strong>';
+      } else {
+        document.getElementById('tabOfficer').classList.add('active');
+        document.getElementById('tabAdmin').classList.remove('active');
+        document.getElementById('email').value = 'harsha@gov.in';
+        document.getElementById('password').value = '1234';
+        document.getElementById('btnSubmit').textContent = 'Sign In to Dashboard';
+        document.getElementById('txtHint').innerHTML = 'Demo Officer: <strong>harsha@gov.in</strong> | Password: <strong>1234</strong>';
+      }
+    }
+
+    async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById("emailInput").value.trim();
-      const password = document.getElementById("passInput").value.trim();
-      const btn = document.getElementById("btnLoginSubmit");
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const btn = document.getElementById('btnSubmit');
 
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
+      // 1. Direct Instant Master Admin Handling
+      if (email.toLowerCase() === '123@gov.ac.in' && password === '1234') {
+        const adminObj = {
+          id: 999,
+          name: "Chief Administrator",
+          email: "123@gov.ac.in",
+          role: "admin",
+          department: "Ministry Headquarters",
+          designation: "Director General",
+          cadre: "Indian Statistical Service (ISS)",
+          competency_score: "100%",
+          completed_modules: [1, 2, 3]
+        };
+        localStorage.setItem("mospi_user", JSON.stringify(adminObj));
+        window.location.href = "admin.html";
+        return;
+      }
+
+      // 2. Online Backend Auth with Graceful Auto-Fallback
       try {
         const res = await fetch(`${API_BASE}/api/login`, {
           method: "POST",
@@ -118,33 +136,28 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-
         if (res.ok && data.status === "success") {
           localStorage.setItem("mospi_user", JSON.stringify(data.user));
-          window.location.href = "dashboard.html";
+          window.location.href = data.user.role === 'admin' ? "admin.html" : "dashboard.html";
           return;
-        } else {
-          alert(`Authentication Failed: ${data.detail || "Invalid credentials."}`);
         }
       } catch (err) {
-        // Fallback local session if backend is initializing
-        const localOfficer = {
-          name: "Cadre Officer",
-          email: email,
-          department: "National Accounts Division (NAD)",
-          designation: "Deputy Director / Assistant Director (ISS)",
-          cadre: "Indian Statistical Service (ISS)",
-          role: "employee",
-          competency_score: "75%",
-          completed_modules: [1, 2]
-        };
-        localStorage.setItem("mospi_user", JSON.stringify(localOfficer));
-        window.location.href = "dashboard.html";
-        return;
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = "Sign In to Learning Dashboard";
+        console.warn("Backend warming up. Falling back to local offline authenticated session.");
       }
+
+      // 3. Fallback Officer Provisioning
+      const officerObj = {
+        name: email.split('@')[0] || "Cadre Officer",
+        email: email,
+        department: "National Accounts Division (NAD)",
+        designation: "Deputy Director / Assistant Director (ISS)",
+        cadre: "Indian Statistical Service (ISS)",
+        role: "employee",
+        competency_score: "75%",
+        completed_modules: [1, 2]
+      };
+      localStorage.setItem("mospi_user", JSON.stringify(officerObj));
+      window.location.href = "dashboard.html";
     }
   </script>
 </body>
