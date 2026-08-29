@@ -28,14 +28,14 @@
 <div class="login-card">
   <div class="header">
     <i class="fa-solid fa-shield-halved" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 8px;"></i>
-    <h2>MoSPI Officer Login</h2>
-    <p>Sign in to access your 4-Pillar Competency Dashboard</p>
+    <h2>MoSPI Competency Portal Login</h2>
+    <p>Sign in with Officer or Admin credentials</p>
   </div>
 
   <form id="login-form">
     <div class="form-group">
       <label for="login_email">Government Email ID</label>
-      <input type="email" id="login_email" class="form-control" placeholder="e.g. officer@gov.in" required>
+      <input type="email" id="login_email" class="form-control" placeholder="e.g. officer@gov.in or admin@mospi.gov.in" required>
     </div>
 
     <div class="form-group">
@@ -43,7 +43,7 @@
       <input type="password" id="login_password" class="form-control" placeholder="••••••••" required>
     </div>
 
-    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard</button>
+    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
   </form>
 
   <div class="footer-links">
@@ -55,17 +55,28 @@
 document.getElementById("login-form").onsubmit = function(e) {
   e.preventDefault();
   const email = document.getElementById("login_email").value.trim().toLowerCase();
+  const password = document.getElementById("login_password").value.trim();
+
+  // 1. Direct Admin Access
+  if (email === "admin@mospi.gov.in" && password === "admin123") {
+    localStorage.setItem("mospi_user", "admin@mospi.gov.in");
+    localStorage.setItem("mospi_user_role", "admin");
+    window.location.href = "admin.html";
+    return false;
+  }
+
+  // 2. Officer Access
   localStorage.setItem("mospi_user", email);
+  localStorage.setItem("mospi_user_role", "officer");
   if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
   if (!localStorage.getItem("mospi_registered_designation")) localStorage.setItem("mospi_registered_designation", "Junior Statistical Officer (JSO)");
   if (!localStorage.getItem("mospi_registered_cadre")) localStorage.setItem("mospi_registered_cadre", "Subordinate Statistical Service (SSS)");
 
-  // Attempt backend login sync non-blockingly
   try {
     fetch("http://127.0.0.1:5000/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, password: document.getElementById("login_password").value })
+      body: JSON.stringify({ email: email, password: password })
     }).then(res => res.json()).then(data => {
       if (data.status === "success" && data.user) {
         localStorage.setItem("mospi_user_name", data.user.name);

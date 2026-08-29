@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoSPI & NSSTA Cadre Admin Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -30,10 +29,6 @@
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
     .stat-card h4 { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
     .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 6px; }
-    
-    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media(max-width: 900px){ .charts-grid { grid-template-columns: 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     
     /* Document Ingestion & AI Quiz Generator */
     .quiz-builder-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
@@ -92,18 +87,18 @@
     </div>
   </div>
 
-  <!-- MoSPI Document Ingestion & AI Quiz Generator (Topic & Question Count only) -->
+  <!-- MoSPI Document Ingestion & AI Quiz Generator with Dynamic DB Topics -->
   <div class="quiz-builder-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> MoSPI Document Ingestion & AI Quiz Generator</h3>
       <span class="badge" style="background: #fef3c7; color: #92400e;">Automated Assessment Engine</span>
     </div>
-    <p style="font-size: 0.85rem; color: var(--muted);">Upload official NSSTA manual, survey instructions, or guidelines PDF to automatically generate competency evaluation MCQs.</p>
+    <p style="font-size: 0.85rem; color: var(--muted);">Upload official NSSTA manual or guidelines PDF to automatically generate assessment MCQs linked directly under a video course topic.</p>
 
     <div class="form-row">
       <div class="form-group">
-        <label for="quiz-topic-input">Topic</label>
-        <input type="text" class="form-control" id="quiz-topic-input" placeholder="e.g. National Accounts Compilation, PLFS Validation, CAPI Operations" required>
+        <label for="quiz-topic-select">Select Video Course Topic (from Database)</label>
+        <select class="form-control" id="quiz-topic-select" required></select>
       </div>
 
       <div class="form-group">
@@ -128,22 +123,6 @@
     <div id="quiz-preview" style="display: none; margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
       <h4 style="color: #166534; font-size: 0.95rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Assessment Module Generated Successfully</h4>
       <p id="quiz-preview-meta" style="font-size: 0.85rem; color: #15803d; margin-top: 4px;">Assessment questions indexed into `topic_quizzes` table and mapped to officer dashboard.</p>
-    </div>
-  </div>
-
-  <!-- Analytics Charts Grid -->
-  <div class="charts-grid">
-    <div class="card">
-      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-pie" style="color: var(--primary-light);"></i> 4-Pillar Fulfillment Distribution</h3>
-      <div style="height: 240px; display: flex; align-items: center; justify-content: center;">
-        <canvas id="pillarPieChart"></canvas>
-      </div>
-    </div>
-    <div class="card">
-      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-bar" style="color: var(--primary-light);"></i> Cadre-Wise Target Compliance</h3>
-      <div style="height: 240px; display: flex; align-items: center; justify-content: center;">
-        <canvas id="cadreBarChart"></canvas>
-      </div>
     </div>
   </div>
 
@@ -174,6 +153,91 @@
 </div>
 
 <script>
+const DB_TOPICS = [
+  "System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)",
+  "System of Environmental-Economic Accounting (SEEA)",
+  "Executive Overview of Data Analytics & AI in Governance",
+  "Big Data Ecosystems for Official Statistics & Decision Support",
+  "Digital Personal Data Protection (DPDP) Act 2023 & Apex Compliance",
+  "National Data Governance and Access Policy (NDGAP)",
+  "Apex Public Leadership & Strategic Policy Formulation",
+  "Inter-Ministerial Stakeholder Negotiation & Consensus Building",
+  "Multivariate Analysis & Advanced Econometric Modelling",
+  "SDG Indicator Frameworks & Global Monitoring Guidelines",
+  "Data Science with R and Python for Official Imputation",
+  "GIS-Based Spatial Data Analysis in Official Sampling",
+  "Cyber Security Practices for Senior Government Officials",
+  "Data Quality Assurance & Metadata Standards (SDMX)",
+  "Conflict Resolution & Team Coaching for Division Heads",
+  "Public Procurement (GeM & GFR 2017 Rules)",
+  "Index Numbers Compilation: CPI, IIP & WPI Frameworks",
+  "Time Series Forecasting & Seasonal Adjustments (X-13ARIMA-SEATS)",
+  "Advanced SQL & Relational Database Management for Survey Tabulation",
+  "Python for Statistical Automation & Web Scraping",
+  "Data Ethics & Information Security Fundamentals",
+  "E-Office 7.0 Process Automation",
+  "Time Management & Project Supervision",
+  "Effective Technical Report Writing and Briefing Notes",
+  "Official Statistical System in India: Mandate, Structure & History",
+  "Sampling Theory, Survey Sampling & Estimation Procedures",
+  "Statistical Computing with R (Basics to Intermediate)",
+  "Excel for Statistical Analysis & Visualization",
+  "Code of Conduct & Civil Services Conduct Rules",
+  "Foundational Information Security Awareness",
+  "Foundations of Professional Communication",
+  "Ethical Governance & Public Value",
+  "Periodic Labour Force Survey (PLFS) Schedule Scrutiny & Validation",
+  "Annual Survey of Unincorporated Sector Enterprises (ASUSE) Verification",
+  "CAPI (Computer-Assisted Personal Interviewing) Portal Validation Protocols",
+  "Advanced Data Cleaning & Outlier Treatment using R/Python",
+  "Field Respondent Confidentiality & Data Protection Guidelines",
+  "Office Procedure & Drafting for Gazetted Officers",
+  "Field Inspection, Quality Audits & Enumerator Mentorship",
+  "Workplace Problem-Solving & Stress Management",
+  "Primary Survey Schedules: Concepts, Definitions & Operational Guidelines",
+  "Consumer Price Index (CPI) Rural/Urban Market Price Collection",
+  "CAPI Handheld Tablet Operation & Real-Time Sync",
+  "Bhuvan App Integration for Urban Frame Survey (UFS) Mapping",
+  "Ethics in Primary Data Collection & Information Security",
+  "Basics of Government Record Management",
+  "Public Interviewing & Effective Communication Techniques",
+  "Team Building & Field Coordination Skills",
+  "Field Enumeration Procedures & Schedule Canvassing Guidelines",
+  "Data Entry Validation & Consistency Rules",
+  "Digital Mobile Applications for Official Sample Surveys",
+  "Basic Computer Operations & MS Excel Basics",
+  "Safe Data Handling & Device Security in Field Operations",
+  "Interpersonal Skills & Handling Difficult Respondents",
+  "Work Ethics & Professional Integrity",
+  "Gross State Domestic Product (GSDP) & District Domestic Product (DDP) Compilation",
+  "State Sustainable Development Goals (SDG) Vision Frameworks",
+  "State Statistical Open Data Portals Architecture",
+  "Spatial Decision Support Systems (SDSS) for State Planning",
+  "Inter-Departmental Data Sharing & State Data Protocols",
+  "Digital Governance Implementation for State Administration",
+  "Inter-Ministerial Strategic Coordination & District Review Management",
+  "Executive Administrative Decision Making",
+  "Local Level Planning & District Statistical Handbooks Formulation",
+  "Crop Estimation Surveys (EARAS / GCES) & Agricultural Statistics",
+  "District Open Data Systems & Dashboard Management",
+  "GIS Tools for Village & Block Level Spatial Tagging",
+  "Civil Registration System (CRS) & Vital Statistics Record Maintenance",
+  "District Administration Liaison & Collectorate Coordination",
+  "Supervision of Field Investigators & Resource Allocation",
+  "Price Collection for State Wholesale & Retail Indices",
+  "Municipal & Industrial Statistics Scrutiny",
+  "State Web Portals: Data Entry & Real-Time Scrutiny Modules",
+  "Intermediate Excel & Tabulation Techniques",
+  "Information Security Basics for State Employees",
+  "Effective Coordination with District Line Departments",
+  "Field Supervision & Verification Best Practices",
+  "Basic Field Data Collection Principles & Schedule Navigation",
+  "Agricultural Crop Cutting Experiments (CCE) Measurement Rules",
+  "Mobile App Navigation & GPS Point Capture for Field Surveys",
+  "Civic Responsibility & Respondent Privacy Protocols",
+  "Citizen Communication & Field Courtesy"
+];
+
 const ALL_17_ROLES_FALLBACK = [
   { designation_name: "Director General (DG / Apex Level) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 95, current_statistical: 0, gap_statistical: 95, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 98, current_governance: 0, gap_governance: 98, target_behavioural: 95, current_behavioural: 0, gap_behavioural: 95 },
   { designation_name: "Additional Director General (ADG / HAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 94, current_statistical: 0, gap_statistical: 94, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 95, current_governance: 0, gap_governance: 95, target_behavioural: 92, current_behavioural: 0, gap_behavioural: 92 },
@@ -209,14 +273,24 @@ function generateAiQuiz() {
     alert("Please select a MoSPI / NSSTA PDF document to generate questions.");
     return;
   }
-  const topic = document.getElementById("quiz-topic-input").value.trim() || "Official Statistics Core";
+  const topic = document.getElementById("quiz-topic-select").value;
   const count = document.getElementById("quiz-count-select").value;
 
   document.getElementById("quiz-preview").style.display = "block";
-  document.getElementById("quiz-preview-meta").innerText = `Extracted topics from "${selectedPdfFile.name}". Generated ${count} assessment MCQs for topic: "${topic}".`;
+  document.getElementById("quiz-preview-meta").innerText = `Extracted topics from "${selectedPdfFile.name}". Generated ${count} assessment MCQs linked under course topic: "${topic}".`;
 }
 
 async function initAdmin() {
+  // Populate video topics dropdown
+  const topicSelect = document.getElementById("quiz-topic-select");
+  topicSelect.innerHTML = "";
+  DB_TOPICS.forEach(topic => {
+    const opt = document.createElement("option");
+    opt.value = topic;
+    opt.textContent = topic;
+    topicSelect.appendChild(opt);
+  });
+
   let heatmapData = ALL_17_ROLES_FALLBACK;
 
   try {
@@ -237,7 +311,6 @@ async function initAdmin() {
   } catch(e) {}
 
   renderHeatmapTable(heatmapData);
-  renderCharts(heatmapData);
 }
 
 function renderHeatmapTable(data) {
@@ -283,49 +356,6 @@ function renderHeatmapTable(data) {
     `;
     tbody.appendChild(tr);
   });
-}
-
-function renderCharts(data) {
-  const pieCtx = document.getElementById("pillarPieChart");
-  if (pieCtx) {
-    new Chart(pieCtx, {
-      type: "pie",
-      data: {
-        labels: ["Statistical", "Technical", "Governance", "Behavioural"],
-        datasets: [{
-          data: [25, 25, 25, 25],
-          backgroundColor: ["#2563eb", "#059669", "#d97706", "#7c3aed"],
-          borderWidth: 2,
-          borderColor: "#ffffff"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } }
-      }
-    });
-  }
-
-  const barCtx = document.getElementById("cadreBarChart");
-  if (barCtx) {
-    new Chart(barCtx, {
-      type: "bar",
-      data: {
-        labels: ["ISS Cadre", "SSS Cadre", "State DES"],
-        datasets: [
-          { label: "Target Benchmark", data: [91, 82, 84], backgroundColor: "#94a3b8" },
-          { label: "Current Average", data: [0, 0, 0], backgroundColor: "#2563eb" }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true, max: 100 } },
-        plugins: { legend: { position: "bottom" } }
-      }
-    });
-  }
 }
 
 document.addEventListener("DOMContentLoaded", initAdmin);
