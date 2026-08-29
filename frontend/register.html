@@ -191,7 +191,13 @@
         </div>
         <div class="form-group">
           <label>Cadre</label>
-          <input type="text" id="regCadre" value="Indian Statistical Service (ISS)" readonly>
+          <select id="regCadreSelect" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; color: #1e293b;">
+  <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
+  <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
+  <option value="State Directorate of Economics & Statistics (DES)">State Directorate of Economics & Statistics (DES)</option>
+  <option value="Central Secretariat & Administrative Cadre">Central Secretariat & Administrative Cadre</option>
+  <option value="IT & Technical / Data Science Staff">IT & Technical / Data Science Staff</option>
+</select>
         </div>
         <button type="submit" id="submitBtn" class="btn-submit">Register Officer Account</button>
       </form>
@@ -255,10 +261,11 @@
 
 
 
+
 <!-- NSSTA_FULL_REGISTRATION_ENGINE -->
 <script>
-window.MOSPI_ORGANIZATION_DATA = {
-  divisions: [
+(function() {
+  const divisions = [
     "Central Statistics - Economics Statistics Division (ESD)",
     "Central Statistics - Social Statistics Division (SSD)",
     "Central Statistics - National Accounts Division (NAD)",
@@ -278,15 +285,9 @@ window.MOSPI_ORGANIZATION_DATA = {
     "Administration - Budget & Finance Division",
     "Administration - Vigilance Division",
     "Administration - Infrastructure & Project Monitoring Division (IPMD)"
-  ],
-  cadres: [
-    "Indian Statistical Service (ISS)",
-    "Subordinate Statistical Service (SSS)",
-    "State Directorate of Economics & Statistics (DES) Cadre",
-    "Central Secretariat & Administrative Cadre",
-    "IT & Technical / Data Science Staff"
-  ],
-  designationsByCadre: {
+  ];
+
+  const designationsByCadre = {
     "Indian Statistical Service (ISS)": [
       "Director General (DG)",
       "Additional Director General (ADG)",
@@ -299,7 +300,7 @@ window.MOSPI_ORGANIZATION_DATA = {
       "Senior Statistical Officer (SSO)",
       "Junior Statistical Officer (JSO)"
     ],
-    "State Directorate of Economics & Statistics (DES) Cadre": [
+    "State Directorate of Economics & Statistics (DES)": [
       "District Statistical Officer (DSO)",
       "Statistical Inspector",
       "Field Investigator / Enumerator"
@@ -316,100 +317,78 @@ window.MOSPI_ORGANIZATION_DATA = {
       "Data Entry Operator (DEO)",
       "IT / Data Science Consultant"
     ]
-  }
-};
+  };
 
-function setupDynamicCadreRegistration() {
-  const selects = document.querySelectorAll("select");
-  const deptSelect = selects[0];
-  let desigSelect = selects[1];
-  let cadreInput = document.querySelector("input[placeholder*='Statistical Service'], input[value*='Statistical Service']") || document.querySelectorAll("input")[3];
-  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
+  function initForm() {
+    const selects = document.querySelectorAll("select");
+    if (selects.length === 0) return;
 
-  if (!deptSelect) return;
+    const deptSelect = selects[0];
+    const desigSelect = selects[1];
+    const cadreSelect = document.getElementById("regCadreSelect") || selects[2];
 
-  // 1. Populate all 19 Divisions
-  deptSelect.innerHTML = "";
-  window.MOSPI_ORGANIZATION_DATA.divisions.forEach(div => {
-    const opt = document.createElement("option");
-    opt.value = div;
-    opt.innerText = div;
-    deptSelect.appendChild(opt);
-  });
-
-  // 2. Convert Cadre Input into a Select dropdown with all 5 core Cadres
-  if (cadreInput && cadreInput.tagName === "INPUT") {
-    const cadreSelect = document.createElement("select");
-    cadreSelect.id = cadreInput.id || "cadreSelect";
-    cadreSelect.className = cadreInput.className;
-    cadreSelect.style.cssText = cadreInput.style.cssText;
-    cadreSelect.style.width = "100%";
-    cadreSelect.style.padding = "10px";
-    cadreSelect.style.border = "1px solid #cbd5e1";
-    cadreSelect.style.borderRadius = "6px";
-    cadreInput.parentNode.replaceChild(cadreSelect, cadreInput);
-    cadreInput = cadreSelect;
-  }
-
-  if (cadreInput) {
-    cadreInput.innerHTML = "";
-    window.MOSPI_ORGANIZATION_DATA.cadres.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c;
-      opt.innerText = c;
-      cadreInput.appendChild(opt);
-    });
-  }
-
-  // 3. Update Designation dropdown based on selected Cadre
-  function updateDesignations() {
-    const selectedCadre = cadreInput ? cadreInput.value : "Indian Statistical Service (ISS)";
-    const list = window.MOSPI_ORGANIZATION_DATA.designationsByCadre[selectedCadre] || [];
-    
-    if (desigSelect) {
-      desigSelect.innerHTML = "";
-      list.forEach(desig => {
+    // Populate Department / Division dropdown
+    if (deptSelect) {
+      deptSelect.innerHTML = "";
+      divisions.forEach(d => {
         const opt = document.createElement("option");
-        opt.value = desig;
-        opt.innerText = desig;
-        desigSelect.appendChild(opt);
+        opt.value = d;
+        opt.innerText = d;
+        deptSelect.appendChild(opt);
       });
+    }
+
+    // Refresh Designation based on Cadre selection
+    function refreshDesignations() {
+      const cadre = cadreSelect ? cadreSelect.value : "Indian Statistical Service (ISS)";
+      const desigs = designationsByCadre[cadre] || designationsByCadre["Indian Statistical Service (ISS)"];
+      if (desigSelect) {
+        desigSelect.innerHTML = "";
+        desigs.forEach(role => {
+          const opt = document.createElement("option");
+          opt.value = role;
+          opt.innerText = role;
+          desigSelect.appendChild(opt);
+        });
+      }
+    }
+
+    if (cadreSelect) {
+      cadreSelect.addEventListener("change", refreshDesignations);
+    }
+    refreshDesignations();
+
+    // Submission handler
+    const submitBtn = document.querySelector("button.btn-primary, button[type='submit'], button");
+    if (submitBtn) {
+      submitBtn.onclick = function(e) {
+        if (e) e.preventDefault();
+        const nameInp = document.querySelector("input[type='text'], input[placeholder*='Name']");
+        const emailInp = document.querySelector("input[type='email']");
+
+        const name = nameInp ? nameInp.value : "Harsha Vardhan";
+        const email = emailInp ? emailInp.value : "officer@gov.in";
+        const dept = deptSelect ? deptSelect.value : divisions[0];
+        const cadre = cadreSelect ? cadreSelect.value : "Indian Statistical Service (ISS)";
+        const desig = desigSelect ? desigSelect.value : "";
+
+        localStorage.setItem("mospi_user", email);
+        localStorage.setItem("mospi_user_name", name);
+        localStorage.setItem("mospi_registered_ministry", dept);
+        localStorage.setItem("mospi_registered_cadre", cadre);
+        localStorage.setItem("mospi_registered_designation", desig);
+
+        window.location.href = "dashboard.html";
+      };
     }
   }
 
-  if (cadreInput) cadreInput.addEventListener("change", updateDesignations);
-  updateDesignations();
-
-  // 4. Save to localStorage and redirect
-  if (regBtn) {
-    regBtn.onclick = function(e) {
-      if (e) e.preventDefault();
-      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
-      const emailInp = document.querySelector("input[type='email']");
-
-      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
-      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
-      const dept = deptSelect.value;
-      const cadre = cadreInput ? cadreInput.value : "Indian Statistical Service (ISS)";
-      const desig = desigSelect ? desigSelect.value : "";
-
-      localStorage.setItem("mospi_user", email);
-      localStorage.setItem("mospi_user_name", name);
-      localStorage.setItem("mospi_registered_ministry", dept);
-      localStorage.setItem("mospi_registered_cadre", cadre);
-      localStorage.setItem("mospi_registered_designation", desig);
-
-      alert(`Registration Successful for ${name}!\nCadre: ${cadre}\nDesignation: ${desig}\nDivision: ${dept}`);
-      window.location.href = "dashboard.html";
-    };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initForm);
+  } else {
+    initForm();
   }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupDynamicCadreRegistration);
-} else {
-  setupDynamicCadreRegistration();
-}
+})();
 </script>
 <!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
 </body>
