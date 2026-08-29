@@ -1,58 +1,262 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoSPI & NSSTA Cadre Admin Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #2563eb;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; }
+    .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .header h2 { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+    .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+    .stat-card h4 { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+    .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 6px; }
+    
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width: 900px){ .charts-grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    
+    .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; padding: 20px; }
+    .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { background: #f8fafc; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 12px; border-bottom: 2px solid var(--border); }
+    td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+    .cadre-tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+    .cadre-iss { background: #e0e7ff; color: #3730a3; }
+    .cadre-sss { background: #e0f2fe; color: #0369a1; }
+    .cadre-des { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Top Admin Header -->
+  <div class="header">
+    <div>
+      <h2><i class="fa-solid fa-chart-line"></i> MoSPI / NSSTA Apex Cadre Command Center</h2>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">4-Pillar Competency Baseline, Target Deficit & Heatmap Diagnostics</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <a href="dashboard.html" style="background: #f1f5f9; color: var(--primary); text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--border);"><i class="fa-solid fa-user"></i> Officer View</a>
+      <a href="login.html" style="background: #fee2e2; color: #b91c1c; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fca5a5;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </div>
+
+  <!-- KPI Top Metrics -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h4>Enrolled Officers</h4>
+      <div class="value" id="stat-officers">0</div>
+    </div>
+    <div class="stat-card">
+      <h4>Designations Tracked</h4>
+      <div class="value" id="stat-roles">17</div>
+    </div>
+    <div class="stat-card">
+      <h4>Avg Statistical Score</h4>
+      <div class="value" id="stat-avg-statistical" style="color: #2563eb;">0%</div>
+    </div>
+    <div class="stat-card">
+      <h4>Avg Technical Score</h4>
+      <div class="value" id="stat-avg-technical" style="color: #059669;">0%</div>
+    </div>
+  </div>
+
+  <!-- Enhanced Analytics Charts Grid -->
+  <div class="charts-grid">
+    <div class="card">
+      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-pie" style="color: var(--primary-light);"></i> 4-Pillar Fulfillment Distribution</h3>
+      <div style="height: 240px; display: flex; align-items: center; justify-content: center;">
+        <canvas id="pillarPieChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-bar" style="color: var(--primary-light);"></i> Cadre-Wise Target Compliance</h3>
+      <div style="height: 240px; display: flex; align-items: center; justify-content: center;">
+        <canvas id="cadreBarChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full 17 Designations Competency Gap Heatmap Table -->
+  <div class="table-container">
+    <div class="table-header-row">
+      <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fa-solid fa-table-cells" style="color: var(--primary-light);"></i> All 17 Official Designations Competency Gap Heatmap</h3>
+      <span class="badge">Real-Time NSSTA Benchmark Sync</span>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table id="heatmap-table">
+        <thead>
+          <tr>
+            <th>Designation Title</th>
+            <th>Cadre Group</th>
+            <th style="text-align: center;">Officers</th>
+            <th style="text-align: center;">Statistical (Cur/Tgt)</th>
+            <th style="text-align: center;">Technical (Cur/Tgt)</th>
+            <th style="text-align: center;">Governance (Cur/Tgt)</th>
+            <th style="text-align: center;">Behavioural (Cur/Tgt)</th>
+          </tr>
+        </thead>
+        <tbody id="heatmap-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <script>
-async function loadAdminHeatmap() {
-  const tableBody = document.querySelector("#heatmap-table tbody, table tbody");
-  if (!tableBody) return;
+const ALL_17_ROLES_FALLBACK = [
+  { designation_name: "Director General (DG / Apex Level) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 95, current_statistical: 0, gap_statistical: 95, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 98, current_governance: 0, gap_governance: 98, target_behavioural: 95, current_behavioural: 0, gap_behavioural: 95 },
+  { designation_name: "Additional Director General (ADG / HAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 94, current_statistical: 0, gap_statistical: 94, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 95, current_governance: 0, gap_governance: 95, target_behavioural: 92, current_behavioural: 0, gap_behavioural: 92 },
+  { designation_name: "Deputy Director General (DDG / SAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, gap_statistical: 92, target_technical: 88, current_technical: 0, gap_technical: 88, target_governance: 92, current_governance: 0, gap_governance: 92, target_behavioural: 90, current_behavioural: 0, gap_behavioural: 90 },
+  { designation_name: "Director / Joint Director (JAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, gap_statistical: 92, target_technical: 90, current_technical: 0, gap_technical: 90, target_governance: 88, current_governance: 0, gap_governance: 88, target_behavioural: 85, current_behavioural: 0, gap_behavioural: 85 },
+  { designation_name: "Deputy Director (STS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, gap_statistical: 90, target_technical: 92, current_technical: 0, gap_technical: 92, target_governance: 85, current_governance: 0, gap_governance: 85, target_behavioural: 82, current_behavioural: 0, gap_behavioural: 82 },
+  { designation_name: "Assistant Director (JTS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, gap_statistical: 90, target_technical: 90, current_technical: 0, gap_technical: 90, target_governance: 85, current_governance: 0, gap_governance: 85, target_behavioural: 80, current_behavioural: 0, gap_behavioural: 80 },
+  { designation_name: "Probationer / Officer Trainee (ISS - NSSTA)", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, gap_statistical: 88, target_technical: 88, current_technical: 0, gap_technical: 88, target_governance: 82, current_governance: 0, gap_governance: 82, target_behavioural: 80, current_behavioural: 0, gap_behavioural: 80 },
+  { designation_name: "Senior Statistical Officer (SSO / Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, gap_statistical: 88, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 82, current_governance: 0, gap_governance: 82, target_behavioural: 80, current_behavioural: 0, gap_behavioural: 80 },
+  { designation_name: "Senior Statistical Officer (SSO / Non-Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 85, current_statistical: 0, gap_statistical: 85, target_technical: 82, current_technical: 0, gap_technical: 82, target_governance: 80, current_governance: 0, gap_governance: 80, target_behavioural: 78, current_behavioural: 0, gap_behavioural: 78 },
+  { designation_name: "Junior Statistical Officer (JSO)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 82, current_statistical: 0, gap_statistical: 82, target_technical: 82, current_technical: 0, gap_technical: 82, target_governance: 78, current_governance: 0, gap_governance: 78, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 },
+  { designation_name: "Statistical Assistant / Senior Field Investigator", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 80, current_statistical: 0, gap_statistical: 80, target_technical: 78, current_technical: 0, gap_technical: 78, target_governance: 75, current_governance: 0, gap_governance: 75, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 },
+  { designation_name: "Director of Economics & Statistics (State Head)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 92, current_statistical: 0, gap_statistical: 92, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 95, current_governance: 0, gap_governance: 95, target_behavioural: 92, current_behavioural: 0, gap_behavioural: 92 },
+  { designation_name: "Joint / Deputy Director (State DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 90, current_statistical: 0, gap_statistical: 90, target_technical: 85, current_technical: 0, gap_technical: 85, target_governance: 88, current_governance: 0, gap_governance: 88, target_behavioural: 85, current_behavioural: 0, gap_behavioural: 85 },
+  { designation_name: "District Statistical Officer (DSO)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 85, current_statistical: 0, gap_statistical: 85, target_technical: 82, current_technical: 0, gap_technical: 82, target_governance: 82, current_governance: 0, gap_governance: 82, target_behavioural: 82, current_behavioural: 0, gap_behavioural: 82 },
+  { designation_name: "Assistant Statistical Officer / Statistical Officer (State)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 82, current_statistical: 0, gap_statistical: 82, target_technical: 80, current_technical: 0, gap_technical: 80, target_governance: 78, current_governance: 0, gap_governance: 78, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 },
+  { designation_name: "Statistical Inspector / Research Assistant (DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 80, current_statistical: 0, gap_statistical: 80, target_technical: 78, current_technical: 0, gap_technical: 78, target_governance: 75, current_governance: 0, gap_governance: 75, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 },
+  { designation_name: "Primary Field Investigator / Enumerator", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 78, current_statistical: 0, gap_statistical: 78, target_technical: 75, current_technical: 0, gap_technical: 75, target_governance: 72, current_governance: 0, gap_governance: 72, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 }
+];
+
+async function initAdmin() {
+  let heatmapData = ALL_17_ROLES_FALLBACK;
+
+  try {
+    const summaryRes = await fetch("http://127.0.0.1:5000/api/admin/summary");
+    const summaryData = await summaryRes.json();
+    document.getElementById("stat-officers").innerText = summaryData.total_officers || 0;
+    document.getElementById("stat-roles").innerText = summaryData.total_designations || 17;
+    document.getElementById("stat-avg-statistical").innerText = (summaryData.avg_statistical || 0) + "%";
+    document.getElementById("stat-avg-technical").innerText = (summaryData.avg_technical || 0) + "%";
+  } catch(e) {}
 
   try {
     const res = await fetch("http://127.0.0.1:5000/api/admin/heatmap");
     const data = await res.json();
     if (data.heatmap_data && data.heatmap_data.length > 0) {
-      tableBody.innerHTML = "";
-      data.heatmap_data.forEach(row => {
-        const tr = document.createElement("tr");
-        
-        function getGapColor(gap) {
-          if (gap <= 0) return "#dcfce7; color: #15803d;";
-          if (gap <= 20) return "#fef9c3; color: #854d0e;";
-          if (gap <= 40) return "#ffedd5; color: #9a3412;";
-          return "#fee2e2; color: #991b1b;";
-        }
-
-        const curStat = row.current_statistical || 0;
-        const curTech = row.current_technical || 0;
-        const curGov = row.current_governance || 0;
-        const curBeh = row.current_behavioural || 0;
-
-        tr.innerHTML = `
-          <td style="font-weight: 600; font-size: 0.85rem; padding: 10px;">${row.designation_name}</td>
-          <td style="font-size: 0.75rem; color: #64748b; padding: 10px;">${row.cadre_name}</td>
-          <td style="text-align: center; font-weight: 700; padding: 10px;">${row.enrolled_count || 0}</td>
-          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_statistical)}; font-weight: 700;">
-            ${curStat}% / ${row.target_statistical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_statistical}%</span>
-          </td>
-          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_technical)}; font-weight: 700;">
-            ${curTech}% / ${row.target_technical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_technical}%</span>
-          </td>
-          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_governance)}; font-weight: 700;">
-            ${curGov}% / ${row.target_governance}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_governance}%</span>
-          </td>
-          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_behavioural)}; font-weight: 700;">
-            ${curBeh}% / ${row.target_behavioural}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_behavioural}%</span>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
+      heatmapData = data.heatmap_data;
     }
-  } catch(err) {
-    console.warn("Could not fetch admin heatmap from API:", err);
+  } catch(e) {}
+
+  renderHeatmapTable(heatmapData);
+  renderCharts(heatmapData);
+}
+
+function renderHeatmapTable(data) {
+  const tbody = document.getElementById("heatmap-body");
+  tbody.innerHTML = "";
+
+  function getGapBg(gap) {
+    if (gap <= 0) return "#dcfce7; color: #15803d;";
+    if (gap <= 20) return "#fef9c3; color: #854d0e;";
+    if (gap <= 40) return "#ffedd5; color: #9a3412;";
+    return "#fee2e2; color: #991b1b;";
+  }
+
+  function getCadreBadge(cadre) {
+    if (cadre.includes("ISS")) return '<span class="cadre-tag cadre-iss">ISS</span>';
+    if (cadre.includes("SSS")) return '<span class="cadre-tag cadre-sss">SSS</span>';
+    return '<span class="cadre-tag cadre-des">DES</span>';
+  }
+
+  data.forEach(row => {
+    const curStat = row.current_statistical || 0;
+    const curTech = row.current_technical || 0;
+    const curGov = row.current_governance || 0;
+    const curBeh = row.current_behavioural || 0;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: #1e293b;">${row.designation_name}</td>
+      <td>${getCadreBadge(row.cadre_name)}</td>
+      <td style="text-align: center; font-weight: 800;">${row.enrolled_count || 0}</td>
+      <td style="text-align: center; padding: 8px; background: ${getGapBg(row.gap_statistical)}; font-weight: 700; border-radius: 4px;">
+        ${curStat}% / ${row.target_statistical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_statistical}%</span>
+      </td>
+      <td style="text-align: center; padding: 8px; background: ${getGapBg(row.gap_technical)}; font-weight: 700; border-radius: 4px;">
+        ${curTech}% / ${row.target_technical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_technical}%</span>
+      </td>
+      <td style="text-align: center; padding: 8px; background: ${getGapBg(row.gap_governance)}; font-weight: 700; border-radius: 4px;">
+        ${curGov}% / ${row.target_governance}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_governance}%</span>
+      </td>
+      <td style="text-align: center; padding: 8px; background: ${getGapBg(row.gap_behavioural)}; font-weight: 700; border-radius: 4px;">
+        ${curBeh}% / ${row.target_behavioural}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_behavioural}%</span>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderCharts(data) {
+  const pieCtx = document.getElementById("pillarPieChart");
+  if (pieCtx) {
+    new Chart(pieCtx, {
+      type: "pie",
+      data: {
+        labels: ["Statistical", "Technical", "Governance", "Behavioural"],
+        datasets: [{
+          data: [25, 25, 25, 25],
+          backgroundColor: ["#2563eb", "#059669", "#d97706", "#7c3aed"],
+          borderWidth: 2,
+          borderColor: "#ffffff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  }
+
+  const barCtx = document.getElementById("cadreBarChart");
+  if (barCtx) {
+    new Chart(barCtx, {
+      type: "bar",
+      data: {
+        labels: ["ISS Cadre", "SSS Cadre", "State DES"],
+        datasets: [
+          { label: "Target Benchmark", data: [91, 82, 84], backgroundColor: "#94a3b8" },
+          { label: "Current Average", data: [0, 0, 0], backgroundColor: "#2563eb" }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, max: 100 } },
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadAdminHeatmap);
+document.addEventListener("DOMContentLoaded", initAdmin);
 </script>
 </body>
 </html>
