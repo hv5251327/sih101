@@ -6,7 +6,7 @@
   <title>MoSPI & NSSTA Cadre Admin Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; --purple: #7c3aed; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; }
     .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
@@ -35,31 +35,63 @@
     .cadre-iss { background: #e0e7ff; color: #3730a3; }
     .cadre-sss { background: #e0f2fe; color: #0369a1; }
     .cadre-des { background: #fef3c7; color: #92400e; }
+
+    /* Built-in Admin Auth Overlay */
+    #admin-auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .auth-card { background: #fff; border-radius: 12px; width: 100%; max-width: 420px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .auth-header { text-align: center; margin-bottom: 20px; }
+    .auth-header h3 { color: var(--purple); font-size: 1.4rem; font-weight: 800; margin-top: 8px; }
   </style>
 </head>
 <body>
-<div class="container">
+
+<!-- Integrated Admin Auth Modal -->
+<div id="admin-auth-overlay">
+  <div class="auth-card">
+    <div class="auth-header">
+      <i class="fa-solid fa-user-shield" style="font-size: 2.5rem; color: var(--purple);"></i>
+      <h3>Admin Authentication</h3>
+      <p style="font-size: 0.85rem; color: var(--muted);">MoSPI Command Center Access</p>
+    </div>
+    <form id="admin-login-modal-form">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Admin Email ID</label>
+        <input type="email" id="modal_admin_email" class="form-control" value="admin@gmail.com" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label>Password</label>
+        <input type="password" id="modal_admin_password" class="form-control" placeholder="••••" required>
+      </div>
+      <button type="submit" class="btn-gen" style="width: 100%; background: var(--purple); margin-bottom: 12px;"><i class="fa-solid fa-lock-open"></i> Unlock Admin Portal</button>
+      <div style="text-align: center;">
+        <a href="index.html" style="font-size: 0.85rem; color: var(--muted); text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Return to Homepage</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="container" id="admin-main-content" style="filter: blur(4px); pointer-events: none;">
   <div class="header">
     <div>
       <h2><i class="fa-solid fa-chart-line"></i> MoSPI / NSSTA Apex Cadre Command Center</h2>
-      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">4-Pillar Competency Baseline & Heatmap Diagnostics</p>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">Real-Time 4-Pillar Competency Baseline & Heatmap Diagnostics</p>
     </div>
     <div style="display: flex; gap: 12px;">
-      <a href="login.html" style="background: #fee2e2; color: #b91c1c; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fca5a5;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <button onclick="logoutAdmin()" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </div>
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card"><h4>Enrolled Officers</h4><div class="value" id="stat-officers">0</div></div>
+    <div class="stat-card"><h4>Total Enrolled Officers</h4><div class="value" id="stat-officers">0</div></div>
     <div class="stat-card"><h4>Designations Tracked</h4><div class="value" id="stat-roles">17</div></div>
-    <div class="stat-card"><h4>Avg Statistical Score</h4><div class="value" style="color: #2563eb;">0%</div></div>
-    <div class="stat-card"><h4>Avg Technical Score</h4><div class="value" style="color: #059669;">0%</div></div>
+    <div class="stat-card"><h4>Avg Statistical Fulfillment</h4><div class="value" id="stat-avg-statistical" style="color: #2563eb;">0%</div></div>
+    <div class="stat-card"><h4>Avg Technical Fulfillment</h4><div class="value" id="stat-avg-technical" style="color: #059669;">0%</div></div>
   </div>
 
   <div class="quiz-builder-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> MoSPI Document Ingestion & AI Quiz Generator</h3>
-      <span class="badge" style="background: #fef3c7; color: #92400e;">Automated Assessment Engine</span>
+      <span class="badge" style="background: #fef3c7; color: #92400e;">Automated Engine</span>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -94,11 +126,11 @@
           <tr>
             <th>Designation Title</th>
             <th>Cadre</th>
-            <th style="text-align: center;">Officers</th>
-            <th style="text-align: center;">Statistical</th>
-            <th style="text-align: center;">Technical</th>
-            <th style="text-align: center;">Governance</th>
-            <th style="text-align: center;">Behavioural</th>
+            <th style="text-align: center;">Enrolled Officers</th>
+            <th style="text-align: center;">Statistical (Cur / Tgt)</th>
+            <th style="text-align: center;">Technical (Cur / Tgt)</th>
+            <th style="text-align: center;">Governance (Cur / Tgt)</th>
+            <th style="text-align: center;">Behavioural (Cur / Tgt)</th>
           </tr>
         </thead>
         <tbody id="heatmap-body"></tbody>
@@ -106,6 +138,7 @@
     </div>
   </div>
 </div>
+
 <script>
 const DB_TOPICS = [
   "System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)",
@@ -144,25 +177,52 @@ const DB_TOPICS = [
   "District Administration Liaison & Collectorate Coordination"
 ];
 
-const ROLES_FALLBACK = [
-  { designation_name: "Director General (DG / Apex Level) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 95, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 98, current_governance: 0, target_behavioural: 95, current_behavioural: 0 },
-  { designation_name: "Additional Director General (ADG / HAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 94, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 95, current_governance: 0, target_behavioural: 92, current_behavioural: 0 },
-  { designation_name: "Deputy Director General (DDG / SAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 88, current_technical: 0, target_governance: 92, current_governance: 0, target_behavioural: 90, current_behavioural: 0 },
-  { designation_name: "Director / Joint Director (JAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 90, current_technical: 0, target_governance: 88, current_governance: 0, target_behavioural: 85, current_behavioural: 0 },
-  { designation_name: "Deputy Director (STS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 92, current_technical: 0, target_governance: 85, current_governance: 0, target_behavioural: 82, current_behavioural: 0 },
-  { designation_name: "Assistant Director (JTS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 90, current_technical: 0, target_governance: 85, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
-  { designation_name: "Probationer / Officer Trainee (ISS - NSSTA)", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, target_technical: 88, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
-  { designation_name: "Senior Statistical Officer (SSO / Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
-  { designation_name: "Senior Statistical Officer (SSO / Non-Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 85, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 80, current_governance: 0, target_behavioural: 78, current_behavioural: 0 },
-  { designation_name: "Junior Statistical Officer (JSO)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 82, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 78, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
-  { designation_name: "Statistical Assistant / Senior Field Investigator", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 80, current_statistical: 0, target_technical: 78, current_technical: 0, target_governance: 75, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
-  { designation_name: "Director of Economics & Statistics (State Head)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 95, current_governance: 0, target_behavioural: 92, current_behavioural: 0 },
-  { designation_name: "Joint / Deputy Director (State DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 88, current_governance: 0, target_behavioural: 85, current_behavioural: 0 },
-  { designation_name: "District Statistical Officer (DSO)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 85, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 82, current_behavioural: 0 },
-  { designation_name: "Assistant Statistical Officer / Statistical Officer (State)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 82, current_statistical: 0, target_technical: 80, current_technical: 0, target_governance: 78, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
-  { designation_name: "Statistical Inspector / Research Assistant (DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 80, current_statistical: 0, target_technical: 78, current_technical: 0, target_governance: 75, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
-  { designation_name: "Primary Field Investigator / Enumerator", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 78, current_statistical: 0, target_technical: 75, current_technical: 0, target_governance: 72, current_governance: 0, target_behavioural: 75, current_behavioural: 0 }
+const MASTER_DESIGNATIONS = [
+  { designation_name: "Director General (DG / Apex Level) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 95, target_technical: 85, target_governance: 98, target_behavioural: 95 },
+  { designation_name: "Additional Director General (ADG / HAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 94, target_technical: 85, target_governance: 95, target_behavioural: 92 },
+  { designation_name: "Deputy Director General (DDG / SAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 92, target_technical: 88, target_governance: 92, target_behavioural: 90 },
+  { designation_name: "Director / Joint Director (JAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 92, target_technical: 90, target_governance: 88, target_behavioural: 85 },
+  { designation_name: "Deputy Director (STS) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 90, target_technical: 92, target_governance: 85, target_behavioural: 82 },
+  { designation_name: "Assistant Director (JTS) - ISS", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 90, target_technical: 90, target_governance: 85, target_behavioural: 80 },
+  { designation_name: "Probationer / Officer Trainee (ISS - NSSTA)", cadre_name: "Indian Statistical Service (ISS)", target_statistical: 88, target_technical: 88, target_governance: 82, target_behavioural: 80 },
+  { designation_name: "Senior Statistical Officer (SSO / Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", target_statistical: 88, target_technical: 85, target_governance: 82, target_behavioural: 80 },
+  { designation_name: "Senior Statistical Officer (SSO / Non-Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", target_statistical: 85, target_technical: 82, target_governance: 80, target_behavioural: 78 },
+  { designation_name: "Junior Statistical Officer (JSO)", cadre_name: "Subordinate Statistical Service (SSS)", target_statistical: 82, target_technical: 82, target_governance: 78, target_behavioural: 75 },
+  { designation_name: "Statistical Assistant / Senior Field Investigator", cadre_name: "Subordinate Statistical Service (SSS)", target_statistical: 80, target_technical: 78, target_governance: 75, target_behavioural: 75 },
+  { designation_name: "Director of Economics & Statistics (State Head)", cadre_name: "State DES Statistical Cadre", target_statistical: 92, target_technical: 85, target_governance: 95, target_behavioural: 92 },
+  { designation_name: "Joint / Deputy Director (State DES)", cadre_name: "State DES Statistical Cadre", target_statistical: 90, target_technical: 85, target_governance: 88, target_behavioural: 85 },
+  { designation_name: "District Statistical Officer (DSO)", cadre_name: "State DES Statistical Cadre", target_statistical: 85, target_technical: 82, target_governance: 82, target_behavioural: 82 },
+  { designation_name: "Assistant Statistical Officer / Statistical Officer (State)", cadre_name: "State DES Statistical Cadre", target_statistical: 82, target_technical: 80, target_governance: 78, target_behavioural: 75 },
+  { designation_name: "Statistical Inspector / Research Assistant (DES)", cadre_name: "State DES Statistical Cadre", target_statistical: 80, target_technical: 78, target_governance: 75, target_behavioural: 75 },
+  { designation_name: "Primary Field Investigator / Enumerator", cadre_name: "State DES Statistical Cadre", target_statistical: 78, target_technical: 75, target_governance: 72, target_behavioural: 75 }
 ];
+
+function checkAuth() {
+  if (sessionStorage.getItem("admin_authenticated") === "true") {
+    document.getElementById("admin-auth-overlay").style.display = "none";
+    document.getElementById("admin-main-content").style.filter = "none";
+    document.getElementById("admin-main-content").style.pointerEvents = "auto";
+    initAdminData();
+  }
+}
+
+document.getElementById("admin-login-modal-form").onsubmit = function(e) {
+  e.preventDefault();
+  const email = document.getElementById("modal_admin_email").value.trim().toLowerCase();
+  const pass = document.getElementById("modal_admin_password").value.trim();
+
+  if (email === "admin@gmail.com" && pass === "1234") {
+    sessionStorage.setItem("admin_authenticated", "true");
+    checkAuth();
+  } else {
+    alert("Invalid credentials. Enter admin@gmail.com and 1234.");
+  }
+};
+
+function logoutAdmin() {
+  sessionStorage.removeItem("admin_authenticated");
+  window.location.href = "index.html";
+}
 
 let selectedPdf = null;
 function handlePdfSelect(e) {
@@ -180,7 +240,7 @@ async function generateAiQuiz() {
   const qs = [];
   for (let i = 1; i <= count; i++) {
     qs.push({
-      question: `Assessment Question ${i} on "${topic}": Which standard procedure applies as per the official manual?`,
+      question: `Assessment Question ${i} on "${topic}": Which standard protocol applies as per the official manual?`,
       optA: `Standard Procedure A: Adhere strictly to MoSPI/NSSTA guidelines and validation rules.`,
       optB: `Standard Procedure B: Unverified estimation and ad-hoc approximation.`,
       optC: `Standard Procedure C: Omission of quality control checks.`,
@@ -205,51 +265,104 @@ async function generateAiQuiz() {
   document.getElementById("quiz-preview-meta").innerText = `Generated and saved ${count} MCQs under topic: "${topic}". Linked directly to employee dashboard.`;
 }
 
-function initAdmin() {
-  // Fetch live summary data
-  try {
-    fetch("http://127.0.0.1:5000/api/admin/summary")
-      .then(r => r.json())
-      .then(d => {
-        document.getElementById("stat-officers").innerText = d.total_officers || 0;
-        document.getElementById("stat-roles").innerText = d.total_designations || 17;
-      }).catch(() => {});
-  } catch(e) {}
+function initAdminData() {
   const ts = document.getElementById("quiz-topic-select");
-  ts.innerHTML = "";
-  DB_TOPICS.forEach(t => {
-    const opt = document.createElement("option"); opt.value = t; opt.textContent = t;
-    ts.appendChild(opt);
+  if (ts) {
+    ts.innerHTML = "";
+    DB_TOPICS.forEach(t => {
+      const opt = document.createElement("option"); opt.value = t; opt.textContent = t;
+      ts.appendChild(opt);
+    });
+  }
+
+  const registeredOfficers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
+  const globalProgress = JSON.parse(localStorage.getItem("mospi_global_officer_progress") || "{}");
+
+  const heatmapRows = MASTER_DESIGNATIONS.map(m => {
+    const matching = registeredOfficers.filter(o =>
+      o.designation.toLowerCase().includes(m.designation_name.toLowerCase()) ||
+      m.designation_name.toLowerCase().includes(o.designation.toLowerCase())
+    );
+
+    let statSum = 0, techSum = 0, govSum = 0, behSum = 0;
+    const enrolled = matching.length;
+
+    matching.forEach(o => {
+      const p = globalProgress[o.email] || {};
+      statSum += (p.statistical || 0);
+      techSum += (p.technical || 0);
+      govSum += (p.governance || 0);
+      behSum += (p.behavioural || 0);
+    });
+
+    const curStat = enrolled ? Math.round(statSum / enrolled) : 0;
+    const curTech = enrolled ? Math.round(techSum / enrolled) : 0;
+    const curGov = enrolled ? Math.round(govSum / enrolled) : 0;
+    const curBeh = enrolled ? Math.round(behSum / enrolled) : 0;
+
+    return {
+      designation_name: m.designation_name,
+      cadre_name: m.cadre_name,
+      enrolled_count: enrolled,
+      target_statistical: m.target_statistical,
+      current_statistical: curStat,
+      gap_statistical: Math.max(0, m.target_statistical - curStat),
+      target_technical: m.target_technical,
+      current_technical: curTech,
+      gap_technical: Math.max(0, m.target_technical - curTech),
+      target_governance: m.target_governance,
+      current_governance: curGov,
+      gap_governance: Math.max(0, m.target_governance - curGov),
+      target_behavioural: m.target_behavioural,
+      current_behavioural: curBeh,
+      gap_behavioural: Math.max(0, m.target_behavioural - curBeh)
+    };
   });
 
-  let data = ROLES_FALLBACK;
-  try {
-    fetch("http://127.0.0.1:5000/api/admin/heatmap")
-      .then(r => r.json())
-      .then(d => {
-        if (d.heatmap_data && d.heatmap_data.length > 0) renderTable(d.heatmap_data);
-      }).catch(() => renderTable(data));
-  } catch(e) { renderTable(data); }
+  const totalEnrolled = registeredOfficers.length;
+  document.getElementById("stat-officers").innerText = totalEnrolled;
+
+  const totalStat = heatmapRows.reduce((a, b) => a + b.current_statistical, 0);
+  const totalTech = heatmapRows.reduce((a, b) => a + b.current_technical, 0);
+  document.getElementById("stat-avg-statistical").innerText = (totalEnrolled ? Math.round(totalStat / heatmapRows.length) : 0) + "%";
+  document.getElementById("stat-avg-technical").innerText = (totalEnrolled ? Math.round(totalTech / heatmapRows.length) : 0) + "%";
+
+  renderTable(heatmapRows);
 }
 
 function renderTable(data) {
   const tbody = document.getElementById("heatmap-body");
   tbody.innerHTML = "";
+
+  function getCell(cur, tgt, gap) {
+    let bg = "#fee2e2", color = "#991b1b";
+    if (gap <= 0) { bg = "#dcfce7"; color = "#15803d"; }
+    else if (gap <= 20) { bg = "#fef9c3"; color = "#854d0e"; }
+    else if (gap <= 40) { bg = "#ffedd5"; color = "#9a3412"; }
+
+    return `
+      <td style="text-align: center; padding: 8px; background: ${bg}; color: ${color}; font-weight: 700; border-radius: 4px;">
+        ${cur}% / ${tgt}%<br><span style="font-size: 0.7rem;">Gap: ${gap}%</span>
+      </td>
+    `;
+  }
+
   data.forEach(r => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="font-weight: 700;">${r.designation_name}</td>
+      <td style="font-weight: 700; color: #1e293b;">${r.designation_name}</td>
       <td><span class="cadre-tag ${r.cadre_name.includes('ISS')?'cadre-iss':(r.cadre_name.includes('SSS')?'cadre-sss':'cadre-des')}">${r.cadre_name.includes('ISS')?'ISS':(r.cadre_name.includes('SSS')?'SSS':'DES')}</span></td>
-      <td style="text-align: center; font-weight: 700;">${r.enrolled_count || 0}</td>
-      <td style="text-align: center;">${r.current_statistical || 0}% / ${r.target_statistical}%</td>
-      <td style="text-align: center;">${r.current_technical || 0}% / ${r.target_technical}%</td>
-      <td style="text-align: center;">${r.current_governance || 0}% / ${r.target_governance}%</td>
-      <td style="text-align: center;">${r.current_behavioural || 0}% / ${r.target_behavioural}%</td>
+      <td style="text-align: center; font-weight: 800; font-size: 1rem; color: var(--primary);">${r.enrolled_count}</td>
+      ${getCell(r.current_statistical, r.target_statistical, r.gap_statistical)}
+      ${getCell(r.current_technical, r.target_technical, r.gap_technical)}
+      ${getCell(r.current_governance, r.target_governance, r.gap_governance)}
+      ${getCell(r.current_behavioural, r.target_behavioural, r.gap_behavioural)}
     `;
     tbody.appendChild(tr);
   });
 }
-document.addEventListener("DOMContentLoaded", initAdmin);
+
+document.addEventListener("DOMContentLoaded", checkAuth);
 </script>
 </body>
 </html>
