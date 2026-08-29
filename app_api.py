@@ -114,6 +114,7 @@ def get_cadre(desig):
         return "DES"
     return "SSS"
 
+# Registration endpoint persists directly to SQLite database
 @app.route("/api/register", methods=["POST"])
 def register_officer():
     data = request.json or {}
@@ -136,6 +137,7 @@ def register_officer():
     conn.close()
     return jsonify({"status": "success", "message": "Registered successfully in database"})
 
+# Admin Heatmap: returns all 17 designations with exact zero values if uncompleted
 @app.route("/api/admin/heatmap", methods=["GET"])
 def get_admin_heatmap():
     conn = get_db()
