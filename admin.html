@@ -254,14 +254,11 @@ async function initAdminData() {
   }
 
   let heatmapRows = [];
+  let dbSummary = null;
 
   try {
     const sumRes = await fetch("http://127.0.0.1:5000/api/admin/summary");
-    const sumData = await sumRes.json();
-    document.getElementById("stat-officers").innerText = sumData.total_officers || 0;
-    document.getElementById("stat-roles").innerText = sumData.total_designations || 17;
-    document.getElementById("stat-avg-statistical").innerText = (sumData.avg_statistical || 0) + "%";
-    document.getElementById("stat-avg-technical").innerText = (sumData.avg_technical || 0) + "%";
+    dbSummary = await sumRes.json();
   } catch(e) {}
 
   try {
@@ -272,12 +269,61 @@ async function initAdminData() {
     }
   } catch(e) {}
 
-  // Merge localStorage fallback if SQLite is offline
+  // LocalStorage Fallback & Real-Time Client Merging
+  const registeredOfficers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
+  const globalProgress = JSON.parse(localStorage.getItem("mospi_global_officer_progress") || "{}");
+
   if (heatmapRows.length === 0) {
-    const registeredOfficers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
-    const globalProgress = JSON.parse(localStorage.getItem("mospi_global_officer_progress") || "{}");
-    document.getElementById("stat-officers").innerText = registeredOfficers.length;
+    heatmapRows = MASTER_DESIGNATIONS.map(m => {
+      const matching = registeredOfficers.filter(o =>
+        o.designation.toLowerCase().includes(m.designation_name.toLowerCase()) ||
+        m.designation_name.toLowerCase().includes(o.designation.toLowerCase())
+      );
+
+      let statSum = 0, techSum = 0, govSum = 0, behSum = 0;
+      const enrolled = matching.length;
+
+      matching.forEach(o => {
+        const p = globalProgress[o.email] || {};
+        statSum += (p.statistical || 0);
+        techSum += (p.technical || 0);
+        govSum += (p.governance || 0);
+        behSum += (p.behavioural || 0);
+      });
+
+      const curStat = enrolled ? Math.round(statSum / enrolled) : 0;
+      const curTech = enrolled ? Math.round(techSum / enrolled) : 0;
+      const curGov = enrolled ? Math.round(govSum / enrolled) : 0;
+      const curBeh = enrolled ? Math.round(behSum / enrolled) : 0;
+
+      return {
+        designation_name: m.designation_name,
+        cadre_name: m.cadre_name,
+        enrolled_count: enrolled,
+        target_statistical: m.target_statistical,
+        current_statistical: curStat,
+        gap_statistical: Math.max(0, m.target_statistical - curStat),
+        target_technical: m.target_technical,
+        current_technical: curTech,
+        gap_technical: Math.max(0, m.target_technical - curTech),
+        target_governance: m.target_governance,
+        current_governance: curGov,
+        gap_governance: Math.max(0, m.target_governance - curGov),
+        target_behavioural: m.target_behavioural,
+        current_behavioural: curBeh,
+        gap_behavioural: Math.max(0, m.target_behavioural - curBeh)
+      };
+    });
   }
+
+  const totalEnrolled = Math.max((dbSummary ? dbSummary.total_officers : 0), registeredOfficers.length, heatmapRows.reduce((a, b) => a + (b.enrolled_count || 0), 0));
+  document.getElementById("stat-officers").innerText = totalEnrolled;
+  document.getElementById("stat-roles").innerText = 17;
+
+  const totalStat = heatmapRows.reduce((a, b) => a + (b.current_statistical || 0), 0);
+  const totalTech = heatmapRows.reduce((a, b) => a + (b.current_technical || 0), 0);
+  document.getElementById("stat-avg-statistical").innerText = (totalEnrolled > 0 ? Math.round(totalStat / heatmapRows.length) : 0) + "%";
+  document.getElementById("stat-avg-technical").innerText = (totalEnrolled > 0 ? Math.round(totalTech / heatmapRows.length) : 0) + "%";
 
   renderTable(heatmapRows);
 }

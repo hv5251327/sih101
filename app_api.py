@@ -203,7 +203,7 @@ def update_officer_progress():
 
         conn.commit()
         conn.close()
-        return jsonify({"status": "success", "message": "Progress recorded in database"})
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -234,32 +234,50 @@ def get_admin_summary():
 def get_admin_heatmap():
     conn = get_db()
     c = conn.cursor()
+    
+    # Fetch all targets
+    c.execute("SELECT designation_name, cadre_name, target_statistical, target_technical, target_governance, target_behavioural FROM designation_competency_targets ORDER BY cadre_name, target_statistical DESC")
+    targets = [dict(r) for r in c.fetchall()]
+
+    # Fetch all registered users and their profile scores
     c.execute("""
-        SELECT
-            t.designation_name,
-            t.cadre_name,
-            COUNT(DISTINCT u.id) AS enrolled_count,
-            t.target_statistical,
-            ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
-            ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
-            t.target_technical,
-            ROUND(COALESCE(AVG(o.current_technical), 0), 1) AS current_technical,
-            ROUND(MAX(0, t.target_technical - COALESCE(AVG(o.current_technical), 0)), 1) AS gap_technical,
-            t.target_governance,
-            ROUND(COALESCE(AVG(o.current_governance), 0), 1) AS current_governance,
-            ROUND(MAX(0, t.target_governance - COALESCE(AVG(o.current_governance), 0)), 1) AS gap_governance,
-            t.target_behavioural,
-            ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
-            ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
-        FROM designation_competency_targets t
-        LEFT JOIN users u ON LOWER(TRIM(t.designation_name)) = LOWER(TRIM(u.designation))
+        SELECT u.designation, o.current_statistical, o.current_technical, o.current_governance, o.current_behavioural 
+        FROM users u 
         LEFT JOIN officer_profiles o ON LOWER(TRIM(u.email)) = LOWER(TRIM(o.email))
-        GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
-        ORDER BY t.cadre_name, t.target_statistical DESC
     """)
-    rows = [dict(row) for row in c.fetchall()]
+    users = [dict(r) for r in c.fetchall()]
     conn.close()
-    return jsonify({"heatmap_data": rows})
+
+    heatmap = []
+    for t in targets:
+        # Match users flexibly by designation title
+        matched_users = [u for u in users if u['designation'] and (u['designation'].strip().lower() in t['designation_name'].strip().lower() or t['designation_name'].strip().lower() in u['designation'].strip().lower())]
+        enrolled = len(matched_users)
+        
+        stat_avg = round(sum(u['current_statistical'] or 0 for u in matched_users) / enrolled, 1) if enrolled > 0 else 0
+        tech_avg = round(sum(u['current_technical'] or 0 for u in matched_users) / enrolled, 1) if enrolled > 0 else 0
+        gov_avg = round(sum(u['current_governance'] or 0 for u in matched_users) / enrolled, 1) if enrolled > 0 else 0
+        beh_avg = round(sum(u['current_behavioural'] or 0 for u in matched_users) / enrolled, 1) if enrolled > 0 else 0
+
+        heatmap.append({
+            "designation_name": t["designation_name"],
+            "cadre_name": t["cadre_name"],
+            "enrolled_count": enrolled,
+            "target_statistical": t["target_statistical"],
+            "current_statistical": stat_avg,
+            "gap_statistical": max(0, round(t["target_statistical"] - stat_avg, 1)),
+            "target_technical": t["target_technical"],
+            "current_technical": tech_avg,
+            "gap_technical": max(0, round(t["target_technical"] - tech_avg, 1)),
+            "target_governance": t["target_governance"],
+            "current_governance": gov_avg,
+            "gap_governance": max(0, round(t["target_governance"] - gov_avg, 1)),
+            "target_behavioural": t["target_behavioural"],
+            "current_behavioural": beh_avg,
+            "gap_behavioural": max(0, round(t["target_behavioural"] - beh_avg, 1))
+        })
+
+    return jsonify({"heatmap_data": heatmap})
 
 @app.route("/api/admin/save-quiz", methods=["POST"])
 def save_quiz():
