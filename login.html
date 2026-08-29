@@ -18,11 +18,10 @@
     .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
     .btn-submit { width: 100%; background: var(--primary); color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: var(--primary-hover); }
-    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
+    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); }
     .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
-    .alert { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; display: none; }
-    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .admin-link { display: block; margin-top: 12px; padding: 10px; background: #f3f4f6; border: 1px dashed #7c3aed; border-radius: 8px; color: #7c3aed; text-decoration: none; font-weight: 700; text-align: center; }
+    .admin-link:hover { background: #ede9fe; }
   </style>
 </head>
 <body>
@@ -32,9 +31,6 @@
     <h2>MoSPI Officer Portal</h2>
     <p>Statistical Officer Login</p>
   </div>
-  
-  <div id="alert-box" class="alert"></div>
-
   <form id="login-form">
     <div class="form-group">
       <label for="login_email">Government Email ID</label>
@@ -42,53 +38,44 @@
     </div>
     <div class="form-group">
       <label for="login_password">Password</label>
-      <input type="password" id="login_password" class="form-control" placeholder="Enter your password" required>
+      <input type="password" id="login_password" class="form-control" placeholder="Enter password" required>
     </div>
-    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
   </form>
   <div class="footer-links">
-    <span>New Officer? <a href="register.html">Register here</a></span>
-    <a href="admin_login.html" style="color: #7c3aed;"><i class="fa-solid fa-shield-halved"></i> Admin Login</a>
+    New Officer? <a href="register.html">Register here</a>
   </div>
+  
+  <a href="admin_login.html" class="admin-link">
+    <i class="fa-solid fa-shield-halved"></i> Admin Login Portal
+  </a>
 </div>
 <script>
-function showAlert(message, type) {
-  const alertBox = document.getElementById("alert-box");
-  alertBox.textContent = message;
-  alertBox.className = `alert alert-${type}`;
-  alertBox.style.display = "block";
-  setTimeout(() => { alertBox.style.display = "none"; }, 5000);
-}
-
-document.getElementById("login-form").onsubmit = async function(e) {
+document.getElementById("login-form").onsubmit = function(e) {
   e.preventDefault();
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
+  localStorage.setItem("mospi_user", email);
+  if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
+  if (!localStorage.getItem("mospi_registered_designation")) localStorage.setItem("mospi_registered_designation", "Junior Statistical Officer (JSO)");
+  if (!localStorage.getItem("mospi_registered_cadre")) localStorage.setItem("mospi_registered_cadre", "Subordinate Statistical Service (SSS)");
+
   try {
-    const response = await fetch("http://127.0.0.1:5000/api/login", {
+    fetch("http://127.0.0.1:5000/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, password: password })
-    });
+    }).then(r => r.json()).then(d => {
+      if (d.status === "success" && d.user) {
+        localStorage.setItem("mospi_user_name", d.user.name);
+        localStorage.setItem("mospi_registered_designation", d.user.designation);
+        localStorage.setItem("mospi_registered_department", d.user.department);
+      }
+    }).catch(()=>{});
+  } catch(err){}
 
-    const data = await response.json();
-
-    if (data.status === "success" && data.role === "officer" && data.user) {
-      localStorage.setItem("mospi_user", email);
-      localStorage.setItem("mospi_user_role", "officer");
-      localStorage.setItem("mospi_user_name", data.user.name);
-      localStorage.setItem("mospi_registered_designation", data.user.designation);
-      localStorage.setItem("mospi_registered_department", data.user.department);
-      showAlert("Login successful! Redirecting to dashboard...", "success");
-      setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
-    } else {
-      showAlert(data.message || "Invalid credentials. Please try again.", "error");
-    }
-  } catch (error) {
-    showAlert("Unable to connect to server. Please ensure backend is running.", "error");
-    console.error("Login error:", error);
-  }
+  window.location.href = "dashboard.html";
   return false;
 };
 </script>
