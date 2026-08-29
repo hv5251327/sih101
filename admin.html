@@ -35,14 +35,15 @@
     @media(max-width: 900px){ .charts-grid { grid-template-columns: 1fr; } }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     
-    /* PDF Quiz Generator Section */
+    /* Document Ingestion & AI Quiz Generator */
     .quiz-builder-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-    .upload-box { border: 2px dashed #94a3b8; border-radius: 10px; padding: 32px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; }
-    .upload-box:hover { border-color: var(--primary-light); background: #f0f9ff; }
-    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+    @media(max-width: 700px){ .form-row { grid-template-columns: 1fr; } }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
     .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; background: #fff; }
+    .upload-box { border: 2px dashed #94a3b8; border-radius: 10px; padding: 32px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; }
+    .upload-box:hover { border-color: var(--primary-light); background: #f0f9ff; }
     .btn-gen { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; align-self: flex-start; }
     .btn-gen:hover { background: #172554; }
 
@@ -60,7 +61,7 @@
 <body>
 
 <div class="container">
-  <!-- Top Admin Header without Officer View button -->
+  <!-- Top Admin Header -->
   <div class="header">
     <div>
       <h2><i class="fa-solid fa-chart-line"></i> MoSPI / NSSTA Apex Cadre Command Center</h2>
@@ -91,7 +92,7 @@
     </div>
   </div>
 
-  <!-- Restored PDF Upload & AI Quiz Generator -->
+  <!-- MoSPI Document Ingestion & AI Quiz Generator (Topic & Question Count only) -->
   <div class="quiz-builder-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> MoSPI Document Ingestion & AI Quiz Generator</h3>
@@ -101,26 +102,12 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Select Cadre</label>
-        <select class="form-control" id="quiz-cadre-select">
-          <option value="ISS">Indian Statistical Service (ISS)</option>
-          <option value="SSS">Subordinate Statistical Service (SSS)</option>
-          <option value="DES">State DES Statistical Cadre</option>
-        </select>
+        <label for="quiz-topic-input">Topic</label>
+        <input type="text" class="form-control" id="quiz-topic-input" placeholder="e.g. National Accounts Compilation, PLFS Validation, CAPI Operations" required>
       </div>
 
       <div class="form-group">
-        <label>Mapped Pillar</label>
-        <select class="form-control" id="quiz-pillar-select">
-          <option value="statistical">Statistical Frameworks</option>
-          <option value="technical">Technical Tools & Computing</option>
-          <option value="governance">Digital Governance & DPDP</option>
-          <option value="behavioural">Managerial & Behavioural</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Number of Questions</label>
+        <label for="quiz-count-select">Number of Questions</label>
         <select class="form-control" id="quiz-count-select">
           <option value="5">5 Questions</option>
           <option value="10">10 Questions</option>
@@ -222,12 +209,11 @@ function generateAiQuiz() {
     alert("Please select a MoSPI / NSSTA PDF document to generate questions.");
     return;
   }
-  const cadre = document.getElementById("quiz-cadre-select").value;
-  const pillar = document.getElementById("quiz-pillar-select").value;
+  const topic = document.getElementById("quiz-topic-input").value.trim() || "Official Statistics Core";
   const count = document.getElementById("quiz-count-select").value;
 
   document.getElementById("quiz-preview").style.display = "block";
-  document.getElementById("quiz-preview-meta").innerText = `Extracted 4-Pillar competency topics from "${selectedPdfFile.name}". Generated ${count} MCQs mapped to ${cadre} Cadre under "${pillar}" pillar.`;
+  document.getElementById("quiz-preview-meta").innerText = `Extracted topics from "${selectedPdfFile.name}". Generated ${count} assessment MCQs for topic: "${topic}".`;
 }
 
 async function initAdmin() {
