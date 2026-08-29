@@ -82,7 +82,7 @@
         <option value="Primary Field Investigator / Enumerator">Primary Field Investigator / Enumerator</option>
       </select>
     </div>
-    <button type="submit" class="btn-submit"><i class="fa-solid fa-user-check"></i> Register Profile</button>
+    <button type="submit" id="submit-btn" class="btn-submit"><i class="fa-solid fa-user-check"></i> Register Profile</button>
   </form>
   <div class="footer-links">
     Already registered? <a href="login.html">Login here</a>
@@ -112,41 +112,43 @@ window.NSSTA_ROLES = {
 
 document.getElementById("officer-registration-form").onsubmit = async function(e) {
   e.preventDefault();
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.innerText = "Registering...";
+
   const nameVal = document.getElementById("officer_name").value.trim();
   const emailVal = document.getElementById("officer_email").value.trim().toLowerCase();
   const passVal = document.getElementById("officer_password").value.trim();
   const deptVal = document.getElementById("department_select").value;
   const desigVal = document.getElementById("designation_select").value;
-
-  if (!deptVal || !desigVal) {
-    alert("Please select both a Statistical Division and an Official Designation.");
-    return false;
-  }
-
   const cadreVal = window.NSSTA_ROLES[desigVal] || "Subordinate Statistical Service (SSS)";
 
-  localStorage.setItem("mospi_user", emailVal);
-  localStorage.setItem("mospi_user_name", nameVal);
-  localStorage.setItem("mospi_registered_ministry", deptVal);
-  localStorage.setItem("mospi_registered_cadre", cadreVal);
-  localStorage.setItem("mospi_registered_designation", desigVal);
-  localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
-
-  let officers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
-  officers = officers.filter(o => o.email !== emailVal);
-  officers.push({ name: nameVal, email: emailVal, designation: desigVal, cadre: cadreVal, department: deptVal });
-  localStorage.setItem("mospi_all_registered_officers", JSON.stringify(officers));
-
   try {
-    await fetch("http://127.0.0.1:5000/api/register", {
+    const res = await fetch("http://127.0.0.1:5000/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: nameVal, email: emailVal, password: passVal, department: deptVal, designation: desigVal })
     });
-  } catch(err) {}
-
-  alert("Registration Successful!");
-  window.location.href = "dashboard.html";
+    const data = await res.json();
+    
+    if (data.status === "success") {
+      localStorage.setItem("mospi_user", emailVal);
+      localStorage.setItem("mospi_user_name", nameVal);
+      localStorage.setItem("mospi_registered_ministry", deptVal);
+      localStorage.setItem("mospi_registered_cadre", cadreVal);
+      localStorage.setItem("mospi_registered_designation", desigVal);
+      alert("Registration Successful!");
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Error: " + data.message);
+      btn.disabled = false;
+      btn.innerText = "Register Profile";
+    }
+  } catch(err) {
+    alert("Backend Server not reachable! Ensure python app_api.py is running.");
+    btn.disabled = false;
+    btn.innerText = "Register Profile";
+  }
   return false;
 };
 </script>
