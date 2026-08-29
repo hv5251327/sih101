@@ -489,7 +489,7 @@ if (document.readyState === "loading") {
 </script>
 
 
-<!-- NSSTA_FULL_REGISTRATION_ENGINE -->
+
 <script>
 window.NSSTA_STATISTICAL_ROLES_DB = {
   "Director General (DG / Apex Level) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 95, technical: 85, governance: 98, behavioural: 95 } },
@@ -508,39 +508,14 @@ window.NSSTA_STATISTICAL_ROLES_DB = {
   "District Statistical Officer (DSO)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 85, technical: 82, governance: 82, behavioural: 82 } },
   "Assistant Statistical Officer / Statistical Officer (State)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 82, technical: 80, governance: 78, behavioural: 75 } },
   "Statistical Inspector / Research Assistant (DES)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 80, technical: 78, governance: 75, behavioural: 75 } },
-  "Primary Field Investigator / Enumerator": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 78, technical: 75, governance: 72, behavioural: 75 } }
+  "Primary Field Investigator / Enumerator": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 78, technical: 75, governance: 72, benchmarks: 75 } }
 };
 
-function setupStatisticalRegistration() {
-  const selects = Array.from(document.querySelectorAll("select"));
-  let deptSelect = document.querySelector("#department, select[name*='dept'], select[name*='department']") || selects[0];
-  let desigSelect = document.querySelector("#designation, select[name*='desig'], select[name*='designation']") || selects[1] || selects[0];
+document.addEventListener("DOMContentLoaded", function() {
+  const deptSelect = document.querySelector("#department, select[name*='dept']");
+  const desigSelect = document.querySelector("#designation, select[name*='desig']");
 
-  const statisticalDivisions = [
-    "National Accounts Division (NAD) — Macro Aggregates & GDP",
-    "Economic Statistics Division (ESD) — IIP & ASI",
-    "Price Statistics Division (PSD) — CPI & Inflation",
-    "Social Statistics Division (SSD) — SDG Metrics",
-    "Field Operations Division (FOD) — Primary Field Surveys",
-    "Survey Design and Research Division (SDRD) — Sampling Design",
-    "Data Processing Division (DPD) — Validation & Tabulation",
-    "Data Informatics & Innovation Division (DIID) — Cloud & AI",
-    "National Statistical Systems Training Academy (NSSTA) — Training HQ",
-    "State Directorate of Economics & Statistics (DES) — State HQ",
-    "District Statistical Office (DSO) — Field Unit"
-  ];
-
-  if (deptSelect) {
-    deptSelect.innerHTML = "";
-    statisticalDivisions.forEach(dept => {
-      const opt = document.createElement("option");
-      opt.value = dept;
-      opt.textContent = dept;
-      deptSelect.appendChild(opt);
-    });
-  }
-
-  if (desigSelect) {
+  if (desigSelect && desigSelect.options.length <= 1) {
     desigSelect.innerHTML = "";
     Object.keys(window.NSSTA_STATISTICAL_ROLES_DB).forEach(role => {
       const opt = document.createElement("option");
@@ -550,58 +525,35 @@ function setupStatisticalRegistration() {
     });
   }
 
-  function handleFormSubmit(e) {
-    if (e && e.preventDefault) e.preventDefault();
-
-    const nameInp = document.querySelector("input[type='text'], input[name*='name'], input[placeholder*='name' i]");
-    const emailInp = document.querySelector("input[type='email'], input[name*='email'], input[placeholder*='email' i]");
-
-    const nameVal = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
-    const emailVal = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
-    const deptVal = deptSelect ? deptSelect.value : statisticalDivisions[0];
-    const desigVal = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
-
-    const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal] || window.NSSTA_STATISTICAL_ROLES_DB["Assistant Director (JTS) - ISS"];
-
-    localStorage.setItem("mospi_user", emailVal);
-    localStorage.setItem("mospi_user_name", nameVal);
-    localStorage.setItem("mospi_registered_ministry", deptVal);
-    localStorage.setItem("mospi_registered_cadre", roleData.cadre);
-    localStorage.setItem("mospi_registered_designation", desigVal);
-    localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
-
-    // Baseline current scores for gap calculation
-    const initialScores = {
-      statistical: Math.max(20, roleData.benchmarks.statistical - 25),
-      technical: Math.max(20, roleData.benchmarks.technical - 35),
-      governance: Math.max(20, roleData.benchmarks.governance - 20),
-      behavioural: Math.max(20, roleData.benchmarks.behavioural - 15)
-    };
-    localStorage.setItem("mospi_officer_current_scores", JSON.stringify(initialScores));
-
-    alert("Registration Successful!\nRole: " + desigVal + "\nCadre: " + roleData.cadre);
-    window.location.href = "dashboard.html";
-    return false;
-  }
-
   const form = document.querySelector("form");
   if (form) {
-    form.onsubmit = handleFormSubmit;
-  }
+    form.onsubmit = function(e) {
+      if (e) e.preventDefault();
+      const nameInp = document.querySelector("input[name*='name'], input[placeholder*='name' i]");
+      const emailInp = document.querySelector("input[type='email'], input[name*='email']");
+      
+      const nameVal = nameInp ? nameInp.value.trim() : "Officer";
+      const emailVal = emailInp ? emailInp.value.trim() : "officer@gov.in";
+      const desigVal = desigSelect ? desigSelect.value : "Junior Statistical Officer (JSO)";
+      const deptVal = deptSelect ? deptSelect.value : "Field Operations Division (FOD)";
+      const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal] || { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 82, technical: 82, governance: 78, behavioural: 75 } };
 
-  const buttons = Array.from(document.querySelectorAll("button, input[type='submit']"));
-  const submitBtn = buttons.find(b => (b.innerText || b.value || "").toLowerCase().includes("reg") || (b.innerText || b.value || "").toLowerCase().includes("sub")) || buttons[0];
-  if (submitBtn) {
-    submitBtn.onclick = handleFormSubmit;
-  }
-}
+      localStorage.setItem("mospi_user", emailVal);
+      localStorage.setItem("mospi_user_name", nameVal);
+      localStorage.setItem("mospi_registered_ministry", deptVal);
+      localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+      localStorage.setItem("mospi_registered_designation", desigVal);
+      localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
+      
+      // New registered officer starts at 0% verified score (100% gap to learn)
+      localStorage.setItem("mospi_officer_current_scores", JSON.stringify({ statistical: 0, technical: 0, governance: 0, behavioural: 0 }));
+      localStorage.setItem("mospi_completed_courses", JSON.stringify([]));
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupStatisticalRegistration);
-} else {
-  setupStatisticalRegistration();
-}
+      window.location.href = "dashboard.html";
+      return false;
+    };
+  }
+});
 </script>
-<!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
 </body>
 </html>
