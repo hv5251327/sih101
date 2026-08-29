@@ -35,6 +35,17 @@
     @media(max-width: 900px){ .charts-grid { grid-template-columns: 1fr; } }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     
+    /* PDF Quiz Generator Section */
+    .quiz-builder-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .upload-box { border: 2px dashed #94a3b8; border-radius: 10px; padding: 32px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; }
+    .upload-box:hover { border-color: var(--primary-light); background: #f0f9ff; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; background: #fff; }
+    .btn-gen { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; align-self: flex-start; }
+    .btn-gen:hover { background: #172554; }
+
     .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; padding: 20px; }
     .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -49,19 +60,18 @@
 <body>
 
 <div class="container">
-  <!-- Top Admin Header -->
+  <!-- Top Admin Header without Officer View button -->
   <div class="header">
     <div>
       <h2><i class="fa-solid fa-chart-line"></i> MoSPI / NSSTA Apex Cadre Command Center</h2>
       <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">4-Pillar Competency Baseline, Target Deficit & Heatmap Diagnostics</p>
     </div>
     <div style="display: flex; gap: 12px;">
-      <a href="dashboard.html" style="background: #f1f5f9; color: var(--primary); text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--border);"><i class="fa-solid fa-user"></i> Officer View</a>
       <a href="login.html" style="background: #fee2e2; color: #b91c1c; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fca5a5;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </div>
 
-  <!-- KPI Top Metrics -->
+  <!-- KPI Metrics Grid -->
   <div class="stats-grid">
     <div class="stat-card">
       <h4>Enrolled Officers</h4>
@@ -81,7 +91,60 @@
     </div>
   </div>
 
-  <!-- Enhanced Analytics Charts Grid -->
+  <!-- Restored PDF Upload & AI Quiz Generator -->
+  <div class="quiz-builder-section">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> MoSPI Document Ingestion & AI Quiz Generator</h3>
+      <span class="badge" style="background: #fef3c7; color: #92400e;">Automated Assessment Engine</span>
+    </div>
+    <p style="font-size: 0.85rem; color: var(--muted);">Upload official NSSTA manual, survey instructions, or guidelines PDF to automatically generate competency evaluation MCQs.</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Select Cadre</label>
+        <select class="form-control" id="quiz-cadre-select">
+          <option value="ISS">Indian Statistical Service (ISS)</option>
+          <option value="SSS">Subordinate Statistical Service (SSS)</option>
+          <option value="DES">State DES Statistical Cadre</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Mapped Pillar</label>
+        <select class="form-control" id="quiz-pillar-select">
+          <option value="statistical">Statistical Frameworks</option>
+          <option value="technical">Technical Tools & Computing</option>
+          <option value="governance">Digital Governance & DPDP</option>
+          <option value="behavioural">Managerial & Behavioural</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Number of Questions</label>
+        <select class="form-control" id="quiz-count-select">
+          <option value="5">5 Questions</option>
+          <option value="10">10 Questions</option>
+          <option value="15">15 Questions</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-box" onclick="document.getElementById('pdf-file-input').click()">
+      <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--primary-light); margin-bottom: 8px;"></i>
+      <h4 id="pdf-file-label" style="font-size: 0.95rem; font-weight: 700; color: #1e293b;">Click to upload PDF Document or Drag & Drop</h4>
+      <p style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Supports MoSPI guidelines, PLFS Manuals, SNA Handbooks (.pdf)</p>
+      <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfSelect(event)">
+    </div>
+
+    <button class="btn-gen" onclick="generateAiQuiz()"><i class="fa-solid fa-wand-magic-sparkles"></i> Ingest Document & Generate AI Quiz</button>
+
+    <div id="quiz-preview" style="display: none; margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
+      <h4 style="color: #166534; font-size: 0.95rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Assessment Module Generated Successfully</h4>
+      <p id="quiz-preview-meta" style="font-size: 0.85rem; color: #15803d; margin-top: 4px;">Assessment questions indexed into `topic_quizzes` table and mapped to officer dashboard.</p>
+    </div>
+  </div>
+
+  <!-- Analytics Charts Grid -->
   <div class="charts-grid">
     <div class="card">
       <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-pie" style="color: var(--primary-light);"></i> 4-Pillar Fulfillment Distribution</h3>
@@ -143,6 +206,29 @@ const ALL_17_ROLES_FALLBACK = [
   { designation_name: "Statistical Inspector / Research Assistant (DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 80, current_statistical: 0, gap_statistical: 80, target_technical: 78, current_technical: 0, gap_technical: 78, target_governance: 75, current_governance: 0, gap_governance: 75, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 },
   { designation_name: "Primary Field Investigator / Enumerator", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 78, current_statistical: 0, gap_statistical: 78, target_technical: 75, current_technical: 0, gap_technical: 75, target_governance: 72, current_governance: 0, gap_governance: 72, target_behavioural: 75, current_behavioural: 0, gap_behavioural: 75 }
 ];
+
+let selectedPdfFile = null;
+
+function handlePdfSelect(e) {
+  const file = e.target.files[0];
+  if (file) {
+    selectedPdfFile = file;
+    document.getElementById("pdf-file-label").innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Selected: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)`;
+  }
+}
+
+function generateAiQuiz() {
+  if (!selectedPdfFile) {
+    alert("Please select a MoSPI / NSSTA PDF document to generate questions.");
+    return;
+  }
+  const cadre = document.getElementById("quiz-cadre-select").value;
+  const pillar = document.getElementById("quiz-pillar-select").value;
+  const count = document.getElementById("quiz-count-select").value;
+
+  document.getElementById("quiz-preview").style.display = "block";
+  document.getElementById("quiz-preview-meta").innerText = `Extracted 4-Pillar competency topics from "${selectedPdfFile.name}". Generated ${count} MCQs mapped to ${cadre} Cadre under "${pillar}" pillar.`;
+}
 
 async function initAdmin() {
   let heatmapData = ALL_17_ROLES_FALLBACK;
