@@ -353,50 +353,63 @@ function logoutOfficer() {
   window.location.href = "login.html";
 }
 
-// Rock-Solid Dual Bhashini Translation (Local Dictionary + API Pipeline)
+// Official Full-DOM Bhashini Translation Pipeline
+let originalTextNodes = new Map();
+
+function collectAllTextNodes(node) {
+  let nodes = [];
+  if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim().length > 0) {
+    if (!node.parentElement.closest("#chatbot-window, script, style, select")) {
+      nodes.push(node);
+    }
+  } else {
+    for (let child of node.childNodes) {
+      nodes = nodes.concat(collectAllTextNodes(child));
+    }
+  }
+  return nodes;
+}
+
 async function runBhashini(lang) {
-  if (lang === "en") { 
-    initDashboard(); 
-    return; 
+  const allNodes = collectAllTextNodes(document.body);
+
+  if (allNodes.length === 0) return;
+
+  // Cache original English strings on first load
+  allNodes.forEach(node => {
+    if (!originalTextNodes.has(node)) {
+      originalTextNodes.set(node, node.nodeValue.trim());
+    }
+  });
+
+  if (lang === "en") {
+    allNodes.forEach(node => {
+      if (originalTextNodes.has(node)) {
+        node.nodeValue = originalTextNodes.get(node);
+      }
+    });
+    return;
   }
 
-  const textNodes = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button"))
-    .filter(el => el.children.length === 0 && el.innerText.trim().length > 0 && !el.closest("#chatbot-window"));
-
-  // 1. Instant Local Translation
-  const dict = LOCAL_BHASHINI_DICT[lang] || {};
-  textNodes.forEach(el => {
-    const raw = el.getAttribute("data-original") || el.innerText.trim();
-    if (!el.getAttribute("data-original")) el.setAttribute("data-original", raw);
-    if (dict[raw]) {
-      el.innerText = dict[raw];
-    }
-  });
-
-  // 2. Dynamic API Translation for remaining/dynamic text
-  const remainingNodes = textNodes.filter(el => {
-    const raw = el.getAttribute("data-original") || el.innerText.trim();
-    return !dict[raw];
-  });
-
-  if (remainingNodes.length === 0) return;
-
-  const textsToFetch = remainingNodes.map(el => el.getAttribute("data-original") || el.innerText.trim());
+  const textsToTranslate = allNodes.map(node => originalTextNodes.get(node));
 
   try {
-    const res = await fetch("${window.API_BASE}/api/translate", {
+    const res = await fetch("http://127.0.0.1:5000/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts: textsToFetch, target_lang: lang })
+      body: JSON.stringify({ texts: textsToTranslate, target_lang: lang })
     });
     const data = await res.json();
-    if (data.translations && data.translations.length === remainingNodes.length) {
-      remainingNodes.forEach((el, idx) => {
-        if (data.translations[idx]) el.innerText = data.translations[idx];
+
+    if (data.translations && data.translations.length === allNodes.length) {
+      allNodes.forEach((node, idx) => {
+        if (data.translations[idx]) {
+          node.nodeValue = data.translations[idx];
+        }
       });
     }
-  } catch(e) {
-    console.warn("Bhashini network translate failed, local dictionary applied.", e);
+  } catch(err) {
+    console.warn("Bhashini translation request failed:", err);
   }
 }
 
