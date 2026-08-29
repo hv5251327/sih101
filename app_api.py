@@ -1,209 +1,223 @@
 ﻿import os
-import sqlite3
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+import io
+import json
+import re
+import requests
+from datetime import datetime
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional, List
+from sqlalchemy import create_engine, Column, Integer, String, Text, func
+from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from pypdf import PdfReader
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI(title="MoSPI iGOT Central Platform")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "igot_mospi.db")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
-ALL_DESIGNATIONS_SEED = [
-    ('Director General (DG / Apex Level) - ISS', 'Indian Statistical Service (ISS)', 95, 85, 98, 95),
-    ('Additional Director General (ADG / HAG) - ISS', 'Indian Statistical Service (ISS)', 94, 85, 95, 92),
-    ('Deputy Director General (DDG / SAG) - ISS', 'Indian Statistical Service (ISS)', 92, 88, 92, 90),
-    ('Director / Joint Director (JAG) - ISS', 'Indian Statistical Service (ISS)', 92, 90, 88, 85),
-    ('Deputy Director (STS) - ISS', 'Indian Statistical Service (ISS)', 90, 92, 85, 82),
-    ('Assistant Director (JTS) - ISS', 'Indian Statistical Service (ISS)', 90, 90, 85, 80),
-    ('Probationer / Officer Trainee (ISS - NSSTA)', 'Indian Statistical Service (ISS)', 88, 88, 82, 80),
-    ('Senior Statistical Officer (SSO / Gazetted)', 'Subordinate Statistical Service (SSS)', 88, 85, 82, 80),
-    ('Senior Statistical Officer (SSO / Non-Gazetted)', 'Subordinate Statistical Service (SSS)', 85, 82, 80, 78),
-    ('Junior Statistical Officer (JSO)', 'Subordinate Statistical Service (SSS)', 82, 82, 78, 75),
-    ('Statistical Assistant / Senior Field Investigator', 'Subordinate Statistical Service (SSS)', 80, 78, 75, 75),
-    ('Director of Economics & Statistics (State Head)', 'State DES Statistical Cadre', 92, 85, 95, 92),
-    ('Joint / Deputy Director (State DES)', 'State DES Statistical Cadre', 90, 85, 88, 85),
-    ('District Statistical Officer (DSO)', 'State DES Statistical Cadre', 85, 82, 82, 82),
-    ('Assistant Statistical Officer / Statistical Officer (State)', 'State DES Statistical Cadre', 82, 80, 78, 75),
-    ('Statistical Inspector / Research Assistant (DES)', 'State DES Statistical Cadre', 80, 78, 75, 75),
-    ('Primary Field Investigator / Enumerator', 'State DES Statistical Cadre', 78, 75, 72, 75)
-]
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./igot_mospi.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+psycopg2://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
+connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+class UserRecord(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String(255), nullable=True)
+    email = Column(String(255), unique=True, index=True, nullable=True)
+    password = Column(String(255), nullable=True)
+    hashed_password = Column(String(255), nullable=True)
+    department = Column(String(255), default="National Accounts Division (NAD)")
+    designation = Column(String(255), default="Deputy Director / Assistant Director (ISS)")
+    cadre = Column(String(100), default="Indian Statistical Service (ISS)")
+    role = Column(String(50), default="employee")
+    competency_score = Column(String(10), default="75%")
+    posh_status = Column(String(50), default="Pending")
+    completed_modules = Column(Text, default="[]")
+
+class OfficerProfile(Base):
+    __tablename__ = "officer_profiles"
+    officer_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    full_name = Column(String(150), nullable=False)
+    email = Column(String(150), unique=True, index=True, nullable=False)
+    department = Column(String(150), nullable=False)
+    designation_name = Column(String(150), nullable=True)
+    current_statistical = Column(Integer, default=0)
+    current_technical = Column(Integer, default=0)
+    current_governance = Column(Integer, default=0)
+    current_behavioural = Column(Integer, default=0)
+
+class AuditLogRecord(Base):
+    __tablename__ = "compliance_audit_logs"
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    officer_email = Column(String(255), nullable=False)
+    action_type = Column(String(100), nullable=False)
+    details = Column(Text, default="")
+    timestamp = Column(String(100), nullable=False)
+
+Base.metadata.create_all(bind=engine)
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-def init_db():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS officer_users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(150) NOT NULL,
-        email VARCHAR(150) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        designation VARCHAR(150) NOT NULL,
-        department VARCHAR(150) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );''')
-
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS officer_profiles (
-        officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(150) UNIQUE NOT NULL,
-        full_name VARCHAR(150) NOT NULL,
-        department VARCHAR(150) NOT NULL,
-        designation_name VARCHAR(150),
-        current_statistical INTEGER DEFAULT 0,
-        current_technical INTEGER DEFAULT 0,
-        current_governance INTEGER DEFAULT 0,
-        current_behavioural INTEGER DEFAULT 0,
-        registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );''')
-
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS user_progress (
-        progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(150) NOT NULL,
-        module_id VARCHAR(50) NOT NULL,
-        pillar VARCHAR(50) NOT NULL,
-        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(email, module_id)
-    );''')
-
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS designation_competency_targets (
-        designation_name VARCHAR(150) PRIMARY KEY,
-        cadre_name VARCHAR(100) NOT NULL,
-        target_statistical INTEGER NOT NULL DEFAULT 85,
-        target_technical INTEGER NOT NULL DEFAULT 85,
-        target_governance INTEGER NOT NULL DEFAULT 80,
-        target_behavioural INTEGER NOT NULL DEFAULT 80
-    );''')
-
-    c.executemany("INSERT OR REPLACE INTO designation_competency_targets VALUES (?, ?, ?, ?, ?, ?)", ALL_DESIGNATIONS_SEED)
-    conn.commit()
-    conn.close()
-
-init_db()
-
-@app.route("/api/register", methods=["POST"])
-def register():
+    db = SessionLocal()
     try:
-        data = request.json or {}
-        name = data.get("name", "").strip()
-        email = data.get("email", "").strip().lower()
-        password = data.get("password", "").strip()
-        dept = data.get("department", "").strip()
-        desig = data.get("designation", "").strip()
+        yield db
+    finally:
+        db.close()
 
-        if not email or not name or not password:
-            return jsonify({"status": "error", "message": "All fields required"}), 400
-
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("""
-            INSERT OR REPLACE INTO officer_users (name, email, password, designation, department)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, email, password, desig, dept))
-
-        c.execute("""
-            INSERT INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
-            VALUES (?, ?, ?, ?, 0, 0, 0, 0)
-            ON CONFLICT(email) DO UPDATE SET full_name=excluded.full_name, department=excluded.department, designation_name=excluded.designation_name
-        """, (email, name, dept, desig))
-
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route("/api/login", methods=["POST"])
-def login():
+def log_audit_event(db: Session, email: str, action: str, details: str):
     try:
-        data = request.json or {}
-        email = data.get("email", "").strip().lower()
-        password = data.get("password", "").strip()
+        entry = AuditLogRecord(
+            officer_email=email,
+            action_type=action,
+            details=details,
+            timestamp=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        )
+        db.add(entry)
+        db.commit()
+    except Exception:
+        pass
 
-        if email == "admin@gmail.com" and password == "1234":
-            return jsonify({"status": "success", "role": "admin"})
+class RegisterRequest(BaseModel):
+    name: Optional[str] = "Registered Officer"
+    email: str
+    password: str
+    department: Optional[str] = "National Accounts Division (NAD)"
+    designation: Optional[str] = "Junior Statistical Officer (JSO)"
+    cadre: Optional[str] = "Subordinate Statistical Service (SSS)"
 
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT name, email, password, designation, department FROM officer_users WHERE LOWER(TRIM(email)) = ?", (email,))
-        user = c.fetchone()
-        conn.close()
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
-        if not user or user["password"] != password:
-            return jsonify({"status": "error", "message": "Invalid credentials"}), 401
+@app.post("/api/register")
+def register(req: RegisterRequest, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    clean_pass = req.password.strip()
+    name_val = req.name.strip() if req.name else "Registered Officer"
+    dept_val = req.department.strip() if req.department else "National Accounts Division (NAD)"
+    desig_val = req.designation.strip() if req.designation else "Junior Statistical Officer (JSO)"
+    cadre_val = req.cadre.strip() if req.cadre else "Subordinate Statistical Service (SSS)"
 
-        return jsonify({
-            "status": "success",
-            "role": "officer",
-            "user": {
-                "name": user["name"],
-                "email": user["email"],
-                "designation": user["designation"],
-                "department": user["department"]
-            }
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    # 1. Update / Insert into 'users'
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user:
+        user = UserRecord(
+            name=name_val,
+            email=clean_email,
+            password=clean_pass,
+            hashed_password=clean_pass,
+            department=dept_val,
+            designation=desig_val,
+            cadre=cadre_val,
+            role="admin" if clean_email == "123@gov.ac.in" else "employee",
+            competency_score="75%",
+            posh_status="Pending",
+            completed_modules="[]"
+        )
+        db.add(user)
+    else:
+        user.name = name_val
+        user.password = clean_pass
+        user.hashed_password = clean_pass
+        user.department = dept_val
+        user.designation = desig_val
+        user.cadre = cadre_val
 
-@app.route("/api/admin/summary", methods=["GET"])
-def get_admin_summary():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM officer_users")
-    total_officers = c.fetchone()[0]
-    conn.close()
-    return jsonify({"total_officers": total_officers, "total_designations": 17, "avg_statistical": 0, "avg_technical": 0})
+    # 2. Sync to 'officer_profiles'
+    profile = db.query(OfficerProfile).filter(func.lower(OfficerProfile.email) == clean_email).first()
+    if not profile:
+        profile = OfficerProfile(
+            full_name=name_val,
+            email=clean_email,
+            department=dept_val,
+            designation_name=desig_val,
+            current_statistical=0,
+            current_technical=0,
+            current_governance=0,
+            current_behavioural=0
+        )
+        db.add(profile)
+    else:
+        profile.full_name = name_val
+        profile.department = dept_val
+        profile.designation_name = desig_val
 
-@app.route("/api/admin/heatmap", methods=["GET"])
-def get_admin_heatmap():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT designation_name, cadre_name, target_statistical, target_technical, target_governance, target_behavioural FROM designation_competency_targets ORDER BY cadre_name, target_statistical DESC")
-    targets = [dict(r) for r in c.fetchall()]
+    db.commit()
+    log_audit_event(db, clean_email, "USER_REGISTER", f"Registered under {cadre_val}")
 
-    c.execute("""
-        SELECT u.designation, o.current_statistical, o.current_technical, o.current_governance, o.current_behavioural 
-        FROM officer_users u 
-        LEFT JOIN officer_profiles o ON LOWER(TRIM(u.email)) = LOWER(TRIM(o.email))
-    """)
-    users = [dict(r) for r in c.fetchall()]
-    conn.close()
+    return {
+        "status": "success",
+        "user": {
+            "name": name_val,
+            "email": clean_email,
+            "department": dept_val,
+            "designation": desig_val,
+            "cadre": cadre_val
+        }
+    }
 
-    heatmap = []
-    for t in targets:
-        matched = [u for u in users if u['designation'] and (u['designation'].strip().lower() in t['designation_name'].strip().lower() or t['designation_name'].strip().lower() in u['designation'].strip().lower())]
-        enrolled = len(matched)
-        
-        stat_avg = round(sum(u['current_statistical'] or 0 for u in matched) / enrolled, 1) if enrolled > 0 else 0
-        tech_avg = round(sum(u['current_technical'] or 0 for u in matched) / enrolled, 1) if enrolled > 0 else 0
-        gov_avg = round(sum(u['current_governance'] or 0 for u in matched) / enrolled, 1) if enrolled > 0 else 0
-        beh_avg = round(sum(u['current_behavioural'] or 0 for u in matched) / enrolled, 1) if enrolled > 0 else 0
+@app.post("/api/login")
+def login(req: LoginRequest, db: Session = Depends(get_db)):
+    clean_email = req.email.strip().lower()
+    clean_pass = req.password.strip()
 
-        heatmap.append({
-            "designation_name": t["designation_name"],
-            "cadre_name": t["cadre_name"],
-            "enrolled_count": enrolled,
-            "target_statistical": t["target_statistical"],
-            "current_statistical": stat_avg,
-            "gap_statistical": max(0, round(t["target_statistical"] - stat_avg, 1)),
-            "target_technical": t["target_technical"],
-            "current_technical": tech_avg,
-            "gap_technical": max(0, round(t["target_technical"] - tech_avg, 1)),
-            "target_governance": t["target_governance"],
-            "current_governance": gov_avg,
-            "gap_governance": max(0, round(t["target_governance"] - gov_avg, 1)),
-            "target_behavioural": t["target_behavioural"],
-            "current_behavioural": beh_avg,
-            "gap_behavioural": max(0, round(t["target_behavioural"] - beh_avg, 1))
-        })
+    if clean_email == "123@gov.ac.in" and clean_pass == "1234":
+        return {"status": "success", "role": "admin", "user": {"email": clean_email, "name": "Chief Administrator", "role": "admin"}}
 
-    return jsonify({"heatmap_data": heatmap})
+    user = db.query(UserRecord).filter(func.lower(UserRecord.email) == clean_email).first()
+    if not user or (user.password != clean_pass and user.hashed_password != clean_pass):
+        raise HTTPException(status_code=401, detail="Invalid email or password.")
+
+    return {
+        "status": "success",
+        "role": user.role,
+        "user": {
+            "name": user.name,
+            "email": user.email,
+            "department": user.department,
+            "designation": user.designation,
+            "cadre": user.cadre,
+            "competency_score": user.competency_score
+        }
+    }
+
+@app.get("/api/admin/analytics")
+def get_admin_analytics(db: Session = Depends(get_db)):
+    users = db.query(UserRecord).filter(UserRecord.role != "admin").all()
+    cadres = db.query(UserRecord.cadre, func.count(UserRecord.id)).group_by(UserRecord.cadre).all()
+    
+    roster = [{
+        "name": u.name,
+        "email": u.email,
+        "designation": u.designation,
+        "department": u.department,
+        "competency_score": u.competency_score.replace("%", ""),
+        "completed_count": len(json.loads(u.completed_modules or "[]")),
+        "pending_courses": ["SNA 2008", "PLFS Sampling"]
+    } for u in users]
+
+    cadre_summary = [{"designation": c[0] or "General", "count": c[1], "avg_score": 75} for c in cadres]
+
+    return {
+        "total_officers": len(users),
+        "total_courses": 5,
+        "cadre_summary": cadre_summary,
+        "roster": roster
+    }
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=False)
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
