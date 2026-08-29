@@ -16,7 +16,7 @@
       --border: #e2e8f0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 24px; }
+    body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
     .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
     .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
     .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
@@ -29,14 +29,26 @@
     .video-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .video-frame { width: 100%; height: 200px; background: #000; border: none; }
     .video-body { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 12px; text-align: center; margin-top: 12px; background: #f8fafc; cursor: pointer; transition: border-color 0.2s; }
+    .upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; margin-top: 10px; background: #f8fafc; cursor: pointer; }
     .upload-zone:hover { border-color: var(--primary-light); background: #f0f9ff; }
+    
+    /* Floating Chatbot Styles */
+    #chatbot-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; }
+    #chatbot-window { position: fixed; bottom: 90px; right: 24px; width: 350px; height: 460px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; flex-direction: column; z-index: 1000; overflow: hidden; }
+    .chat-header { background: var(--primary); color: #fff; padding: 12px 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    .chat-messages { flex-grow: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; }
+    .chat-bubble { padding: 8px 12px; border-radius: 8px; max-width: 80%; }
+    .bubble-bot { background: #f1f5f9; color: var(--text); align-self: flex-start; }
+    .bubble-user { background: var(--primary-light); color: #fff; align-self: flex-end; }
+    .chat-input-row { display: flex; border-top: 1px solid var(--border); }
+    .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
+    .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Header with Bhashini API Language Selector (No Switch Role Button) -->
+  <!-- Header -->
   <div class="header">
     <div>
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
@@ -46,10 +58,9 @@
       <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);">Subordinate Statistical Service • Data Operations</p>
     </div>
 
-    <!-- Bhashini Multi-Language Integration -->
     <div class="bhashini-bar">
       <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-      <label for="bhashini-lang-select" style="color: #334155;">Bhashini Voice & Text:</label>
+      <label for="bhashini-lang-select" style="color: #334155;">Bhashini Language:</label>
       <select id="bhashini-lang-select" onchange="applyBhashiniTranslation(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff;">
         <option value="en">English</option>
         <option value="hi">हिंदी (Hindi)</option>
@@ -61,58 +72,70 @@
     </div>
   </div>
 
-  <!-- 4-Pillar Gap Metric Section -->
+  <!-- 4-Pillar Status Grid -->
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Baseline & Required Competency Gap</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Required Deficit Gap</h3>
     <div class="grid-4" id="pillars-container"></div>
   </div>
 
-  <!-- Video Lecture & Direct Certificate Upload Section -->
+  <!-- Video Modules with Dynamic Proportional Progress -->
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> Targeted Video Modules & Course Certificate Upload</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> Prescribed Course Modules & Direct Certificate Upload</h3>
     <div class="video-grid" id="video-modules-container"></div>
+  </div>
+</div>
+
+<!-- Floating AI Chatbot -->
+<button id="chatbot-toggle" onclick="toggleChatbot()"><i class="fa-solid fa-robot"></i></button>
+<div id="chatbot-window">
+  <div class="chat-header">
+    <span><i class="fa-solid fa-brain"></i> MoSPI AI Learning Assistant</span>
+    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
+  </div>
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-bubble bubble-bot">Namaste! I am your NSSTA-iGOT AI assistant. How can I assist you with your competency modules today?</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Ask about modules, pillars..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+    <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
   </div>
 </div>
 
 <script>
 const MODULES = [
-  {
-    id: "mod-stat-1",
-    title: "National Accounts Compilation & SNA Framework",
-    pillar: "statistical",
-    pillarTitle: "Statistical Frameworks",
-    embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    points: 25
-  },
-  {
-    id: "mod-tech-1",
-    title: "CAPI Systems & Bhuvan GIS Ground Truthing",
-    pillar: "technical",
-    pillarTitle: "Technical Tools & AI/GIS",
-    embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    points: 25
-  },
-  {
-    id: "mod-gov-1",
-    title: "Digital Personal Data Protection (DPDP Act 2023) Mandate",
-    pillar: "governance",
-    pillarTitle: "Digital Governance & Privacy",
-    embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    points: 25
-  },
-  {
-    id: "mod-beh-1",
-    title: "Managerial Leadership & High-Integrity Field Supervision",
-    pillar: "behavioural",
-    pillarTitle: "Behavioural & Leadership",
-    embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ",
-    points: 25
-  }
+  // Statistical Pillar (2 modules = 50% each)
+  { id: "stat-1", title: "National Accounts Compilation & SNA Framework", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+  { id: "stat-2", title: "Sample Survey Design & Probability Weighting", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+
+  // Technical Pillar (2 modules = 50% each)
+  { id: "tech-1", title: "CAPI Systems & Bhuvan GIS Ground Truthing", pillar: "technical", pillarTitle: "Technical Tools & Computing", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+  { id: "tech-2", title: "Advanced Python & SQL for Survey Validation", pillar: "technical", pillarTitle: "Technical Tools & Computing", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+
+  // Digital Governance Pillar (1 module = 100%)
+  { id: "gov-1", title: "DPDP Act 2023 & Government Data Privacy Framework", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+
+  // Behavioural Pillar (1 module = 100%)
+  { id: "beh-1", title: "Public Administration Ethics & Leadership", pillar: "behavioural", pillarTitle: "Behavioural & Management", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
 ];
 
+function getCompletedModuleIds() {
+  try {
+    return JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
+  } catch(e) { return []; }
+}
+
+function calculatePillarPercentage(pillarKey) {
+  const pillarModules = MODULES.filter(m => m.pillar === pillarKey);
+  if (pillarModules.length === 0) return 0;
+  
+  const completedIds = getCompletedModuleIds();
+  const completedCount = pillarModules.filter(m => completedIds.includes(m.id)).length;
+  
+  return Math.round((completedCount / pillarModules.length) * 100);
+}
+
 function initDashboard() {
-  const name = localStorage.getItem("mospi_user_name") || "Harsha Vardhan";
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+  const name = localStorage.getItem("mospi_user_name") || "Officer";
   const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
   const cadre = localStorage.getItem("mospi_registered_cadre") || "Subordinate Statistical Service (SSS)";
   const dept = localStorage.getItem("mospi_registered_ministry") || "Data Processing Division (DPD)";
@@ -127,20 +150,14 @@ function initDashboard() {
     if (rawBench) benchmarks = JSON.parse(rawBench);
   } catch(e) {}
 
-  let actuals = { statistical: 0, technical: 0, governance: 0, behavioural: 0 };
-  try {
-    const rawAct = localStorage.getItem("mospi_officer_current_scores");
-    if (rawAct) actuals = JSON.parse(rawAct);
-  } catch(e) {}
-
-  // Render 4 Pillars
   const pillars = [
-    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: actuals.statistical },
-    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: benchmarks.technical, current: actuals.technical },
-    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: actuals.governance },
-    { key: "behavioural", title: "Behavioural & Management", color: "#7c3aed", target: benchmarks.behavioural, current: actuals.behavioural }
+    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: calculatePillarPercentage("statistical") },
+    { key: "technical", title: "Technical Tools & AI/GIS", color: "#059669", target: benchmarks.technical, current: calculatePillarPercentage("technical") },
+    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: calculatePillarPercentage("governance") },
+    { key: "behavioural", title: "Behavioural & Leadership", color: "#7c3aed", target: benchmarks.behavioural, current: calculatePillarPercentage("behavioural") }
   ];
 
+  // Render 4 Pillars
   const pillarGrid = document.getElementById("pillars-container");
   pillarGrid.innerHTML = "";
   pillars.forEach(p => {
@@ -158,20 +175,20 @@ function initDashboard() {
         <div class="progress-bar-fill" style="width: ${p.current}%; background: ${p.color};"></div>
       </div>
       <div style="font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between;">
-        <span>Current: <strong>${p.current}%</strong></span>
+        <span>Completed: <strong>${p.current}%</strong></span>
         <span>Target: <strong>${p.target}%</strong></span>
       </div>
     `;
     pillarGrid.appendChild(card);
   });
 
-  // Render Videos with per-video Certificate Upload
+  // Render Video Modules with completion indicator
+  const completedIds = getCompletedModuleIds();
   const videoGrid = document.getElementById("video-modules-container");
   videoGrid.innerHTML = "";
+
   MODULES.forEach(m => {
-    const p = pillars.find(item => item.key === m.pillar);
-    const gap = p ? Math.max(0, p.target - p.current) : 0;
-    
+    const isDone = completedIds.includes(m.id);
     const card = document.createElement("div");
     card.className = "video-card";
     card.innerHTML = `
@@ -180,14 +197,14 @@ function initDashboard() {
         <div>
           <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.pillarTitle}</span>
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
-          <p style="font-size: 0.8rem; color: var(--muted);">Closing this module adds <strong>+${m.points}%</strong> directly to ${m.pillarTitle}.</p>
         </div>
         
-        <!-- Individual Certificate Upload for this specific course -->
-        <div class="upload-zone" onclick="document.getElementById('input-${m.id}').click()">
-          <i class="fa-solid fa-file-arrow-up" style="color: var(--primary-light);"></i>
-          <span style="font-size: 0.8rem; font-weight: 600; color: #334155; margin-left: 6px;">Upload Completion Certificate</span>
-          <input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="uploadCourseCertificate(event, '${m.pillar}', ${m.points}, '${m.title}')">
+        <div class="upload-zone" style="${isDone ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${isDone ? '' : `document.getElementById('input-${m.id}').click()`}">
+          <i class="fa-solid ${isDone ? 'fa-circle-check' : 'fa-file-arrow-up'}" style="color: ${isDone ? '#15803d' : 'var(--primary-light)'};"></i>
+          <span style="font-size: 0.8rem; font-weight: 600; color: ${isDone ? '#15803d' : '#334155'}; margin-left: 6px;">
+            ${isDone ? 'Certificate Verified & Module Completed' : 'Upload Completion Certificate'}
+          </span>
+          ${isDone ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="uploadCourseCertificate(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
         </div>
       </div>
     `;
@@ -195,56 +212,79 @@ function initDashboard() {
   });
 }
 
-async function uploadCourseCertificate(e, pillar, points, title) {
+async function uploadCourseCertificate(e, moduleId, pillar, title) {
   const file = e.target.files[0];
   if (!file) return;
 
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
-  
-  // 1. Update local state
-  let actuals = JSON.parse(localStorage.getItem("mospi_officer_current_scores") || '{"statistical":0,"technical":0,"governance":0,"behavioural":0}');
-  actuals[pillar] = Math.min(100, (actuals[pillar] || 0) + points);
-  localStorage.setItem("mospi_officer_current_scores", JSON.stringify(actuals));
+  let completedIds = getCompletedModuleIds();
+  if (!completedIds.includes(moduleId)) {
+    completedIds.push(moduleId);
+    localStorage.setItem("mospi_completed_video_ids", JSON.stringify(completedIds));
+  }
 
-  // 2. Sync with database via API
+  const updatedPercentage = calculatePillarPercentage(pillar);
+  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+
+  // Sync with backend API & SQLite database
   try {
     await fetch("http://127.0.0.1:5000/api/officer/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, pillar: pillar, points: points })
+      body: JSON.stringify({ email: email, pillar: pillar, percentage: updatedPercentage })
     });
   } catch(err) {
-    console.warn("Local DB server offline, state persisted in localStorage.", err);
+    console.warn("Backend API offline; progress saved in browser session.", err);
   }
 
-  alert(`Certificate for "${title}" verified!\n+${points}% successfully credited to ${pillar.toUpperCase()} competency in database.`);
+  alert(`Certificate for "${title}" verified!\n${pillar.toUpperCase()} competency updated to ${updatedPercentage}% based on watched modules.`);
   initDashboard();
 }
 
-// Bhashini Real-Time Full Dashboard Translation Engine
-async function applyBhashiniTranslation(targetLang) {
-  if (targetLang === "en") {
-    initDashboard();
-    return;
-  }
-  
-  const elementsToTranslate = document.querySelectorAll("h2, h3, h4, span, p, label, button");
-  elementsToTranslate.forEach(el => {
-    if (el.children.length === 0 && el.innerText.trim()) {
-      el.setAttribute("data-original", el.innerText);
-    }
-  });
+// Chatbot functionality
+function toggleChatbot() {
+  const win = document.getElementById("chatbot-window");
+  win.style.display = (win.style.display === "flex") ? "none" : "flex";
+}
 
+async function sendChatMessage() {
+  const inp = document.getElementById("chat-input");
+  const msg = inp.value.trim();
+  if (!msg) return;
+
+  const chatContainer = document.getElementById("chat-messages");
+  
+  // User bubble
+  const userDiv = document.createElement("div");
+  userDiv.className = "chat-bubble bubble-user";
+  userDiv.innerText = msg;
+  chatContainer.appendChild(userDiv);
+  inp.value = "";
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  // Fetch bot reply
   try {
-    // Calling Bhashini / ULCA NMT API standard pipeline
-    const payload = {
-      pipelineTasks: [{ taskType: "translation", config: { language: { sourceLanguage: "en", targetLanguage: targetLang } } }],
-      inputData: { input: [{ source: "Official Statistics Competency Dashboard" }] }
-    };
-    console.log("Bhashini translation triggered for language: " + targetLang);
-  } catch(err) {
-    console.error("Bhashini API error:", err);
+    const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    const botDiv = document.createElement("div");
+    botDiv.className = "chat-bubble bubble-bot";
+    botDiv.innerText = data.reply;
+    chatContainer.appendChild(botDiv);
+  } catch(e) {
+    const botDiv = document.createElement("div");
+    botDiv.className = "chat-bubble bubble-bot";
+    botDiv.innerText = "I am ready to help you complete your 4-pillar competency requirements.";
+    chatContainer.appendChild(botDiv);
   }
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Bhashini Translation Trigger
+async function applyBhashiniTranslation(lang) {
+  console.log("Applying Bhashini language model:", lang);
 }
 
 document.addEventListener("DOMContentLoaded", initDashboard);

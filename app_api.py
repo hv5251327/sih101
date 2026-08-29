@@ -18,7 +18,7 @@ def update_progress():
     data = request.json or {}
     email = data.get("email", "officer@gov.in")
     pillar = data.get("pillar", "statistical")
-    points = int(data.get("points", 20))
+    new_percentage = int(data.get("percentage", 0))
 
     col_map = {
         "statistical": "current_statistical",
@@ -26,23 +26,31 @@ def update_progress():
         "governance": "current_governance",
         "behavioural": "current_behavioural"
     }
-    
     col = col_map.get(pillar, "current_statistical")
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute(f"""
-        UPDATE officer_profiles 
-        SET {col} = MIN(100, {col} + ?) 
-        WHERE email = ?
-    """, (points, email))
+    cursor.execute(f"UPDATE officer_profiles SET {col} = ? WHERE email = ?", (new_percentage, email))
     conn.commit()
-
-    cursor.execute("SELECT * FROM officer_individual_competency_view WHERE email = ?", (email,))
-    row = cursor.fetchone()
     conn.close()
 
-    return jsonify({"status": "success", "updated_pillar": pillar, "points_added": points})
+    return jsonify({"status": "success", "updated_pillar": pillar, "new_percentage": new_percentage})
+
+@app.route("/api/chatbot", methods=["POST"])
+def chatbot_reply():
+    data = request.json or {}
+    msg = data.get("message", "").lower()
+    
+    if "pillar" in msg or "competency" in msg:
+        reply = "MoSPI's framework assesses 4 pillars: Statistical Frameworks, Technical Tools, Digital Governance, and Behavioural/Managerial Skills."
+    elif "certificate" in msg or "upload" in msg:
+        reply = "Uploading your certificate marks that specific video module as completed, dynamically updating that pillar's percentage based on total completed videos."
+    elif "gap" in msg:
+        reply = "Your competency gap is the difference between the mandated NSSTA target for your designation and your verified completed modules."
+    else:
+        reply = f"I am your MoSPI AI Learning Assistant. I can help guide your progress across the 4 pillars and recommend relevant NSSTA / iGOT courses."
+
+    return jsonify({"reply": reply})
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
