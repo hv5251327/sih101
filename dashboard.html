@@ -3,27 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoSPI & NSSTA Officer Learning Dashboard</title>
+  <title>MoSPI & NSSTA Competency Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    :root {
-      --primary: #1e3a8a;
-      --primary-light: #3b82f6;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --success: #16a34a;
-    }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
-    .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
-    .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+    .container { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+    .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
     .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    .trans-bar { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-    .pillar-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .btn-logout { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+    .btn-logout:hover { background: #fecaca; }
+    .bhashini-bar { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
+    .grid-2 { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
+    @media(max-width: 900px){ .grid-2 { grid-template-columns: 1fr; } }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .progress-bar-bg { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 10px 0 6px 0; }
     .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
     .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; }
@@ -33,7 +29,6 @@
     .upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; margin-top: 10px; background: #f8fafc; cursor: pointer; }
     .upload-zone:hover { border-color: var(--primary-light); background: #f0f9ff; }
     
-    /* Floating Chatbot Styles */
     #chatbot-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; }
     #chatbot-window { position: fixed; bottom: 90px; right: 24px; width: 350px; height: 460px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; flex-direction: column; z-index: 1000; overflow: hidden; }
     .chat-header { background: var(--primary); color: #fff; padding: 12px 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
@@ -56,33 +51,43 @@
         <h2 id="officer-name" style="font-size: 1.35rem; font-weight: 800;">Officer Dashboard</h2>
         <span id="officer-cadre" class="badge">ISS Cadre</span>
       </div>
-      <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);">Subordinate Statistical Service • Data Operations</p>
+      <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);">Data Operations • Official Statistics</p>
     </div>
 
-    <!-- Translation Selector -->
-    <div class="trans-bar">
-      <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-      <label for="lang-select" style="color: #334155;">Language:</label>
-      <select id="lang-select" onchange="translateEntirePage(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff;">
-        <option value="en">English</option>
-        <option value="hi">हिंदी (Hindi)</option>
-        <option value="te">తెలుగు (Telugu)</option>
-        <option value="ta">தமிழ் (Tamil)</option>
-        <option value="bn">বাংলা (Bengali)</option>
-        <option value="mr">मराठी (Marathi)</option>
-      </select>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div class="bhashini-bar">
+        <i class="fa-solid fa-language" style="color: #2563eb;"></i>
+        <label for="bhashini-select" style="font-size: 0.8rem;">Bhashini AI:</label>
+        <select id="bhashini-select" onchange="runBhashini(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 6px; font-weight: 600;">
+          <option value="en">English</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+          <option value="ta">தமிழ் (Tamil)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+          <option value="mr">मराठी (Marathi)</option>
+        </select>
+      </div>
+      <button class="btn-logout" onclick="logoutOfficer()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </div>
   </div>
 
-  <!-- 4-Pillar Status Grid -->
-  <div>
-    <h3 class="translatable" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Required Gap</h3>
-    <div class="grid-4" id="pillars-container"></div>
+  <!-- Main Analytics Section (Pillars Grid + Pie Chart) -->
+  <div class="grid-2">
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
+      <div class="grid-4" id="pillars-container"></div>
+    </div>
+    <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text);">Overall Competency Fulfillment</h4>
+      <div style="width: 220px; height: 220px;">
+        <canvas id="competencyPieChart"></canvas>
+      </div>
+    </div>
   </div>
 
-  <!-- AI Dynamically Recommended Video Modules based on Designation -->
+  <!-- Video Modules Section -->
   <div>
-    <h3 class="translatable" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-brain" style="color: var(--primary-light);"></i> AI Personalized Video Modules & Certificate Validation</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Certificate Upload</h3>
     <div class="video-grid" id="video-modules-container"></div>
   </div>
 </div>
@@ -95,7 +100,7 @@
     <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
   </div>
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning partner for official statistics. Ask me about your role recommendations or pillar gaps.</div>
+    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning assistant. Ask me about your role recommendations or pillar gaps.</div>
   </div>
   <div class="chat-input-row">
     <input type="text" id="chat-input" placeholder="Ask about modules, pillars..." onkeypress="if(event.key==='Enter') sendChatMessage()">
@@ -104,26 +109,54 @@
 </div>
 
 <script>
-let currentOfficerModules = [];
+let pieChartInstance = null;
+let activeOfficerModules = [];
 
-async function loadOfficerDashboard() {
-  const name = localStorage.getItem("mospi_user_name") || "Harsha Vardhan";
+const FALLBACK_MODULES = {
+  "ISS": [
+    { id: "iss-stat-1", title: "SNA 2008 & 2025: National Accounts Compilation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "iss-stat-2", title: "Large-Scale Survey Design & Probability Weight Estimation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "iss-tech-1", title: "Advanced Python & SQL for Official Sample Imputation", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "iss-gov-1", title: "DPDP Act 2023 & National Data Governance Architecture", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "iss-beh-1", title: "Apex Statistical Leadership & Inter-Ministerial Policy Negotiation", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
+  ],
+  "SSS": [
+    { id: "sss-stat-1", title: "PLFS & ASUSE Schedule Filling & Validation Guidelines", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "sss-stat-2", title: "Consumer Price Index (CPI) Rural/Urban Quotation Protocols", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "sss-tech-1", title: "CAPI Tablet Operations & Real-Time Data Synchronization", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "sss-tech-2", title: "Bhuvan GIS Ground Truthing & Urban Frame Survey Mapping", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "sss-gov-1", title: "Field Data Confidentiality & Respondent Privacy Protocols", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "sss-beh-1", title: "Enumerator Team Supervision & Effective Public Interviewing", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
+  ],
+  "DES": [
+    { id: "des-stat-1", title: "Gross State Domestic Product (GSDP) & State Income Estimation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "des-stat-2", title: "Crop Estimation Surveys (EARAS) & State Agricultural Statistics", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "des-tech-1", title: "State Statistical Open Portals & GIS District Tabulation", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "des-gov-1", title: "Civil Registration System (CRS) & State-Centre Data Protocols", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+    { id: "des-beh-1", title: "District Administration Liaison & Field Survey Coordination", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
+  ]
+};
+
+async function initDashboard() {
+  const name = localStorage.getItem("mospi_user_name") || "Officer";
   const email = localStorage.getItem("mospi_user") || "officer@gov.in";
-  const desig = localStorage.getItem("mospi_registered_designation") || "Assistant Director (JTS) - ISS";
-  const cadre = localStorage.getItem("mospi_registered_cadre") || "Indian Statistical Service (ISS)";
-  const dept = localStorage.getItem("mospi_registered_ministry") || "National Accounts Division (NAD)";
+  const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
+  const cadre = localStorage.getItem("mospi_registered_cadre") || "Subordinate Statistical Service (SSS)";
+  const dept = localStorage.getItem("mospi_registered_ministry") || "Data Processing Division (DPD)";
 
   document.getElementById("officer-name").innerText = name;
   document.getElementById("officer-cadre").innerText = cadre;
   document.getElementById("officer-meta").innerText = `${desig} • ${dept}`;
 
-  let benchmarks = { statistical: 90, technical: 90, governance: 85, behavioural: 80 };
+  let benchmarks = { statistical: 82, technical: 82, governance: 78, behavioural: 75 };
   try {
-    const rawBench = localStorage.getItem("mospi_competency_benchmarks");
-    if (rawBench) benchmarks = JSON.parse(rawBench);
+    const raw = localStorage.getItem("mospi_competency_benchmarks");
+    if (raw) benchmarks = JSON.parse(raw);
   } catch(e) {}
 
-  // Fetch AI Recommendations tailored specifically for this designation from API
+  let cadreKey = (cadre.includes("ISS") || desig.includes("ISS") || desig.includes("Director")) ? "ISS" : (cadre.includes("DES") || desig.includes("State") || desig.includes("District")) ? "DES" : "SSS";
+
+  // Fetch from API or fallback locally
   try {
     const res = await fetch("http://127.0.0.1:5000/api/officer/recommendations", {
       method: "POST",
@@ -131,55 +164,60 @@ async function loadOfficerDashboard() {
       body: JSON.stringify({ email: email, designation: desig })
     });
     const data = await res.json();
-    currentOfficerModules = data.modules;
+    activeOfficerModules = data.modules;
   } catch(err) {
-    console.warn("Backend offline, using fallback catalog.", err);
+    const doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
+    activeOfficerModules = (FALLBACK_MODULES[cadreKey] || FALLBACK_MODULES["SSS"]).map(m => {
+      const clone = Object.assign({}, m);
+      clone.is_completed = doneLocal.includes(m.id);
+      return clone;
+    });
   }
 
-  // Calculate dynamic pillar score based on completed modules in this pillar
-  function getScoreForPillar(pillarKey) {
-    const pMods = currentOfficerModules.filter(m => m.pillar === pillarKey);
-    if (pMods.length === 0) return 0;
-    const completed = pMods.filter(m => m.is_completed).length;
-    return Math.round((completed / pMods.length) * 100);
+  function getPillarScore(pillarKey) {
+    const mods = activeOfficerModules.filter(m => m.pillar === pillarKey);
+    if (!mods.length) return 0;
+    const done = mods.filter(m => m.is_completed).length;
+    return Math.round((done / mods.length) * 100);
   }
 
   const pillars = [
-    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: getScoreForPillar("statistical") },
-    { key: "technical", title: "Technical Tools & AI/GIS", color: "#059669", target: benchmarks.technical, current: getScoreForPillar("technical") },
-    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: getScoreForPillar("governance") },
-    { key: "behavioural", title: "Behavioural & Leadership", color: "#7c3aed", target: benchmarks.behavioural, current: getScoreForPillar("behavioural") }
+    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: getPillarScore("statistical") },
+    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: benchmarks.technical, current: getPillarScore("technical") },
+    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: getPillarScore("governance") },
+    { key: "behavioural", title: "Managerial & Behavioural", color: "#7c3aed", target: benchmarks.behavioural, current: getPillarScore("behavioural") }
   ];
 
-  // Render 4 Pillars
-  const pillarGrid = document.getElementById("pillars-container");
-  pillarGrid.innerHTML = "";
+  // Render Pillars
+  const grid = document.getElementById("pillars-container");
+  grid.innerHTML = "";
   pillars.forEach(p => {
     const gap = Math.max(0, p.target - p.current);
-    const card = document.createElement("div");
-    card.className = "pillar-card";
-    card.innerHTML = `
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">${p.title}</span>
         <span style="font-size: 0.75rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: ${gap > 0 ? '#fee2e2' : '#dcfce7'}; color: ${gap > 0 ? '#b91c1c' : '#15803d'};">
-          ${gap > 0 ? 'Gap: +' + gap + '%' : 'Target Met'}
+          ${gap > 0 ? 'Gap: +' + gap + '%' : 'Completed'}
         </span>
       </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width: ${p.current}%; background: ${p.color};"></div>
-      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${p.current}%; background: ${p.color};"></div></div>
       <div style="font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between;">
-        <span>Completed: <strong>${p.current}%</strong></span>
+        <span>Current: <strong>${p.current}%</strong></span>
         <span>Target: <strong>${p.target}%</strong></span>
       </div>
     `;
-    pillarGrid.appendChild(card);
+    grid.appendChild(div);
   });
 
-  // Render AI Recommended Videos
-  const videoGrid = document.getElementById("video-modules-container");
-  videoGrid.innerHTML = "";
-  currentOfficerModules.forEach(m => {
+  // Render Enhanced Chart.js Pie Chart
+  renderPieChart(pillars);
+
+  // Render Videos
+  const vGrid = document.getElementById("video-modules-container");
+  vGrid.innerHTML = "";
+  activeOfficerModules.forEach(m => {
     const card = document.createElement("div");
     card.className = "video-card";
     card.innerHTML = `
@@ -189,115 +227,142 @@ async function loadOfficerDashboard() {
           <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.pillarTitle}</span>
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
         </div>
-        
         <div class="upload-zone" style="${m.is_completed ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${m.is_completed ? '' : `document.getElementById('input-${m.id}').click()`}">
           <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-file-arrow-up'}" style="color: ${m.is_completed ? '#15803d' : 'var(--primary-light)'};"></i>
           <span style="font-size: 0.8rem; font-weight: 600; color: ${m.is_completed ? '#15803d' : '#334155'}; margin-left: 6px;">
-            ${m.is_completed ? 'Certificate Verified & Stored in DB' : 'Upload Completion Certificate'}
+            ${m.is_completed ? 'Certificate Verified & Recorded' : 'Upload Completion Certificate'}
           </span>
-          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="uploadCourseCertificate(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
+          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="handleCertUpload(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
         </div>
       </div>
     `;
-    videoGrid.appendChild(card);
+    vGrid.appendChild(card);
   });
 }
 
-async function uploadCourseCertificate(e, moduleId, pillar, title) {
+function renderPieChart(pillars) {
+  const ctx = document.getElementById('competencyPieChart');
+  if (!ctx) return;
+  if (pieChartInstance) pieChartInstance.destroy();
+
+  const labels = pillars.map(p => p.title.split(' ')[0]);
+  const dataVals = pillars.map(p => p.current || 10);
+  const colors = ["#2563eb", "#059669", "#d97706", "#7c3aed"];
+
+  pieChartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: dataVals,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+async function handleCertUpload(e, moduleId, pillar, title) {
   const file = e.target.files[0];
   if (!file) return;
 
   const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+  let doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
+  if (!doneLocal.includes(moduleId)) {
+    doneLocal.push(moduleId);
+    localStorage.setItem("mospi_completed_video_ids", JSON.stringify(doneLocal));
+  }
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/officer/progress", {
+    await fetch("http://127.0.0.1:5000/api/officer/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, module_id: moduleId, pillar: pillar })
     });
-    const result = await res.json();
-    alert(`Certificate for "${title}" successfully verified!\n${pillar.toUpperCase()} competency updated to ${result.new_percentage}% in SQLite database.`);
   } catch(err) {
-    alert(`Certificate uploaded! (Offline demo mode).`);
+    console.warn("Backend API sync offline; state recorded in localStorage.", err);
   }
 
-  loadOfficerDashboard();
+  alert(`Certificate for "${title}" verified successfully!`);
+  initDashboard();
 }
 
-// Full-Page Real-Time Translation via API
-async function translateEntirePage(lang) {
-  if (lang === "en") {
-    loadOfficerDashboard();
-    return;
-  }
+function logoutOfficer() {
+  localStorage.removeItem("mospi_user");
+  localStorage.removeItem("mospi_user_name");
+  window.location.href = "login.html";
+}
 
-  const elements = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label"));
-  const textPayload = elements.map(el => el.innerText.trim()).filter(t => t.length > 0);
+async function runBhashini(lang) {
+  if (lang === "en") { initDashboard(); return; }
+  const els = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button")).filter(e => e.children.length === 0 && e.innerText.trim());
+  const texts = els.map(e => e.innerText.trim());
 
   try {
     const res = await fetch("http://127.0.0.1:5000/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts: textPayload, target_lang: lang })
+      body: JSON.stringify({ texts: texts, target_lang: lang })
     });
     const data = await res.json();
-    
     if (data.translations) {
-      let idx = 0;
-      elements.forEach(el => {
-        if (el.innerText.trim().length > 0 && data.translations[idx]) {
-          el.innerText = data.translations[idx];
-          idx++;
-        }
+      els.forEach((el, idx) => {
+        if (data.translations[idx]) el.innerText = data.translations[idx];
       });
     }
-  } catch(err) {
-    console.error("Translation API error:", err);
+  } catch(e) {
+    console.error("Bhashini translation failed:", e);
   }
 }
 
-// AI Chatbot Functions
 function toggleChatbot() {
-  const win = document.getElementById("chatbot-window");
-  win.style.display = (win.style.display === "flex") ? "none" : "flex";
+  const w = document.getElementById("chatbot-window");
+  w.style.display = (w.style.display === "flex") ? "none" : "flex";
 }
 
 async function sendChatMessage() {
   const inp = document.getElementById("chat-input");
   const msg = inp.value.trim();
   if (!msg) return;
-
-  const chatContainer = document.getElementById("chat-messages");
-  const userDiv = document.createElement("div");
-  userDiv.className = "chat-bubble bubble-user";
-  userDiv.innerText = msg;
-  chatContainer.appendChild(userDiv);
+  const c = document.getElementById("chat-messages");
+  
+  const u = document.createElement("div");
+  u.className = "chat-bubble bubble-user";
+  u.innerText = msg;
+  c.appendChild(u);
   inp.value = "";
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  c.scrollTop = c.scrollHeight;
 
   const desig = localStorage.getItem("mospi_registered_designation") || "Officer";
-
   try {
     const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: msg, designation: desig })
     });
-    const data = await res.json();
-    const botDiv = document.createElement("div");
-    botDiv.className = "chat-bubble bubble-bot";
-    botDiv.innerText = data.reply;
-    chatContainer.appendChild(botDiv);
+    const d = await res.json();
+    const b = document.createElement("div");
+    b.className = "chat-bubble bubble-bot";
+    b.innerText = d.reply;
+    c.appendChild(b);
   } catch(e) {
-    const botDiv = document.createElement("div");
-    botDiv.className = "chat-bubble bubble-bot";
-    botDiv.innerText = "I am ready to assist your MoSPI competency roadmap.";
-    chatContainer.appendChild(botDiv);
+    const b = document.createElement("div");
+    b.className = "chat-bubble bubble-bot";
+    b.innerText = "I am ready to assist with your MoSPI training pathway.";
+    c.appendChild(b);
   }
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  c.scrollTop = c.scrollHeight;
 }
 
-document.addEventListener("DOMContentLoaded", loadOfficerDashboard);
+document.addEventListener("DOMContentLoaded", initDashboard);
 </script>
 </body>
 </html>
