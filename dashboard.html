@@ -6,7 +6,7 @@
   <title>MoSPI & NSSTA Competency Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; --success: #16a34a; }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
     .container { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
@@ -22,17 +22,9 @@
     .video-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .video-frame { width: 100%; height: 200px; background: #000; border: none; }
     .video-body { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
-    
-    .actions-row { display: flex; flex-direction: column; gap: 8px; }
-    .btn-quiz { width: 100%; background: #f8fafc; border: 1.5px solid var(--primary-light); color: var(--primary-light); border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; transition: all 0.2s; }
-    .btn-quiz:hover { background: #eff6ff; }
+    .btn-quiz { width: 100%; background: #f8fafc; border: 1.5px solid var(--primary-light); color: var(--primary-light); border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; }
     .btn-quiz.completed { background: #dcfce7; border-color: #86efac; color: #15803d; cursor: default; }
-
-    .upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 8px; text-align: center; background: #f8fafc; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: #334155; }
-    .upload-zone:hover { border-color: var(--primary-light); background: #f0f9ff; }
-    .upload-zone.verified { background: #f0fdf4; border-color: #86efac; color: #166534; cursor: default; }
-
-    /* Interactive Quiz Modal */
+    
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
     .quiz-modal { background: #fff; width: 100%; max-width: 600px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; }
     .modal-header { background: var(--primary); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -41,7 +33,7 @@
     .quiz-opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-bottom: 6px; }
     .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
     .btn-sub-quiz { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-
+    
     #chatbot-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; }
     #chatbot-window { position: fixed; bottom: 90px; right: 24px; width: 350px; height: 460px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; flex-direction: column; z-index: 1000; overflow: hidden; }
     .chat-header { background: var(--primary); color: #fff; padding: 12px 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
@@ -52,7 +44,7 @@
     .chat-input-row { display: flex; border-top: 1px solid var(--border); }
     .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
     .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
-
+    
     #google_translate_element { display: inline-block; }
     .goog-te-gadget { font-size: 0px !important; }
     .goog-te-gadget span { display: none !important; }
@@ -60,18 +52,12 @@
   </style>
   <script type="text/javascript">
     function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'hi,te,ta,bn,mr,gu,kn',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-      }, 'google_translate_element');
+      new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
     }
   </script>
   <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
     <div>
@@ -81,11 +67,9 @@
       </div>
       <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);"></p>
     </div>
-
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="bhashini-bar">
         <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-        <span style="font-size: 0.8rem; font-weight: 700;">Bhashini:</span>
         <div id="google_translate_element"></div>
       </div>
       <a href="login.html" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -93,17 +77,16 @@
   </div>
 
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline</h3>
     <div class="grid-4" id="pillars-container"></div>
   </div>
 
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules, Assessments & Certificates</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Topic Assessments</h3>
     <div class="video-grid" id="video-modules-container"></div>
   </div>
 </div>
 
-<!-- Interactive Quiz Modal -->
 <div class="modal-overlay" id="quiz-modal-overlay">
   <div class="quiz-modal">
     <div class="modal-header">
@@ -120,17 +103,9 @@
 
 <button id="chatbot-toggle" onclick="toggleChatbot()"><i class="fa-solid fa-robot"></i></button>
 <div id="chatbot-window">
-  <div class="chat-header">
-    <span><i class="fa-solid fa-brain"></i> MoSPI AI Learning Assistant</span>
-    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
-  </div>
-  <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble bubble-bot">Namaste! Watch the recommended video courses above and either pass the topic quiz or upload your certificate to complete each module.</div>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" id="chat-input" placeholder="Ask AI..." onkeypress="if(event.key==='Enter') sendChat()">
-    <button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
-  </div>
+  <div class="chat-header"><span><i class="fa-solid fa-brain"></i> MoSPI AI Assistant</span><i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i></div>
+  <div class="chat-messages" id="chat-messages"><div class="chat-bubble bubble-bot">Namaste! Complete your videos and attempt the topic quiz below each video to raise your competency score.</div></div>
+  <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask AI..." onkeypress="if(event.key==='Enter') sendChat()"><button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div>
 </div>
 
 <script>
@@ -198,29 +173,22 @@ function renderDashboard() {
   }
 
   const pData = [
-    { title: "Statistical Frameworks", color: "#2563eb", cur: getScore("statistical"), tgt: 85 },
-    { title: "Technical Tools & AI", color: "#059669", cur: getScore("technical"), tgt: 85 },
-    { title: "Digital Governance", color: "#d97706", cur: getScore("governance"), tgt: 80 },
-    { title: "Managerial & Behavioural", color: "#7c3aed", cur: getScore("behavioural"), tgt: 80 }
+    { title: "Statistical", color: "#2563eb", cur: getScore("statistical"), tgt: 85 },
+    { title: "Technical", color: "#059669", cur: getScore("technical"), tgt: 85 },
+    { title: "Governance", color: "#d97706", cur: getScore("governance"), tgt: 80 },
+    { title: "Behavioural", color: "#7c3aed", cur: getScore("behavioural"), tgt: 80 }
   ];
 
   const grid = document.getElementById("pillars-container");
   grid.innerHTML = "";
   pData.forEach(p => {
-    const gap = Math.max(0, p.tgt - p.cur);
     const div = document.createElement("div");
     div.className = "card";
     div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; font-size:0.85rem;">
-        <span>${p.title}</span>
-        <span style="font-size:0.75rem; padding:2px 6px; border-radius:4px; background:${gap>0?'#fee2e2':'#dcfce7'}; color:${gap>0?'#b91c1c':'#15803d'};">
-          ${gap>0?'Gap: +'+gap+'%':'Completed'}
-        </span>
+      <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.85rem;">
+        <span>${p.title}</span><span>${p.cur}% / ${p.tgt}%</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${p.cur}%; background:${p.color};"></div></div>
-      <div style="font-size:0.75rem; color:var(--muted); display:flex; justify-content:space-between;">
-        <span>Current: <strong>${p.cur}%</strong></span><span>Target: <strong>${p.tgt}%</strong></span>
-      </div>
     `;
     grid.appendChild(div);
   });
@@ -237,34 +205,21 @@ function renderDashboard() {
           <span class="badge" style="background:#f1f5f9; color:#475569; margin-bottom:6px; display:inline-block;">${m.provider}</span>
           <h4 style="font-size:0.95rem; font-weight:700; color:#1e293b;">${m.title}</h4>
         </div>
-        
-        <div class="actions-row">
-          <button class="btn-quiz ${m.is_completed ? 'completed' : ''}" onclick="${m.is_completed ? '' : `openQuiz('${m.id}', '${m.title.replace(/'/g, "\\'")}')`}">
-            <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-pen-to-square'}"></i>
-            <span>${m.is_completed ? 'Assessment Passed & Course Completed' : 'Attempt Topic Quiz'}</span>
-          </button>
-
-          <div class="upload-zone ${m.is_completed ? 'verified' : ''}" onclick="${m.is_completed ? '' : `document.getElementById('file-${m.id}').click()`}">
-            <i class="fa-solid ${m.is_completed ? 'fa-certificate' : 'fa-file-arrow-up'}"></i>
-            <span>${m.is_completed ? 'Certificate Verified' : 'Upload Completion Certificate'}</span>
-            ${m.is_completed ? '' : `<input type="file" id="file-${m.id}" style="display:none;" accept=".pdf,image/*" onchange="uploadCert('${m.id}', '${m.title.replace(/'/g, "\\'")}')">`}
-          </div>
-        </div>
+        <button class="btn-quiz ${m.is_completed ? 'completed' : ''}" onclick="${m.is_completed ? '' : `openQuiz('${m.id}', '${m.title.replace(/'/g, "\\'")}')`}">
+          <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-pen-to-square'}"></i>
+          <span>${m.is_completed ? 'Assessment Passed' : 'Attempt Topic Quiz'}</span>
+        </button>
       </div>
     `;
     vGrid.appendChild(card);
   });
 }
 
-function uploadCert(id, title) {
-  markCourseCompleted(id, `Certificate verified for "${title}"! Course marked as Completed.`);
-}
-
 async function openQuiz(id, title) {
   curQuiz = { id: id, title: title };
   document.getElementById("quiz-modal-title").innerHTML = `<i class="fa-solid fa-pen-nib"></i> Quiz: ${title}`;
   const body = document.getElementById("quiz-modal-body");
-  body.innerHTML = `<div style="text-align:center; padding:20px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading questions...</div>`;
+  body.innerHTML = `<div style="text-align:center; padding:20px;">Loading questions...</div>`;
   document.getElementById("quiz-modal-overlay").style.display = "flex";
 
   let qs = [];
@@ -285,8 +240,8 @@ async function openQuiz(id, title) {
 
   if (!qs.length) {
     qs = [
-      { question: `What standard protocol applies in "${title}"?`, optA: "Official MoSPI / NSSTA Standard Operating Procedure", optB: "Unverified approximation", optC: "Ad-hoc estimation", optD: "Bypassing validation checks", correct: "a" },
-      { question: `How does adhering to these guidelines ensure quality?`, optA: "Ensures cross-cadre statistical data integrity", optB: "Reduces overall data points", optC: "Skips review stages", optD: "None of the above", correct: "a" }
+      { question: `What standard applies in "${title}"?`, optA: "MoSPI/NSSTA Standard Operating Guidelines", optB: "Unverified approximation", optC: "Ad-hoc estimation", optD: "Bypass validation", correct: "a" },
+      { question: `Why is this module critical?`, optA: "Ensures cross-cadre statistical data integrity", optB: "Reduces survey data size", optC: "Skips review checks", optD: "None of these", correct: "a" }
     ];
   }
 
@@ -316,48 +271,13 @@ function submitActiveQuiz() {
       alert("Please answer all questions."); return;
     }
   }
-  markCourseCompleted(curQuiz.id, `Congratulations! You passed the assessment for "${curQuiz.title}". Course marked as Completed.`);
-  closeQuizModal();
-}
-
-function markCourseCompleted(id, successMsg) {
   let done = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
-  if (!done.includes(id)) {
-    done.push(id);
+  if (!done.includes(curQuiz.id)) {
+    done.push(curQuiz.id);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify(done));
   }
-
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
-  const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
-  const modObj = activeMods.find(m => m.id === id);
-  const pillar = modObj ? modObj.pillar : "statistical";
-
-  // Record into global officer progress map
-  let globalProgress = JSON.parse(localStorage.getItem("mospi_global_officer_progress") || "{}");
-  if (!globalProgress[email]) {
-    globalProgress[email] = { designation: desig, statistical: 0, technical: 0, governance: 0, behavioural: 0, completed_ids: [] };
-  }
-  if (!globalProgress[email].completed_ids) globalProgress[email].completed_ids = [];
-  if (!globalProgress[email].completed_ids.includes(id)) globalProgress[email].completed_ids.push(id);
-
-  // Recalculate officer pillar %
-  const pMods = activeMods.filter(m => m.pillar === pillar);
-  if (pMods.length > 0) {
-    const pDone = pMods.filter(m => globalProgress[email].completed_ids.includes(m.id)).length;
-    globalProgress[email][pillar] = Math.round((pDone / pMods.length) * 100);
-  }
-  localStorage.setItem("mospi_global_officer_progress", JSON.stringify(globalProgress));
-
-  // Sync to SQLite if local server is active
-  try {
-    fetch("http://127.0.0.1:5000/api/officer/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, module_id: id, pillar: pillar })
-    }).catch(() => {});
-  } catch(e) {}
-
-  alert(successMsg);
+  alert(`Assessment passed for "${curQuiz.title}"! Course marked as Completed.`);
+  closeQuizModal();
   renderDashboard();
 }
 
@@ -372,7 +292,7 @@ function sendChat() {
   const c = document.getElementById("chat-messages");
   const u = document.createElement("div"); u.className = "chat-bubble bubble-user"; u.innerText = inp.value; c.appendChild(u);
   inp.value = "";
-  const b = document.createElement("div"); b.className = "chat-bubble bubble-bot"; b.innerText = "To improve your score, complete the assigned video modules and pass the topic quiz or upload certificates."; c.appendChild(b);
+  const b = document.createElement("div"); b.className = "chat-bubble bubble-bot"; b.innerText = "To increase your competency score, complete your assigned video modules and pass the topic quiz below each."; c.appendChild(b);
   c.scrollTop = c.scrollHeight;
 }
 

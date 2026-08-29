@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoSPI / NSSTA Officer Registration</title>
+  <title>MoSPI Officer Registration</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --primary: #1e3a8a; --primary-hover: #172554; --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #cbd5e1; }
@@ -26,24 +26,24 @@
 <div class="reg-card">
   <div class="header">
     <i class="fa-solid fa-landmark" style="font-size: 2rem; color: var(--primary); margin-bottom: 8px;"></i>
-    <h2>MoSPI & NSSTA Competency Portal</h2>
-    <p>Official Statistics Officer Registration & 4-Pillar Baseline Setup</p>
+    <h2>MoSPI Competency Portal</h2>
+    <p>Official Statistics Officer Registration</p>
   </div>
   <form id="officer-registration-form">
     <div class="form-group">
       <label for="officer_name">Full Name</label>
-      <input type="text" id="officer_name" class="form-control" placeholder="e.g. Nagari Harsha Vardhan" required>
+      <input type="text" id="officer_name" class="form-control" placeholder="Nagari Harsha Vardhan" required>
     </div>
     <div class="form-group">
       <label for="officer_email">Government Email ID</label>
-      <input type="email" id="officer_email" class="form-control" placeholder="e.g. officer@gov.in" required>
+      <input type="email" id="officer_email" class="form-control" placeholder="officer@gov.in" required>
     </div>
     <div class="form-group">
       <label for="officer_password">Password</label>
       <input type="password" id="officer_password" class="form-control" placeholder="••••••••" required>
     </div>
     <div class="form-group">
-      <label for="department_select">Statistical Division / Directorate</label>
+      <label for="department_select">Statistical Division</label>
       <select id="department_select" class="form-control" required></select>
     </div>
     <div class="form-group">
@@ -57,58 +57,54 @@
   </div>
 </div>
 <script>
-window.NSSTA_STATISTICAL_ROLES_DB = {
-  "Director General (DG / Apex Level) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 95, technical: 85, governance: 98, behavioural: 95 } },
-  "Additional Director General (ADG / HAG) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 94, technical: 85, governance: 95, behavioural: 92 } },
-  "Deputy Director General (DDG / SAG) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 92, technical: 88, governance: 92, behavioural: 90 } },
-  "Director / Joint Director (JAG) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 92, technical: 90, governance: 88, behavioural: 85 } },
-  "Deputy Director (STS) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 90, technical: 92, governance: 85, behavioural: 82 } },
-  "Assistant Director (JTS) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 90, technical: 90, governance: 85, behavioural: 80 } },
-  "Probationer / Officer Trainee (ISS - NSSTA)": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 88, technical: 88, governance: 82, behavioural: 80 } },
-  "Senior Statistical Officer (SSO / Gazetted)": { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 88, technical: 85, governance: 82, behavioural: 80 } },
-  "Senior Statistical Officer (SSO / Non-Gazetted)": { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 85, technical: 82, governance: 80, behavioural: 78 } },
-  "Junior Statistical Officer (JSO)": { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 82, technical: 82, governance: 78, behavioural: 75 } },
-  "Statistical Assistant / Senior Field Investigator": { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 80, technical: 78, governance: 75, behavioural: 75 } },
-  "Director of Economics & Statistics (State Head)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 92, technical: 85, governance: 95, behavioural: 92 } },
-  "Joint / Deputy Director (State DES)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 90, technical: 85, governance: 88, behavioural: 85 } },
-  "District Statistical Officer (DSO)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 85, technical: 82, governance: 82, behavioural: 82 } },
-  "Assistant Statistical Officer / Statistical Officer (State)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 82, technical: 80, governance: 78, behavioural: 75 } },
-  "Statistical Inspector / Research Assistant (DES)": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 80, technical: 78, governance: 75, behavioural: 75 } },
-  "Primary Field Investigator / Enumerator": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 78, technical: 75, governance: 72, behavioural: 75 } }
+window.NSSTA_ROLES = {
+  "Director General (DG / Apex Level) - ISS": "Indian Statistical Service (ISS)",
+  "Additional Director General (ADG / HAG) - ISS": "Indian Statistical Service (ISS)",
+  "Deputy Director General (DDG / SAG) - ISS": "Indian Statistical Service (ISS)",
+  "Director / Joint Director (JAG) - ISS": "Indian Statistical Service (ISS)",
+  "Deputy Director (STS) - ISS": "Indian Statistical Service (ISS)",
+  "Assistant Director (JTS) - ISS": "Indian Statistical Service (ISS)",
+  "Probationer / Officer Trainee (ISS - NSSTA)": "Indian Statistical Service (ISS)",
+  "Senior Statistical Officer (SSO / Gazetted)": "Subordinate Statistical Service (SSS)",
+  "Senior Statistical Officer (SSO / Non-Gazetted)": "Subordinate Statistical Service (SSS)",
+  "Junior Statistical Officer (JSO)": "Subordinate Statistical Service (SSS)",
+  "Statistical Assistant / Senior Field Investigator": "Subordinate Statistical Service (SSS)",
+  "Director of Economics & Statistics (State Head)": "State DES Statistical Cadre",
+  "Joint / Deputy Director (State DES)": "State DES Statistical Cadre",
+  "District Statistical Officer (DSO)": "State DES Statistical Cadre",
+  "Assistant Statistical Officer / Statistical Officer (State)": "State DES Statistical Cadre",
+  "Statistical Inspector / Research Assistant (DES)": "State DES Statistical Cadre",
+  "Primary Field Investigator / Enumerator": "State DES Statistical Cadre"
 };
 
-const ORIGINAL_DIVISIONS = [
-  "National Accounts Division (NAD) — Macro Aggregates & GDP",
-  "Economic Statistics Division (ESD) — IIP & ASI",
-  "Price Statistics Division (PSD) — CPI & Inflation",
-  "Social Statistics Division (SSD) — SDG Metrics",
-  "Field Operations Division (FOD) — Primary Field Surveys",
-  "Survey Design and Research Division (SDRD) — Sampling Design",
-  "Data Processing Division (DPD) — Validation & Tabulation",
-  "Data Informatics & Innovation Division (DIID) — Cloud & AI",
-  "National Statistical Systems Training Academy (NSSTA) — Training HQ",
-  "State Directorate of Economics & Statistics (DES) — State HQ",
-  "District Statistical Office (DSO) — Field Unit"
+const DIVISIONS = [
+  "National Accounts Division (NAD)",
+  "Economic Statistics Division (ESD)",
+  "Price Statistics Division (PSD)",
+  "Social Statistics Division (SSD)",
+  "Field Operations Division (FOD)",
+  "Survey Design and Research Division (SDRD)",
+  "Data Processing Division (DPD)",
+  "Data Informatics & Innovation Division (DIID)",
+  "NSSTA HQ",
+  "State DES",
+  "District Statistical Office"
 ];
 
-function initRegistration() {
-  const deptSelect = document.getElementById("department_select");
-  const desigSelect = document.getElementById("designation_select");
+function init() {
+  const dept = document.getElementById("department_select");
+  const desig = document.getElementById("designation_select");
 
-  deptSelect.innerHTML = "";
-  ORIGINAL_DIVISIONS.forEach(dept => {
+  DIVISIONS.forEach(d => {
     const opt = document.createElement("option");
-    opt.value = dept;
-    opt.textContent = dept;
-    deptSelect.appendChild(opt);
+    opt.value = d; opt.textContent = d;
+    dept.appendChild(opt);
   });
 
-  desigSelect.innerHTML = "";
-  Object.keys(window.NSSTA_STATISTICAL_ROLES_DB).forEach(role => {
+  Object.keys(window.NSSTA_ROLES).forEach(r => {
     const opt = document.createElement("option");
-    opt.value = role;
-    opt.textContent = role;
-    desigSelect.appendChild(opt);
+    opt.value = r; opt.textContent = r;
+    desig.appendChild(opt);
   });
 
   document.getElementById("officer-registration-form").onsubmit = function(e) {
@@ -116,23 +112,16 @@ function initRegistration() {
     const nameVal = document.getElementById("officer_name").value.trim();
     const emailVal = document.getElementById("officer_email").value.trim().toLowerCase();
     const passVal = document.getElementById("officer_password").value.trim();
-    const deptVal = deptSelect.value;
-    const desigVal = desigSelect.value;
-    const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal];
+    const deptVal = dept.value;
+    const desigVal = desig.value;
+    const cadreVal = window.NSSTA_ROLES[desigVal] || "Subordinate Statistical Service (SSS)";
 
     localStorage.setItem("mospi_user", emailVal);
     localStorage.setItem("mospi_user_name", nameVal);
     localStorage.setItem("mospi_registered_ministry", deptVal);
-    localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+    localStorage.setItem("mospi_registered_cadre", cadreVal);
     localStorage.setItem("mospi_registered_designation", desigVal);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
-
-    // Maintain global array for instant admin access
-    let officers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
-    if (!officers.some(o => o.email === emailVal)) {
-      officers.push({ name: nameVal, email: emailVal, designation: desigVal, cadre: roleData.cadre, department: deptVal });
-      localStorage.setItem("mospi_all_registered_officers", JSON.stringify(officers));
-    }
 
     try {
       fetch("http://127.0.0.1:5000/api/register", {
@@ -147,8 +136,7 @@ function initRegistration() {
     return false;
   };
 }
-
-document.addEventListener("DOMContentLoaded", initRegistration);
+document.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>

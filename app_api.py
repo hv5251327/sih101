@@ -36,7 +36,6 @@ def get_db():
 def init_db():
     conn = get_db()
     c = conn.cursor()
-
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,16 +62,6 @@ def init_db():
     );''')
 
     c.execute('''
-    CREATE TABLE IF NOT EXISTS user_progress (
-        progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(100) NOT NULL,
-        module_id VARCHAR(50) NOT NULL,
-        pillar VARCHAR(50) NOT NULL,
-        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(email, module_id)
-    );''')
-
-    c.execute('''
     CREATE TABLE IF NOT EXISTS topic_quizzes (
         quiz_id INTEGER PRIMARY KEY AUTOINCREMENT,
         topic_title VARCHAR(250) NOT NULL,
@@ -83,6 +72,20 @@ def init_db():
         option_d TEXT NOT NULL,
         correct_option VARCHAR(5) NOT NULL DEFAULT 'a',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );''')
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS officer_recommendations (
+        rec_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        officer_email VARCHAR(100) NOT NULL,
+        designation_name VARCHAR(150) NOT NULL,
+        module_id VARCHAR(50) NOT NULL,
+        module_title VARCHAR(250) NOT NULL,
+        pillar VARCHAR(50) NOT NULL,
+        embed_url TEXT NOT NULL,
+        is_completed INTEGER DEFAULT 0,
+        recommended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(officer_email, module_id)
     );''')
 
     c.execute('''
@@ -100,41 +103,6 @@ def init_db():
     conn.close()
 
 init_db()
-
-@app.route("/api/login", methods=["POST"])
-def login():
-    try:
-        data = request.json or {}
-        email = data.get("email", "").strip().lower()
-        password = data.get("password", "").strip()
-
-        if email == "admin@mospi.gov.in" and password == "admin123":
-            return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
-
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
-        user = c.fetchone()
-        conn.close()
-
-        if not user:
-            return jsonify({"status": "error", "message": "Account not found. Please register."}), 404
-        if user["password"] != password:
-            return jsonify({"status": "error", "message": "Incorrect password."}), 401
-
-        return jsonify({
-            "status": "success",
-            "role": "officer",
-            "redirect": "dashboard.html",
-            "user": {
-                "name": user["full_name"],
-                "email": user["email"],
-                "designation": user["designation"],
-                "department": user["department"]
-            }
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/register", methods=["POST"])
 def register():
@@ -169,98 +137,39 @@ def register():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route("/api/officer/progress", methods=["POST"])
-def update_officer_progress():
+@app.route("/api/login", methods=["POST"])
+def login():
     try:
         data = request.json or {}
         email = data.get("email", "").strip().lower()
-        module_id = data.get("module_id", "")
-        pillar = data.get("pillar", "statistical").lower()
+        password = data.get("password", "").strip()
 
-        if not email or not module_id:
-            return jsonify({"status": "error", "message": "Missing email or module_id"}), 400
+        if email == "admin@mospi.gov.in" and password == "admin123":
+            return jsonify({"status": "success", "role": "admin"})
 
         conn = get_db()
         c = conn.cursor()
-        c.execute("INSERT OR IGNORE INTO user_progress (email, module_id, pillar) VALUES (?, ?, ?)", (email, module_id, pillar))
-
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'statistical'", (email,))
-        stat_done = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'technical'", (email,))
-        tech_done = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'governance'", (email,))
-        gov_done = c.fetchone()[0]
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'behavioural'", (email,))
-        beh_done = c.fetchone()[0]
-
-        c.execute("""
-            UPDATE officer_profiles 
-            SET current_statistical = MIN(100, ? * 100),
-                current_technical = MIN(100, ? * 100),
-                current_governance = MIN(100, ? * 100),
-                current_behavioural = MIN(100, ? * 100)
-            WHERE LOWER(email) = ?
-        """, (stat_done, tech_done, gov_done, beh_done, email))
-
-        conn.commit()
+        c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
+        user = c.fetchone()
         conn.close()
-        return jsonify({"status": "success"})
+
+        if not user:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+        if user["password"] != password:
+            return jsonify({"status": "error", "message": "Wrong password"}), 401
+
+        return jsonify({
+            "status": "success",
+            "role": "officer",
+            "user": {
+                "name": user["full_name"],
+                "email": user["email"],
+                "designation": user["designation"],
+                "department": user["department"]
+            }
+        })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route("/api/admin/summary", methods=["GET"])
-def get_admin_summary():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM users")
-    total_officers = c.fetchone()[0]
-    c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")
-    total_roles = c.fetchone()[0]
-    c.execute("""
-        SELECT 
-            ROUND(COALESCE(AVG(current_statistical), 0), 1),
-            ROUND(COALESCE(AVG(current_technical), 0), 1)
-        FROM officer_profiles
-    """)
-    avg_row = c.fetchone()
-    conn.close()
-    return jsonify({
-        "total_officers": total_officers,
-        "total_designations": total_roles,
-        "avg_statistical": avg_row[0] if avg_row else 0,
-        "avg_technical": avg_row[1] if avg_row else 0
-    })
-
-@app.route("/api/admin/heatmap", methods=["GET"])
-def get_admin_heatmap():
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("""
-        SELECT 
-            t.designation_name,
-            t.cadre_name,
-            COUNT(u.id) AS enrolled_count,
-            t.target_statistical,
-            ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
-            ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
-            t.target_technical,
-            ROUND(COALESCE(AVG(o.current_technical), 0), 1) AS current_technical,
-            ROUND(MAX(0, t.target_technical - COALESCE(AVG(o.current_technical), 0)), 1) AS gap_technical,
-            t.target_governance,
-            ROUND(COALESCE(AVG(o.current_governance), 0), 1) AS current_governance,
-            ROUND(MAX(0, t.target_governance - COALESCE(AVG(o.current_governance), 0)), 1) AS gap_governance,
-            t.target_behavioural,
-            ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
-            ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
-        FROM designation_competency_targets t
-        LEFT JOIN users u ON LOWER(t.designation_name) = LOWER(u.designation)
-        LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
-        GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
-        ORDER BY t.cadre_name, t.target_statistical DESC
-    """)
-    rows = [dict(row) for row in c.fetchall()]
-    conn.close()
-    return jsonify({"heatmap_data": rows})
 
 @app.route("/api/admin/save-quiz", methods=["POST"])
 def save_quiz():
@@ -296,6 +205,48 @@ def get_quiz_by_topic():
         return jsonify({"status": "success", "questions": qs})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/api/admin/heatmap", methods=["GET"])
+def get_admin_heatmap():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("""
+        SELECT 
+            t.designation_name,
+            t.cadre_name,
+            COUNT(u.id) AS enrolled_count,
+            t.target_statistical,
+            ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
+            ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
+            t.target_technical,
+            ROUND(COALESCE(AVG(o.current_technical), 0), 1) AS current_technical,
+            ROUND(MAX(0, t.target_technical - COALESCE(AVG(o.current_technical), 0)), 1) AS gap_technical,
+            t.target_governance,
+            ROUND(COALESCE(AVG(o.current_governance), 0), 1) AS current_governance,
+            ROUND(MAX(0, t.target_governance - COALESCE(AVG(o.current_governance), 0)), 1) AS gap_governance,
+            t.target_behavioural,
+            ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
+            ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
+        FROM designation_competency_targets t
+        LEFT JOIN users u ON t.designation_name = u.designation
+        LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
+        GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
+        ORDER BY t.cadre_name, t.target_statistical DESC
+    """)
+    rows = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return jsonify({"heatmap_data": rows})
+
+@app.route("/api/admin/summary", methods=["GET"])
+def get_admin_summary():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM users")
+    total_officers = c.fetchone()[0]
+    c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")
+    total_roles = c.fetchone()[0]
+    conn.close()
+    return jsonify({"total_officers": total_officers, "total_designations": total_roles, "avg_statistical": 0, "avg_technical": 0})
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
