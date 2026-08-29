@@ -37,23 +37,24 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
 
+    # Primary Users Table for all Authentication & Registrations
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(100) DEFAULT 'password123',
+        password VARCHAR(100) NOT NULL,
         full_name VARCHAR(100) NOT NULL,
         designation VARCHAR(150),
         department VARCHAR(150),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );''')
 
+    # Officer Profiles (Linked by email for competency analytics)
     c.execute('''
     CREATE TABLE IF NOT EXISTS officer_profiles (
         officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         email VARCHAR(100) UNIQUE NOT NULL,
         full_name VARCHAR(100) NOT NULL,
-        password VARCHAR(100) DEFAULT 'password123',
         department VARCHAR(150) NOT NULL,
         designation_name VARCHAR(150),
         current_statistical INTEGER DEFAULT 0,
@@ -62,13 +63,6 @@ def init_db():
         current_behavioural INTEGER DEFAULT 0,
         registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );''')
-
-    # Auto-patch missing columns
-    for tbl in ["users", "officer_profiles"]:
-        c.execute(f"PRAGMA table_info({tbl});")
-        cols = [r["name"] for r in c.fetchall()]
-        if "password" not in cols:
-            c.execute(f"ALTER TABLE {tbl} ADD COLUMN password VARCHAR(100) DEFAULT 'password123';")
 
     c.execute('''
     CREATE TABLE IF NOT EXISTS designation_competency_targets (
@@ -86,86 +80,88 @@ def init_db():
 
 init_db()
 
-# Flexible Login: accepts credentials from users or officer_profiles with fallback
+# --- 1. Registration Endpoint: Stores new users directly in `users` table ---
+@app.route("/api/register", methods=["POST"])
+def register():
+    data = request.json or {}
+    name = data.get("name", "").strip()
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    dept = data.get("department", "National Accounts Division").strip()
+    desig = data.get("designation", "Junior Statistical Officer (JSO)").strip()
+
+    if not email or not name or not password:
+        return jsonify({"status": "error", "message": "Full Name, Email, and Password are required!"}), 400
+
+    conn = get_db()
+    c = conn.cursor()
+
+    # Block duplicate registrations in users table
+    c.execute("SELECT email FROM users WHERE LOWER(email) = ?", (email,))
+    if c.fetchone():
+        conn.close()
+        return jsonify({"status": "error", "message": "This email is already registered. Please login directly."}), 409
+
+    # Insert new record directly into users table
+    c.execute("""
+        INSERT INTO users (email, password, full_name, designation, department)
+        VALUES (?, ?, ?, ?, ?)
+    """, (email, password, name, desig, dept))
+
+    # Also sync into officer_profiles so dashboard and heatmap analytics work seamlessly
+    c.execute("""
+        INSERT INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
+        VALUES (?, ?, ?, ?, 0, 0, 0, 0)
+        ON CONFLICT(email) DO UPDATE SET
+            full_name = excluded.full_name,
+            department = excluded.department,
+            designation_name = excluded.designation_name
+    """, (email, name, dept, desig))
+
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Officer registered successfully in users table!"})
+
+# --- 2. Login Endpoint: Validates credentials against `users` table ---
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.json or {}
     email = data.get("email", "").strip().lower()
     password = data.get("password", "").strip()
 
-    if not email:
-        return jsonify({"status": "error", "message": "Email is required"}), 400
+    if not email or not password:
+        return jsonify({"status": "error", "message": "Email and Password are required!"}), 400
 
     conn = get_db()
     c = conn.cursor()
 
-    # Search officer_profiles first
-    c.execute("SELECT full_name, email, password, department, designation_name FROM officer_profiles WHERE LOWER(email) = ?", (email,))
+    # Fetch user from users table
+    c.execute("""
+        SELECT id, email, password, full_name, designation, department 
+        FROM users 
+        WHERE LOWER(email) = ?
+    """, (email,))
     user = c.fetchone()
-
-    # Fallback to users table
-    if not user:
-        c.execute("SELECT full_name, email, password, department, designation as designation_name FROM users WHERE LOWER(email) = ?", (email,))
-        user = c.fetchone()
-
     conn.close()
 
     if not user:
-        return jsonify({"status": "error", "message": "No account found with this email. Please register."}), 404
+        return jsonify({"status": "error", "message": "No account found with this email in users table. Please register first."}), 404
 
-    # If password is set in DB and provided, verify it (otherwise allow seamless transition)
-    db_pass = user["password"]
-    if db_pass and password and db_pass != password:
-        return jsonify({"status": "error", "message": "Incorrect password."}), 401
+    # Validate password
+    if user["password"] != password:
+        return jsonify({"status": "error", "message": "Incorrect password. Please try again."}), 401
 
     return jsonify({
         "status": "success",
         "user": {
             "name": user["full_name"],
             "email": user["email"],
-            "department": user["department"],
-            "designation": user["designation_name"]
+            "department": user["department"] or "MoSPI General Division",
+            "designation": user["designation"] or "Junior Statistical Officer (JSO)"
         }
     })
 
-# Registration: writes to both tables and handles duplicates cleanly
-@app.route("/api/register", methods=["POST"])
-def register():
-    data = request.json or {}
-    name = data.get("name", "").strip()
-    email = data.get("email", "").strip().lower()
-    password = data.get("password", "password123").strip()
-    dept = data.get("department", "National Accounts Division").strip()
-    desig = data.get("designation", "Junior Statistical Officer (JSO)").strip()
-
-    if not email or not name:
-        return jsonify({"status": "error", "message": "Name and Email are required"}), 400
-
-    conn = get_db()
-    c = conn.cursor()
-
-    c.execute("SELECT email FROM officer_profiles WHERE LOWER(email) = ?", (email,))
-    if c.fetchone():
-        conn.close()
-        return jsonify({"status": "error", "message": "This email is already registered!"}), 409
-
-    # Insert into users table
-    c.execute("""
-        INSERT OR REPLACE INTO users (email, password, full_name, designation, department)
-        VALUES (?, ?, ?, ?, ?)
-    """, (email, password, name, desig, dept))
-
-    # Insert into officer_profiles table
-    c.execute("""
-        INSERT OR REPLACE INTO officer_profiles (email, full_name, password, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
-        VALUES (?, ?, ?, ?, ?, 0, 0, 0, 0)
-    """, (email, name, password, dept, desig))
-
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "success", "message": "Officer registered successfully"})
-
-# Admin Heatmap: returns all 17 designations
+# --- 3. Admin Heatmap: Aggregated across targets and users/profiles ---
 @app.route("/api/admin/heatmap", methods=["GET"])
 def get_admin_heatmap():
     conn = get_db()
@@ -174,7 +170,7 @@ def get_admin_heatmap():
         SELECT 
             t.designation_name,
             t.cadre_name,
-            COUNT(o.officer_id) AS enrolled_count,
+            COUNT(u.id) AS enrolled_count,
             t.target_statistical,
             ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
             ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
@@ -188,7 +184,8 @@ def get_admin_heatmap():
             ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
             ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
         FROM designation_competency_targets t
-        LEFT JOIN officer_profiles o ON t.designation_name = o.designation_name
+        LEFT JOIN users u ON t.designation_name = u.designation
+        LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
         GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
         ORDER BY t.cadre_name, t.target_statistical DESC
     """)
@@ -200,7 +197,7 @@ def get_admin_heatmap():
 def get_admin_summary():
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM officer_profiles")
+    c.execute("SELECT COUNT(*) FROM users")
     total_officers = c.fetchone()[0]
 
     c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")

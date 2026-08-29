@@ -62,6 +62,9 @@
 <script>
 document.getElementById("login-form").onsubmit = async function(e) {
   e.preventDefault();
+  const btn = document.querySelector(".btn-submit");
+  if (btn) { btn.disabled = true; btn.innerText = "Authenticating..."; }
+
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
@@ -78,16 +81,25 @@ document.getElementById("login-form").onsubmit = async function(e) {
       localStorage.setItem("mospi_user_name", data.user.name);
       localStorage.setItem("mospi_registered_ministry", data.user.department);
       localStorage.setItem("mospi_registered_designation", data.user.designation);
+
+      const desig = data.user.designation || "";
+      let cadre = "Subordinate Statistical Service (SSS)";
+      if (desig.includes("ISS") || desig.includes("Director General") || desig.includes("Director (") || desig.includes("Assistant Director")) {
+        cadre = "Indian Statistical Service (ISS)";
+      } else if (desig.includes("DES") || desig.includes("State") || desig.includes("District")) {
+        cadre = "State DES Statistical Cadre";
+      }
+      localStorage.setItem("mospi_registered_cadre", cadre);
+
       window.location.href = "dashboard.html";
       return false;
     } else {
-      alert(data.message || "Invalid credentials.");
-      return false;
+      alert(data.message || "Invalid credentials. Please check your email and password.");
+      if (btn) { btn.disabled = false; btn.innerText = "Sign In to Dashboard"; }
     }
   } catch(err) {
-    // Offline resilient fallback
-    localStorage.setItem("mospi_user", email);
-    window.location.href = "dashboard.html";
+    alert("Backend server is not reachable. Please ensure python app_api.py is running on port 5000.");
+    if (btn) { btn.disabled = false; btn.innerText = "Sign In to Dashboard"; }
   }
   return false;
 };
