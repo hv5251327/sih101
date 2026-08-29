@@ -108,7 +108,6 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
-        # Explicit admin check
         if email == "admin@mospi.gov.in" and password == "admin123":
             return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
 
@@ -254,7 +253,7 @@ def get_admin_heatmap():
             ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
             ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
         FROM designation_competency_targets t
-        LEFT JOIN users u ON t.designation_name = u.designation
+        LEFT JOIN users u ON LOWER(t.designation_name) = LOWER(u.designation)
         LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
         GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
         ORDER BY t.cadre_name, t.target_statistical DESC
