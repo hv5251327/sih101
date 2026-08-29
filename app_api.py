@@ -102,17 +102,26 @@ def register():
 
         conn = get_db()
         c = conn.cursor()
-        c.execute("INSERT OR REPLACE INTO users (name, email, hashed_password, designation, department) VALUES (?, ?, ?, ?, ?)",
-                  (name, email, password, desig, dept))
+        
+        # Direct insertion into users table
+        c.execute("""
+            INSERT OR REPLACE INTO users (name, email, hashed_password, designation, department)
+            VALUES (?, ?, ?, ?, ?)
+        """, (name, email, password, desig, dept))
+
+        # Direct insertion into officer_profiles table for Heatmap sync
         c.execute("""
             INSERT INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
             VALUES (?, ?, ?, ?, 0, 0, 0, 0)
             ON CONFLICT(email) DO UPDATE SET full_name=excluded.full_name, department=excluded.department, designation_name=excluded.designation_name
         """, (email, name, dept, desig))
+
         conn.commit()
         conn.close()
+        print(f"Successfully registered user: {name} ({email}) -> users table")
         return jsonify({"status": "success"})
     except Exception as e:
+        print(f"Registration error: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/login", methods=["POST"])

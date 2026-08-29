@@ -116,7 +116,6 @@ function init() {
     const desigVal = desig.value;
     const cadreVal = window.NSSTA_ROLES[desigVal] || "Subordinate Statistical Service (SSS)";
 
-    // 1. Session Storage
     localStorage.setItem("mospi_user", emailVal);
     localStorage.setItem("mospi_user_name", nameVal);
     localStorage.setItem("mospi_registered_ministry", deptVal);
@@ -124,20 +123,24 @@ function init() {
     localStorage.setItem("mospi_registered_designation", desigVal);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
 
-    // 2. Global Roster Storage
     let officers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
     officers = officers.filter(o => o.email !== emailVal);
     officers.push({ name: nameVal, email: emailVal, designation: desigVal, cadre: cadreVal, department: deptVal });
     localStorage.setItem("mospi_all_registered_officers", JSON.stringify(officers));
 
-    // 3. Backend Database Sync
     try {
-      await fetch("http://127.0.0.1:5000/api/register", {
+      const response = await fetch("http://127.0.0.1:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nameVal, email: emailVal, password: passVal, department: deptVal, designation: desigVal })
       });
-    } catch(err) {}
+      const data = await response.json();
+      if (data.status !== "success") {
+        console.warn("Server warning:", data.message);
+      }
+    } catch(err) {
+      console.warn("Backend offline; saved to local profile cache.");
+    }
 
     alert("Registration Successful!");
     window.location.href = "dashboard.html";
