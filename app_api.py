@@ -1,9 +1,9 @@
 ﻿import os
 import sqlite3
+import urllib.parse
+import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import requests
-import urllib.parse
 
 app = Flask(__name__)
 CORS(app)
@@ -125,7 +125,7 @@ def update_progress():
     conn.close()
     return jsonify({"status": "success", "pillar": pillar, "new_percentage": percentage})
 
-# Direct Free Google/Bhashini Multi-Language API Endpoint
+# Direct Free Multi-Language API Endpoint (Without external Google top bar)
 @app.route("/api/translate", methods=["POST"])
 def translate():
     data = request.json or {}

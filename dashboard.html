@@ -36,13 +36,9 @@
     .chat-input-row { display: flex; border-top: 1px solid var(--border); }
     .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
     .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
-    #google_translate_element { display: none; }
   </style>
-  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
-
-<div id="google_translate_element"></div>
 
 <div class="container">
   <!-- Header -->
@@ -58,7 +54,7 @@
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="bhashini-bar">
         <i class="fa-solid fa-language" style="color: #2563eb;"></i>
-        <label for="bhashini-select" style="font-size: 0.8rem;">Bhashini / Language:</label>
+        <label for="bhashini-select" style="font-size: 0.8rem;">Bhashini Voice & Text:</label>
         <select id="bhashini-select" onchange="runBhashini(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 6px; font-weight: 600;">
           <option value="en">English</option>
           <option value="hi">हिंदी (Hindi)</option>
@@ -72,7 +68,7 @@
     </div>
   </div>
 
-  <!-- 4-Pillar Baseline & Gap Grid (No Pie Chart) -->
+  <!-- 4-Pillar Baseline & Gap Grid -->
   <div>
     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
     <div class="grid-4" id="pillars-container"></div>
@@ -257,29 +253,17 @@ function logoutOfficer() {
   window.location.href = "login.html";
 }
 
-// Bhashini / Google Multi-Language Engine
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'hi,te,ta,bn,mr,en', autoDisplay: false}, 'google_translate_element');
-}
-
+// Seamless In-Place Bhashini Translation (No top bar/widget)
 async function runBhashini(lang) {
-  if (lang === "en") {
-    const el = document.querySelector('.goog-te-combo');
-    if (el) { el.value = 'en'; el.dispatchEvent(new Event('change')); }
-    return;
+  if (lang === "en") { 
+    initDashboard(); 
+    return; 
   }
+  
+  const textElements = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button"))
+    .filter(el => el.children.length === 0 && el.innerText.trim().length > 0 && !el.closest("#chatbot-window"));
 
-  // 1. Try Google Translate widget if available
-  const combo = document.querySelector('.goog-te-combo');
-  if (combo) {
-    combo.value = lang;
-    combo.dispatchEvent(new Event('change'));
-    return;
-  }
-
-  // 2. Direct API fallback translation
-  const els = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button")).filter(e => e.children.length === 0 && e.innerText.trim());
-  const texts = els.map(e => e.innerText.trim());
+  const texts = textElements.map(el => el.innerText.trim());
 
   try {
     const res = await fetch("http://127.0.0.1:5000/api/translate", {
@@ -288,19 +272,19 @@ async function runBhashini(lang) {
       body: JSON.stringify({ texts: texts, target_lang: lang })
     });
     const data = await res.json();
-    if (data.translations) {
-      els.forEach((el, idx) => {
-        if (data.translations[idx]) el.innerText = data.translations[idx];
+    if (data.translations && data.translations.length === textElements.length) {
+      textElements.forEach((el, idx) => {
+        el.innerText = data.translations[idx];
       });
     }
   } catch(e) {
-    console.error("Translation failed:", e);
+    console.error("Bhashini translation failed:", e);
   }
 }
 
 function toggleChatbot() {
   const w = document.getElementById("chatbot-window");
-  w.style.display = (win = (w.style.display === "flex") ? "none" : "flex");
+  w.style.display = (w.style.display === "flex") ? "none" : "flex";
 }
 
 async function sendChatMessage() {
