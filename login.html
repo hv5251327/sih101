@@ -20,6 +20,9 @@
     .btn-submit:hover { background: var(--primary-hover); }
     .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); }
     .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
+    .alert { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; display: none; }
+    .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
   </style>
 </head>
 <body>
@@ -27,8 +30,11 @@
   <div class="header">
     <i class="fa-solid fa-shield-halved" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 8px;"></i>
     <h2>MoSPI Competency Portal</h2>
-    <p>Officer Login & Admin Command Center</p>
+    <p>Officer & Admin Login Portal</p>
   </div>
+  
+  <div id="alert-box" class="alert"></div>
+
   <form id="login-form">
     <div class="form-group">
       <label for="login_email">Government Email ID</label>
@@ -45,42 +51,49 @@
   </div>
 </div>
 <script>
-document.getElementById("login-form").onsubmit = function(e) {
+function showAlert(message, type) {
+  const alertBox = document.getElementById("alert-box");
+  alertBox.textContent = message;
+  alertBox.className = `alert alert-${type}`;
+  alertBox.style.display = "block";
+  setTimeout(() => { alertBox.style.display = "none"; }, 5000);
+}
+
+document.getElementById("login-form").onsubmit = async function(e) {
   e.preventDefault();
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
-  // Instant Admin Authentication
-  if (email === "admin@mospi.gov.in" && password === "admin123") {
-    localStorage.setItem("mospi_user", "admin@mospi.gov.in");
-    localStorage.setItem("mospi_user_role", "admin");
-    window.location.href = "admin.html";
-    return false;
-  }
-
-  // Officer Authentication
-  localStorage.setItem("mospi_user", email);
-  localStorage.setItem("mospi_user_role", "officer");
-  if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
-  if (!localStorage.getItem("mospi_registered_designation")) localStorage.setItem("mospi_registered_designation", "Junior Statistical Officer (JSO)");
-  if (!localStorage.getItem("mospi_registered_cadre")) localStorage.setItem("mospi_registered_cadre", "Subordinate Statistical Service (SSS)");
-
   try {
-    fetch("http://127.0.0.1:5000/api/login", {
+    const response = await fetch("http://127.0.0.1:5000/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, password: password })
-    }).then(r => r.json()).then(d => {
-      if (d.status === "success" && d.role === "admin") {
-        window.location.href = "admin.html";
-      } else if (d.status === "success" && d.user) {
-        localStorage.setItem("mospi_user_name", d.user.name);
-        localStorage.setItem("mospi_registered_designation", d.user.designation);
-        window.location.href = "dashboard.html";
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      localStorage.setItem("mospi_user", email);
+      
+      if (data.role === "admin") {
+        localStorage.setItem("mospi_user_role", "admin");
+        showAlert("Admin login successful! Redirecting...", "success");
+        setTimeout(() => { window.location.href = "admin.html"; }, 1000);
+      } else if (data.role === "officer" && data.user) {
+        localStorage.setItem("mospi_user_role", "officer");
+        localStorage.setItem("mospi_user_name", data.user.name);
+        localStorage.setItem("mospi_registered_designation", data.user.designation);
+        localStorage.setItem("mospi_registered_department", data.user.department);
+        showAlert("Login successful! Redirecting...", "success");
+        setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
       }
-    }).catch(()=>{ window.location.href = "dashboard.html"; });
-  } catch(err){
-    window.location.href = "dashboard.html";
+    } else {
+      showAlert(data.message || "Login failed. Please check credentials.", "error");
+    }
+  } catch (error) {
+    showAlert("Unable to connect to server. Please ensure backend is running.", "error");
+    console.error("Login error:", error);
   }
   return false;
 };

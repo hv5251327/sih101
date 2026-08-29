@@ -36,7 +36,7 @@ def get_db():
 def init_db():
     conn = get_db()
     c = conn.cursor()
-
+    
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,11 +108,15 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
-        # Admin Login
+        # ADMIN LOGIN - HARDCODED CHECK
         if email == "admin@mospi.gov.in" and password == "admin123":
-            return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
+            return jsonify({
+                "status": "success", 
+                "role": "admin",
+                "message": "Admin login successful"
+            })
 
-        # Officer Login from users table
+        # OFFICER LOGIN
         conn = get_db()
         c = conn.cursor()
         c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
@@ -120,14 +124,13 @@ def login():
         conn.close()
 
         if not user:
-            return jsonify({"status": "error", "message": "Account not found. Please register."}), 404
+            return jsonify({"status": "error", "message": "User not found. Please register first."}), 404
         if user["password"] != password:
             return jsonify({"status": "error", "message": "Incorrect password."}), 401
 
         return jsonify({
             "status": "success",
             "role": "officer",
-            "redirect": "dashboard.html",
             "user": {
                 "name": user["full_name"],
                 "email": user["email"],
@@ -167,11 +170,10 @@ def register():
         """, (email, name, dept, desig))
         conn.commit()
         conn.close()
-        return jsonify({"status": "success"})
+        return jsonify({"status": "success", "message": "Registration successful"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Officer Completes Course: Records in DB & Updates Officer Profile Competencies
 @app.route("/api/officer/progress", methods=["POST"])
 def update_officer_progress():
     try:
@@ -189,7 +191,7 @@ def update_officer_progress():
         # Insert progress
         c.execute("INSERT OR IGNORE INTO user_progress (email, module_id, pillar) VALUES (?, ?, ?)", (email, module_id, pillar))
 
-        # Recalculate pillar scores (each module completion contributes 100% per pillar module)
+        # Recalculate scores
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'statistical'", (email,))
         stat_done = c.fetchone()[0]
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'technical'", (email,))
@@ -199,7 +201,7 @@ def update_officer_progress():
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'behavioural'", (email,))
         beh_done = c.fetchone()[0]
 
-        # Update officer profile metrics (assuming 1 module per pillar = 100%)
+        # Update officer profile (each module = 100%)
         c.execute("""
             UPDATE officer_profiles 
             SET current_statistical = MIN(100, ? * 100),
@@ -211,30 +213,21 @@ def update_officer_progress():
 
         conn.commit()
         conn.close()
-        return jsonify({"status": "success", "message": "Progress recorded in database"})
+        return jsonify({"status": "success", "message": "Progress updated"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Admin Summary & Heatmap: Reflects Live Real-Time Officer Completions
 @app.route("/api/admin/summary", methods=["GET"])
 def get_admin_summary():
     conn = get_db()
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM users")
     total_officers = c.fetchone()[0]
-
     c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")
     total_roles = c.fetchone()[0]
-
-    c.execute("""
-        SELECT 
-            ROUND(COALESCE(AVG(current_statistical), 0), 1),
-            ROUND(COALESCE(AVG(current_technical), 0), 1)
-        FROM officer_profiles
-    """)
+    c.execute("SELECT ROUND(COALESCE(AVG(current_statistical), 0), 1), ROUND(COALESCE(AVG(current_technical), 0), 1) FROM officer_profiles")
     avg_row = c.fetchone()
     conn.close()
-
     return jsonify({
         "total_officers": total_officers,
         "total_designations": total_roles,
@@ -309,4 +302,10 @@ def get_quiz_by_topic():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=False)
+    print("=" * 60)
+    print("MoSPI Competency Portal Backend Starting...")
+    print("=" * 60)
+    print("Backend API: http://127.0.0.1:5000")
+    print("Admin Login: admin@mospi.gov.in / admin123")
+    print("=" * 60)
+    app.run(host='0.0.0.0', port=5000, debug=True)
