@@ -37,24 +37,25 @@ def init_db():
     conn = get_db()
     c = conn.cursor()
     
+    # Create all tables
     c.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(100) NOT NULL,
-        full_name VARCHAR(100) NOT NULL,
-        designation VARCHAR(150),
-        department VARCHAR(150),
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        full_name TEXT NOT NULL,
+        designation TEXT,
+        department TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );''')
 
     c.execute('''
     CREATE TABLE IF NOT EXISTS officer_profiles (
         officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        full_name VARCHAR(100) NOT NULL,
-        department VARCHAR(150) NOT NULL,
-        designation_name VARCHAR(150),
+        email TEXT UNIQUE NOT NULL,
+        full_name TEXT NOT NULL,
+        department TEXT NOT NULL,
+        designation_name TEXT,
         current_statistical INTEGER DEFAULT 0,
         current_technical INTEGER DEFAULT 0,
         current_governance INTEGER DEFAULT 0,
@@ -65,9 +66,9 @@ def init_db():
     c.execute('''
     CREATE TABLE IF NOT EXISTS user_progress (
         progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email VARCHAR(100) NOT NULL,
-        module_id VARCHAR(50) NOT NULL,
-        pillar VARCHAR(50) NOT NULL,
+        email TEXT NOT NULL,
+        module_id TEXT NOT NULL,
+        pillar TEXT NOT NULL,
         completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(email, module_id)
     );''')
@@ -75,20 +76,20 @@ def init_db():
     c.execute('''
     CREATE TABLE IF NOT EXISTS topic_quizzes (
         quiz_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        topic_title VARCHAR(250) NOT NULL,
+        topic_title TEXT NOT NULL,
         question_text TEXT NOT NULL,
         option_a TEXT NOT NULL,
         option_b TEXT NOT NULL,
         option_c TEXT NOT NULL,
         option_d TEXT NOT NULL,
-        correct_option VARCHAR(5) NOT NULL DEFAULT 'a',
+        correct_option TEXT NOT NULL DEFAULT 'a',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );''')
 
     c.execute('''
     CREATE TABLE IF NOT EXISTS designation_competency_targets (
-        designation_name VARCHAR(150) PRIMARY KEY,
-        cadre_name VARCHAR(100) NOT NULL,
+        designation_name TEXT PRIMARY KEY,
+        cadre_name TEXT NOT NULL,
         target_statistical INTEGER NOT NULL DEFAULT 85,
         target_technical INTEGER NOT NULL DEFAULT 85,
         target_governance INTEGER NOT NULL DEFAULT 80,
@@ -98,6 +99,7 @@ def init_db():
     c.executemany("INSERT OR REPLACE INTO designation_competency_targets VALUES (?, ?, ?, ?, ?, ?)", ALL_DESIGNATIONS_SEED)
     conn.commit()
     conn.close()
+    print("Database initialized successfully!")
 
 init_db()
 
@@ -108,26 +110,33 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
-        # ADMIN LOGIN - HARDCODED CHECK
+        print(f"Login attempt: {email}")
+
+        # ADMIN LOGIN
         if email == "admin@mospi.gov.in" and password == "admin123":
+            print("Admin login successful")
             return jsonify({
                 "status": "success", 
                 "role": "admin",
-                "message": "Admin login successful"
+                "message": "Admin authenticated"
             })
 
         # OFFICER LOGIN
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
+        c.execute("SELECT * FROM users WHERE LOWER(email) = ?", (email,))
         user = c.fetchone()
         conn.close()
 
         if not user:
+            print(f"User not found: {email}")
             return jsonify({"status": "error", "message": "User not found. Please register first."}), 404
+        
         if user["password"] != password:
+            print(f"Wrong password for: {email}")
             return jsonify({"status": "error", "message": "Incorrect password."}), 401
 
+        print(f"Officer login successful: {email}")
         return jsonify({
             "status": "success",
             "role": "officer",
@@ -139,6 +148,7 @@ def login():
             }
         })
     except Exception as e:
+        print(f"Login error: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/register", methods=["POST"])
@@ -164,14 +174,16 @@ def register():
         c.execute("INSERT INTO users (email, password, full_name, designation, department) VALUES (?, ?, ?, ?, ?)",
                   (email, password, name, desig, dept))
         c.execute("""
-            INSERT INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
+            INSERT OR REPLACE INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
             VALUES (?, ?, ?, ?, 0, 0, 0, 0)
-            ON CONFLICT(email) DO UPDATE SET full_name=excluded.full_name, department=excluded.department, designation_name=excluded.designation_name
         """, (email, name, dept, desig))
         conn.commit()
         conn.close()
+        
+        print(f"Registration successful: {email}")
         return jsonify({"status": "success", "message": "Registration successful"})
     except Exception as e:
+        print(f"Registration error: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/officer/progress", methods=["POST"])
@@ -182,13 +194,9 @@ def update_officer_progress():
         module_id = data.get("module_id", "")
         pillar = data.get("pillar", "statistical").lower()
 
-        if not email or not module_id:
-            return jsonify({"status": "error", "message": "Missing email or module_id"}), 400
-
         conn = get_db()
         c = conn.cursor()
 
-        # Insert progress
         c.execute("INSERT OR IGNORE INTO user_progress (email, module_id, pillar) VALUES (?, ?, ?)", (email, module_id, pillar))
 
         # Recalculate scores
@@ -201,7 +209,6 @@ def update_officer_progress():
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'behavioural'", (email,))
         beh_done = c.fetchone()[0]
 
-        # Update officer profile (each module = 100%)
         c.execute("""
             UPDATE officer_profiles 
             SET current_statistical = MIN(100, ? * 100),
@@ -213,8 +220,10 @@ def update_officer_progress():
 
         conn.commit()
         conn.close()
-        return jsonify({"status": "success", "message": "Progress updated"})
+        print(f"Progress updated for: {email}")
+        return jsonify({"status": "success"})
     except Exception as e:
+        print(f"Progress update error: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/admin/summary", methods=["GET"])
@@ -246,20 +255,16 @@ def get_admin_heatmap():
             COUNT(u.id) AS enrolled_count,
             t.target_statistical,
             ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
-            ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
             t.target_technical,
             ROUND(COALESCE(AVG(o.current_technical), 0), 1) AS current_technical,
-            ROUND(MAX(0, t.target_technical - COALESCE(AVG(o.current_technical), 0)), 1) AS gap_technical,
             t.target_governance,
             ROUND(COALESCE(AVG(o.current_governance), 0), 1) AS current_governance,
-            ROUND(MAX(0, t.target_governance - COALESCE(AVG(o.current_governance), 0)), 1) AS gap_governance,
             t.target_behavioural,
-            ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
-            ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
+            ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural
         FROM designation_competency_targets t
         LEFT JOIN users u ON t.designation_name = u.designation
         LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
-        GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
+        GROUP BY t.designation_name, t.cadre_name
         ORDER BY t.cadre_name, t.target_statistical DESC
     """)
     rows = [dict(row) for row in c.fetchall()]
@@ -293,7 +298,7 @@ def get_quiz_by_topic():
         topic = data.get("topic_title", "").strip()
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT quiz_id, question_text, option_a, option_b, option_c, option_d, correct_option FROM topic_quizzes WHERE LOWER(topic_title) = ?", (topic.lower(),))
+        c.execute("SELECT * FROM topic_quizzes WHERE LOWER(topic_title) = ?", (topic.lower(),))
         rows = c.fetchall()
         conn.close()
         qs = [{"id": r["quiz_id"], "question": r["question_text"], "optA": r["option_a"], "optB": r["option_b"], "optC": r["option_c"], "optD": r["option_d"], "correct": r["correct_option"]} for r in rows]
@@ -302,10 +307,13 @@ def get_quiz_by_topic():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("MoSPI Competency Portal Backend Starting...")
-    print("=" * 60)
+    print("=" * 70)
+    print("MoSPI COMPETENCY PORTAL BACKEND STARTING...")
+    print("=" * 70)
     print("Backend API: http://127.0.0.1:5000")
-    print("Admin Login: admin@mospi.gov.in / admin123")
-    print("=" * 60)
+    print("Officer Portal: http://localhost:8080/login.html")
+    print("Admin Portal: http://localhost:8080/admin_login.html")
+    print("-" * 70)
+    print("Admin Credentials: admin@mospi.gov.in / admin123")
+    print("=" * 70)
     app.run(host='0.0.0.0', port=5000, debug=True)

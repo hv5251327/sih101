@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoSPI Competency Portal Login</title>
+  <title>MoSPI Officer Login</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root { --primary: #1e3a8a; --primary-hover: #172554; --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #cbd5e1; }
@@ -18,7 +18,7 @@
     .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
     .btn-submit { width: 100%; background: var(--primary); color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: var(--primary-hover); }
-    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); }
+    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
     .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
     .alert { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; display: none; }
     .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
@@ -28,9 +28,9 @@
 <body>
 <div class="login-card">
   <div class="header">
-    <i class="fa-solid fa-shield-halved" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 8px;"></i>
-    <h2>MoSPI Competency Portal</h2>
-    <p>Officer & Admin Login Portal</p>
+    <i class="fa-solid fa-user-tie" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 8px;"></i>
+    <h2>MoSPI Officer Portal</h2>
+    <p>Statistical Officer Login</p>
   </div>
   
   <div id="alert-box" class="alert"></div>
@@ -38,16 +38,17 @@
   <form id="login-form">
     <div class="form-group">
       <label for="login_email">Government Email ID</label>
-      <input type="email" id="login_email" class="form-control" placeholder="officer@gov.in or admin@mospi.gov.in" required>
+      <input type="email" id="login_email" class="form-control" placeholder="officer@gov.in" required>
     </div>
     <div class="form-group">
       <label for="login_password">Password</label>
-      <input type="password" id="login_password" class="form-control" placeholder="••••••••" required>
+      <input type="password" id="login_password" class="form-control" placeholder="Enter your password" required>
     </div>
-    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
+    <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
   </form>
   <div class="footer-links">
-    New Officer? <a href="register.html">Register here</a>
+    <span>New Officer? <a href="register.html">Register here</a></span>
+    <a href="admin_login.html" style="color: #7c3aed;"><i class="fa-solid fa-shield-halved"></i> Admin Login</a>
   </div>
 </div>
 <script>
@@ -73,23 +74,16 @@ document.getElementById("login-form").onsubmit = async function(e) {
 
     const data = await response.json();
 
-    if (data.status === "success") {
+    if (data.status === "success" && data.role === "officer" && data.user) {
       localStorage.setItem("mospi_user", email);
-      
-      if (data.role === "admin") {
-        localStorage.setItem("mospi_user_role", "admin");
-        showAlert("Admin login successful! Redirecting...", "success");
-        setTimeout(() => { window.location.href = "admin.html"; }, 1000);
-      } else if (data.role === "officer" && data.user) {
-        localStorage.setItem("mospi_user_role", "officer");
-        localStorage.setItem("mospi_user_name", data.user.name);
-        localStorage.setItem("mospi_registered_designation", data.user.designation);
-        localStorage.setItem("mospi_registered_department", data.user.department);
-        showAlert("Login successful! Redirecting...", "success");
-        setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
-      }
+      localStorage.setItem("mospi_user_role", "officer");
+      localStorage.setItem("mospi_user_name", data.user.name);
+      localStorage.setItem("mospi_registered_designation", data.user.designation);
+      localStorage.setItem("mospi_registered_department", data.user.department);
+      showAlert("Login successful! Redirecting to dashboard...", "success");
+      setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
     } else {
-      showAlert(data.message || "Login failed. Please check credentials.", "error");
+      showAlert(data.message || "Invalid credentials. Please try again.", "error");
     }
   } catch (error) {
     showAlert("Unable to connect to server. Please ensure backend is running.", "error");
