@@ -1256,6 +1256,96 @@ window.NSSTA_STATISTICAL_ROLES_DB = {
 };
 </script>
 <!-- END_NSSTA_4PILLAR_COMPETENCY_FRAMEWORK -->
+<!-- NSSTA_4PILLAR_GAP_ANALYSIS_VIEW -->
+<div id="nssta-pillar-gap-container" style="margin: 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px;">
+      <div>
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b;">4-Pillar Competency Baseline & Gap Analysis</h3>
+        <p style="margin: 4px 0 0 0; font-size: 0.875rem; color: #64748b;">Target Benchmarks mandated for <strong id="officer-role-display" style="color: #0f172a;">Your Designation</strong></p>
+      </div>
+      <span id="officer-cadre-badge" style="background: #e0f2fe; color: #0369a1; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase;">ISS Cadre</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;" id="pillar-cards-grid">
+      <!-- Cards rendered dynamically via script -->
+    </div>
+  </div>
+</div>
+
+<script>
+function renderOfficerPillarGaps() {
+  const designation = localStorage.getItem("mospi_registered_designation") || "Assistant Director (JTS) - ISS";
+  const cadre = localStorage.getItem("mospi_registered_cadre") || "Indian Statistical Service (ISS)";
+  
+  let benchmarks = { statistical: 90, technical: 90, governance: 85, behavioural: 80 };
+  const rawBenchmarks = localStorage.getItem("mospi_competency_benchmarks");
+  if (rawBenchmarks) {
+    try { benchmarks = JSON.parse(rawBenchmarks); } catch(e) {}
+  } else if (window.NSSTA_STATISTICAL_ROLES_DB && window.NSSTA_STATISTICAL_ROLES_DB[designation]) {
+    benchmarks = window.NSSTA_STATISTICAL_ROLES_DB[designation].benchmarks;
+  }
+
+  // Current levels: Defaults to diagnostic score or 0 if unverified
+  let actuals = { statistical: 60, technical: 45, governance: 50, behavioural: 65 };
+  const rawActuals = localStorage.getItem("mospi_officer_current_scores");
+  if (rawActuals) {
+    try { actuals = JSON.parse(rawActuals); } catch(e) {}
+  }
+
+  const roleDisplay = document.getElementById("officer-role-display");
+  const cadreBadge = document.getElementById("officer-cadre-badge");
+  if (roleDisplay) roleDisplay.innerText = designation;
+  if (cadreBadge) cadreBadge.innerText = cadre;
+
+  const pillars = [
+    { key: "statistical", title: "Statistical Competency", color: "#2563eb", target: benchmarks.statistical, current: actuals.statistical },
+    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: benchmarks.technical, current: actuals.technical },
+    { key: "governance", title: "Digital Governance & Privacy", color: "#d97706", target: benchmarks.governance, current: actuals.governance },
+    { key: "behavioural", title: "Behavioural & Management", color: "#7c3aed", target: benchmarks.behavioural, current: actuals.behavioural }
+  ];
+
+  const grid = document.getElementById("pillar-cards-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  pillars.forEach(p => {
+    const gap = Math.max(0, p.target - p.current);
+    const card = document.createElement("div");
+    card.style.cssText = "background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;";
+    
+    card.innerHTML = `
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <span style="font-size: 0.875rem; font-weight: 600; color: #334155;">${p.title}</span>
+          <span style="font-size: 0.75rem; font-weight: 700; color: ${gap > 0 ? '#b91c1c' : '#15803d'}; background: ${gap > 0 ? '#fee2e2' : '#dcfce7'}; padding: 2px 8px; border-radius: 4px;">
+            ${gap > 0 ? 'Needs +' + gap + '%' : 'Target Met'}
+          </span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-bottom: 6px;">
+          <span>Current: <strong style="color: #0f172a;">${p.current}%</strong></span>
+          <span>Target Required: <strong style="color: #0f172a;">${p.target}%</strong></span>
+        </div>
+        <div style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; position: relative;">
+          <div style="width: ${p.target}%; height: 100%; background: #cbd5e1; position: absolute; top: 0; left: 0;"></div>
+          <div style="width: ${p.current}%; height: 100%; background: ${p.color}; position: absolute; top: 0; left: 0;"></div>
+        </div>
+      </div>
+      <div style="margin-top: 12px; font-size: 0.75rem; color: #475569; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+        <strong>Improvement Required:</strong> ${gap}% deficit to reach NSSTA standard.
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", renderOfficerPillarGaps);
+} else {
+  renderOfficerPillarGaps();
+}
+</script>
+<!-- END_NSSTA_4PILLAR_GAP_ANALYSIS_VIEW -->
 </body>
 </html>
 
