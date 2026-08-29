@@ -538,5 +538,52 @@
 
     window.onload = checkAdminAuth;
   </script>
+<script>
+async function loadAdminHeatmap() {
+  const tableBody = document.querySelector("#heatmap-table tbody, table tbody");
+  if (!tableBody) return;
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/admin/heatmap");
+    const data = await res.json();
+    if (data.heatmap_data && data.heatmap_data.length > 0) {
+      tableBody.innerHTML = "";
+      data.heatmap_data.forEach(row => {
+        const tr = document.createElement("tr");
+        
+        function getGapColor(gap) {
+          if (gap <= 0) return "#dcfce7; color: #15803d;";
+          if (gap <= 20) return "#fef9c3; color: #854d0e;";
+          if (gap <= 40) return "#ffedd5; color: #9a3412;";
+          return "#fee2e2; color: #991b1b;";
+        }
+
+        tr.innerHTML = `
+          <td style="font-weight: 600; font-size: 0.85rem; padding: 10px;">${row.designation_name}</td>
+          <td style="font-size: 0.75rem; color: #64748b; padding: 10px;">${row.cadre_name}</td>
+          <td style="text-align: center; font-weight: 700; padding: 10px;">${row.enrolled_count}</td>
+          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_statistical)}; font-weight: 700;">
+            ${row.current_statistical}% / ${row.target_statistical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_statistical}%</span>
+          </td>
+          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_technical)}; font-weight: 700;">
+            ${row.current_technical}% / ${row.target_technical}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_technical}%</span>
+          </td>
+          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_governance)}; font-weight: 700;">
+            ${row.current_governance}% / ${row.target_governance}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_governance}%</span>
+          </td>
+          <td style="text-align: center; padding: 8px; background: ${getGapColor(row.gap_behavioural)}; font-weight: 700;">
+            ${row.current_behavioural}% / ${row.target_behavioural}%<br><span style="font-size: 0.7rem;">Gap: ${row.gap_behavioural}%</span>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+  } catch(err) {
+    console.warn("Could not fetch admin heatmap from API:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadAdminHeatmap);
+</script>
 </body>
 </html>
