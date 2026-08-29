@@ -131,34 +131,44 @@ function initRegistration() {
 
   document.getElementById("officer-registration-form").onsubmit = async function(e) {
     e.preventDefault();
+    const btn = document.querySelector(".btn-submit");
+    if (btn) { btn.disabled = true; btn.innerText = "Registering..."; }
+
     const nameVal = document.getElementById("officer_name").value.trim();
-    const emailVal = document.getElementById("officer_email").value.trim();
+    const emailVal = document.getElementById("officer_email").value.trim().toLowerCase();
     const passVal = document.getElementById("officer_password").value.trim();
     const deptVal = deptSelect.value;
     const desigVal = desigSelect.value;
-    const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal];
-
-    localStorage.setItem("mospi_user", emailVal);
-    localStorage.setItem("mospi_user_name", nameVal);
-    localStorage.setItem("mospi_user_password", passVal);
-    localStorage.setItem("mospi_registered_ministry", deptVal);
-    localStorage.setItem("mospi_registered_cadre", roleData.cadre);
-    localStorage.setItem("mospi_registered_designation", desigVal);
-    localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
-    localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
+    const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal] || { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 82, technical: 82, governance: 78, behavioural: 75 } };
 
     try {
-      await fetch("http://127.0.0.1:5000/api/register", {
+      const res = await fetch("http://127.0.0.1:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nameVal, email: emailVal, password: passVal, department: deptVal, designation: desigVal })
       });
-    } catch(err) {
-      console.warn("Backend offline, registration cached locally.", err);
-    }
+      const data = await res.json();
+      
+      if (res.status !== 200 || data.status !== "success") {
+        alert(data.message || "Registration failed. This email may already be registered.");
+        if (btn) { btn.disabled = false; btn.innerText = "Register Officer Profile"; }
+        return false;
+      }
 
-    alert("Registration Successful!");
-    window.location.href = "dashboard.html";
+      localStorage.setItem("mospi_user", emailVal);
+      localStorage.setItem("mospi_user_name", nameVal);
+      localStorage.setItem("mospi_registered_ministry", deptVal);
+      localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+      localStorage.setItem("mospi_registered_designation", desigVal);
+      localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
+      localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
+
+      alert("Registration Successful! Redirecting to dashboard...");
+      window.location.href = "dashboard.html";
+    } catch(err) {
+      alert("Unable to connect to backend server. Please make sure python app_api.py is running.");
+      if (btn) { btn.disabled = false; btn.innerText = "Register Officer Profile"; }
+    }
     return false;
   };
 }

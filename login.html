@@ -60,13 +60,46 @@
 </div>
 
 <script>
-document.getElementById("login-form").onsubmit = function(e) {
+document.getElementById("login-form").onsubmit = async function(e) {
   e.preventDefault();
-  const email = document.getElementById("login_email").value.trim();
-  if (!localStorage.getItem("mospi_user") || localStorage.getItem("mospi_user") !== email) {
-    localStorage.setItem("mospi_user", email);
+  const btn = document.querySelector(".btn-submit");
+  if (btn) { btn.disabled = true; btn.innerText = "Verifying..."; }
+
+  const email = document.getElementById("login_email").value.trim().toLowerCase();
+  const password = document.getElementById("login_password").value.trim();
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    const data = await res.json();
+
+    if (res.status === 200 && data.status === "success") {
+      localStorage.setItem("mospi_user", data.user.email);
+      localStorage.setItem("mospi_user_name", data.user.name);
+      localStorage.setItem("mospi_registered_ministry", data.user.department);
+      localStorage.setItem("mospi_registered_designation", data.user.designation);
+
+      const desig = data.user.designation || "";
+      let cadre = "Subordinate Statistical Service (SSS)";
+      if (desig.includes("ISS") || desig.includes("Director General") || desig.includes("Director (") || desig.includes("Assistant Director")) {
+        cadre = "Indian Statistical Service (ISS)";
+      } else if (desig.includes("DES") || desig.includes("State") || desig.includes("District")) {
+        cadre = "State DES Statistical Cadre";
+      }
+      localStorage.setItem("mospi_registered_cadre", cadre);
+
+      window.location.href = "dashboard.html";
+    } else {
+      alert(data.message || "Invalid email or password. Please try again.");
+      if (btn) { btn.disabled = false; btn.innerText = "Sign In to Dashboard"; }
+    }
+  } catch(err) {
+    alert("Cannot connect to server. Ensure python app_api.py is running.");
+    if (btn) { btn.disabled = false; btn.innerText = "Sign In to Dashboard"; }
   }
-  window.location.href = "dashboard.html";
   return false;
 };
 </script>

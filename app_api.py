@@ -53,8 +53,9 @@ def init_db():
         officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         full_name VARCHAR(100) NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(100) NOT NULL,
         department VARCHAR(150) NOT NULL,
-        designation_name VARCHAR(150) REFERENCES designation_competency_targets(designation_name),
+        designation_name VARCHAR(150),
         current_statistical INTEGER DEFAULT 0,
         current_technical INTEGER DEFAULT 0,
         current_governance INTEGER DEFAULT 0,
@@ -81,6 +82,106 @@ def init_db():
     conn.close()
 
 init_db()
+
+VIDEO_CATALOG = {
+    "ISS": [
+        {"id": "iss-stat-1", "title": "SNA 2008 & 2025: National Accounts Compilation", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "iss-stat-2", "title": "Large-Scale Survey Design & Probability Weight Estimation", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "iss-tech-1", "title": "Advanced Python & SQL for Official Sample Imputation", "pillar": "technical", "pillarTitle": "Technical Tools & AI/GIS", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "iss-gov-1", "title": "DPDP Act 2023 & National Data Governance Architecture", "pillar": "governance", "pillarTitle": "Digital Governance & Privacy", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "iss-beh-1", "title": "Apex Statistical Leadership & Policy Negotiation", "pillar": "behavioural", "pillarTitle": "Managerial & Behavioural", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+    ],
+    "SSS": [
+        {"id": "sss-stat-1", "title": "PLFS & ASUSE Schedule Filling & Validation Guidelines", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "sss-stat-2", "title": "Consumer Price Index (CPI) Rural/Urban Quotation Protocols", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "sss-tech-1", "title": "CAPI Tablet Operations & Real-Time Data Synchronization", "pillar": "technical", "pillarTitle": "Technical Tools & AI/GIS", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "sss-tech-2", "title": "Bhuvan GIS Ground Truthing & Urban Frame Survey Mapping", "pillar": "technical", "pillarTitle": "Technical Tools & AI/GIS", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "sss-gov-1", "title": "Field Data Confidentiality & Respondent Privacy Protocols", "pillar": "governance", "pillarTitle": "Digital Governance & Privacy", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "sss-beh-1", "title": "Enumerator Team Supervision & Effective Public Interviewing", "pillar": "behavioural", "pillarTitle": "Managerial & Behavioural", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+    ],
+    "DES": [
+        {"id": "des-stat-1", "title": "Gross State Domestic Product (GSDP) & State Income Estimation", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "des-stat-2", "title": "Crop Estimation Surveys (EARAS) & State Agricultural Statistics", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "des-tech-1", "title": "State Statistical Open Portals & GIS District Tabulation", "pillar": "technical", "pillarTitle": "Technical Tools & AI/GIS", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "des-gov-1", "title": "Civil Registration System (CRS) & State-Centre Data Protocols", "pillar": "governance", "pillarTitle": "Digital Governance & Privacy", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+        {"id": "des-beh-1", "title": "District Administration Liaison & Field Survey Coordination", "pillar": "behavioural", "pillarTitle": "Managerial & Behavioural", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+    ]
+}
+
+def get_cadre(desig):
+    if any(k in desig for k in ["ISS", "Director General", "Director (", "Deputy Director", "Assistant Director"]):
+        return "ISS"
+    if any(k in desig for k in ["DES", "State", "District Statistical"]):
+        return "DES"
+    return "SSS"
+
+# Strict Officer Registration
+@app.route("/api/register", methods=["POST"])
+def register_officer():
+    try:
+        data = request.json or {}
+        name = data.get("name", "").strip()
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "").strip()
+        dept = data.get("department", "").strip()
+        desig = data.get("designation", "").strip()
+
+        if not email or not name or not password:
+            return jsonify({"status": "error", "message": "All fields including password are required"}), 400
+
+        conn = get_db()
+        c = conn.cursor()
+        
+        # Check if email already exists
+        c.execute("SELECT email FROM officer_profiles WHERE LOWER(email) = ?", (email,))
+        if c.fetchone():
+            conn.close()
+            return jsonify({"status": "error", "message": "Officer with this email is already registered!"}), 409
+
+        c.execute("""
+            INSERT INTO officer_profiles (full_name, email, password, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
+            VALUES (?, ?, ?, ?, ?, 0, 0, 0, 0)
+        """, (name, email, password, dept, desig))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Registration successful"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Strict Officer Login Authentication
+@app.route("/api/login", methods=["POST"])
+def login_officer():
+    try:
+        data = request.json or {}
+        email = data.get("email", "").strip().lower()
+        password = data.get("password", "").strip()
+
+        if not email or not password:
+            return jsonify({"status": "error", "message": "Email and password are required"}), 400
+
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT full_name, email, password, department, designation_name FROM officer_profiles WHERE LOWER(email) = ?", (email,))
+        user = c.fetchone()
+        conn.close()
+
+        if not user:
+            return jsonify({"status": "error", "message": "No account found with this email. Please register first."}), 404
+
+        if user["password"] != password:
+            return jsonify({"status": "error", "message": "Incorrect password. Please try again."}), 401
+
+        return jsonify({
+            "status": "success",
+            "user": {
+                "name": user["full_name"],
+                "email": user["email"],
+                "department": user["department"],
+                "designation": user["designation_name"]
+            }
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/admin/summary", methods=["GET"])
 def get_admin_summary():
@@ -142,27 +243,57 @@ def get_admin_heatmap():
     conn.close()
     return jsonify({"heatmap_data": rows})
 
-@app.route("/api/register", methods=["POST"])
-def register_officer():
+@app.route("/api/officer/recommendations", methods=["POST"])
+def get_recommendations():
     data = request.json or {}
-    name = data.get("name", "Officer")
     email = data.get("email", "officer@gov.in")
-    dept = data.get("department", "National Accounts Division")
-    desig = data.get("designation", "Junior Statistical Officer (JSO)")
+    designation = data.get("designation", "Junior Statistical Officer (JSO)")
+    cadre = get_cadre(designation)
+    mods = VIDEO_CATALOG.get(cadre, VIDEO_CATALOG["SSS"])
 
     conn = get_db()
     c = conn.cursor()
-    c.execute("""
-        INSERT INTO officer_profiles (full_name, email, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
-        VALUES (?, ?, ?, ?, 0, 0, 0, 0)
-        ON CONFLICT(email) DO UPDATE SET
-            full_name = excluded.full_name,
-            department = excluded.department,
-            designation_name = excluded.designation_name
-    """, (name, email, dept, desig))
+    for m in mods:
+        c.execute("""
+            INSERT OR IGNORE INTO officer_recommendations 
+            (officer_email, designation_name, module_id, module_title, pillar, embed_url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (email, designation, m["id"], m["title"], m["pillar"], m["embedUrl"]))
+    conn.commit()
+
+    c.execute("SELECT module_id, is_completed FROM officer_recommendations WHERE officer_email = ?", (email,))
+    done_map = {row[0]: bool(row[1]) for row in c.fetchall()}
+    conn.close()
+
+    result = []
+    for m in mods:
+        item = dict(m)
+        item["is_completed"] = done_map.get(m["id"], False)
+        result.append(item)
+    return jsonify({"cadre": cadre, "modules": result})
+
+@app.route("/api/officer/progress", methods=["POST"])
+def update_progress():
+    data = request.json or {}
+    email = data.get("email", "officer@gov.in")
+    module_id = data.get("module_id", "")
+    pillar = data.get("pillar", "statistical")
+
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("UPDATE officer_recommendations SET is_completed = 1 WHERE officer_email = ? AND module_id = ?", (email, module_id))
+    
+    c.execute("SELECT COUNT(*) FROM officer_recommendations WHERE officer_email = ? AND pillar = ?", (email, pillar))
+    total = c.fetchone()[0] or 1
+    c.execute("SELECT COUNT(*) FROM officer_recommendations WHERE officer_email = ? AND pillar = ? AND is_completed = 1", (email, pillar))
+    completed = c.fetchone()[0]
+    percentage = int(round((completed / total) * 100))
+
+    col_map = {"statistical": "current_statistical", "technical": "current_technical", "governance": "current_governance", "behavioural": "current_behavioural"}
+    c.execute(f"UPDATE officer_profiles SET {col_map.get(pillar, 'current_statistical')} = ? WHERE email = ?", (percentage, email))
     conn.commit()
     conn.close()
-    return jsonify({"status": "success", "message": "Registered successfully in database"})
+    return jsonify({"status": "success", "pillar": pillar, "new_percentage": percentage})
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
