@@ -123,6 +123,19 @@ function init() {
     localStorage.setItem("mospi_registered_designation", desigVal);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
 
+    // Register into Global Officers List for Admin Portal
+    let officers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
+    if (!officers.some(o => o.email === emailVal)) {
+      officers.push({
+        name: nameVal,
+        email: emailVal,
+        designation: desigVal,
+        cadre: cadreVal,
+        department: deptVal
+      });
+      localStorage.setItem("mospi_all_registered_officers", JSON.stringify(officers));
+    }
+
     try {
       fetch("http://127.0.0.1:5000/api/register", {
         method: "POST",

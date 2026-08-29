@@ -327,20 +327,28 @@ function markCourseCompleted(id, successMsg) {
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify(done));
   }
 
+  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
   const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
   const modObj = activeMods.find(m => m.id === id);
   const pillar = modObj ? modObj.pillar : "statistical";
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
 
-  // 1. Update Global Officer Progress Map in localStorage for immediate Admin View
+  // Record into global officer progress map
   let globalProgress = JSON.parse(localStorage.getItem("mospi_global_officer_progress") || "{}");
   if (!globalProgress[email]) {
-    globalProgress[email] = { designation: desig, statistical: 0, technical: 0, governance: 0, behavioural: 0 };
+    globalProgress[email] = { designation: desig, statistical: 0, technical: 0, governance: 0, behavioural: 0, completed_ids: [] };
   }
-  globalProgress[email][pillar] = 100;
+  if (!globalProgress[email].completed_ids) globalProgress[email].completed_ids = [];
+  if (!globalProgress[email].completed_ids.includes(id)) globalProgress[email].completed_ids.push(id);
+
+  // Recalculate officer pillar %
+  const pMods = activeMods.filter(m => m.pillar === pillar);
+  if (pMods.length > 0) {
+    const pDone = pMods.filter(m => globalProgress[email].completed_ids.includes(m.id)).length;
+    globalProgress[email][pillar] = Math.round((pDone / pMods.length) * 100);
+  }
   localStorage.setItem("mospi_global_officer_progress", JSON.stringify(globalProgress));
 
-  // 2. Sync to Backend SQLite Database
+  // Sync to SQLite if local server is active
   try {
     fetch("http://127.0.0.1:5000/api/officer/progress", {
       method: "POST",
