@@ -189,16 +189,7 @@
             <option value="Director / Joint Director">Director / Joint Director</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Cadre</label>
-          <select id="regCadreSelect" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff; color: #1e293b;">
-  <option value="Indian Statistical Service (ISS)">Indian Statistical Service (ISS)</option>
-  <option value="Subordinate Statistical Service (SSS)">Subordinate Statistical Service (SSS)</option>
-  <option value="State Directorate of Economics & Statistics (DES)">State Directorate of Economics & Statistics (DES)</option>
-  <option value="Central Secretariat & Administrative Cadre">Central Secretariat & Administrative Cadre</option>
-  <option value="IT & Technical / Data Science Staff">IT & Technical / Data Science Staff</option>
-</select>
-        </div>
+        
         <button type="submit" id="submitBtn" class="btn-submit">Register Officer Account</button>
       </form>
 
@@ -262,133 +253,137 @@
 
 
 
+
 <!-- NSSTA_FULL_REGISTRATION_ENGINE -->
 <script>
-(function() {
-  const divisions = [
-    "Central Statistics - Economics Statistics Division (ESD)",
-    "Central Statistics - Social Statistics Division (SSD)",
-    "Central Statistics - National Accounts Division (NAD)",
-    "Central Statistics - Price Statistics Division (PSD)",
-    "National Sample Survey - Household Survey Division (HSD)",
-    "National Sample Survey - Enterprise Survey Division (EnSD)",
-    "National Sample Survey - Field Operations Division (FOD)",
-    "National Sample Survey - Coordination & Quality Control Division (C&QCD)",
-    "Data Governance - Capacity Development Division",
-    "Data Governance - Coordination & International Cooperation Division (CICD)",
-    "Data Governance - Administrative Statistics & Policy Division (ASPD)",
-    "Data Governance - Data Informatics & Innovation Division (DIID)",
-    "Data Governance - State Unit",
-    "Administration - Administration Division",
-    "Administration - Indian Statistical Service Division",
-    "Administration - Subordinate Statistical Service Division",
-    "Administration - Budget & Finance Division",
-    "Administration - Vigilance Division",
-    "Administration - Infrastructure & Project Monitoring Division (IPMD)"
-  ];
+window.MOSPI_STRUCTURE = {
+  departments: [
+    "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates",
+    "Economic Statistics Division (ESD) — IIP, ASI & Industrial Surveys",
+    "Price Statistics Division (PSD) — CPI, Inflation Indices & Price Monitoring",
+    "Social Statistics Division (SSD) — SDGs, Gender & Social Metrics",
+    "Field Operations Division (FOD) — Primary Data Collection & Field Scrutiny",
+    "Survey Design and Research Division (SDRD) — Sampling & Questionnaires",
+    "Household Survey Division (HSD) — PLFS & Consumption Surveys",
+    "Enterprise Survey Division (EnSD) — ASUSE & Service Sector Surveys",
+    "Data Processing Division (DPD) — Scrutiny, Validation & Tabulation",
+    "Data Informatics & Innovation Division (DIID) — Cloud, Big Data Lake & AI",
+    "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
+    "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
+    "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
+    "Cadre Management Division — ISS & SSS Service Administration",
+    "General Administration, Vigilance & Budget Division — Secretariat Operations",
+    "State Directorate of Economics & Statistics (DES) — State HQ",
+    "District Statistical Office (DSO) — Sub-Divisional Field Unit"
+  ],
+  designations: [
+    "-- Indian Statistical Service (ISS) [Group A Central Civil Service] --",
+    "Director General (DG / Apex Level) - ISS",
+    "Additional Director General (ADG / HAG) - ISS",
+    "Deputy Director General (DDG / SAG) - ISS",
+    "Director (JAG / Selection Grade) - ISS",
+    "Joint Director (JAG) - ISS",
+    "Deputy Director (STS) - ISS",
+    "Assistant Director (JTS) - ISS",
+    "Probationer / Officer Trainee (ISS - NSSTA)",
+    "-- Subordinate Statistical Service (SSS) [Group B Statistical Service] --",
+    "Senior Statistical Officer (SSO / Gazetted)",
+    "Senior Statistical Officer (SSO / Non-Gazetted)",
+    "Junior Statistical Officer (JSO)",
+    "Statistical Assistant / Senior Field Investigator",
+    "-- State Statistical Cadres (Directorate of Economics & Statistics) --",
+    "Director of Economics & Statistics (State Head)",
+    "Joint / Deputy Director (State DES)",
+    "District Statistical Officer (DSO)",
+    "Assistant Statistical Officer / Statistical Officer (State)",
+    "Statistical Inspector / Research Assistant (DES)",
+    "Primary Field Investigator / Enumerator",
+    "-- IT, Systems & Technical Data Cadre --",
+    "Joint Director (Systems & Big Data Engineering)",
+    "Senior Data Processing Assistant (DPA Grade B/A)",
+    "Junior Data Processing Assistant / Data Analyst",
+    "Data Entry Operator (DEO Grade A/B/C)",
+    "IT / Cloud Infrastructure & GIS Specialist",
+    "-- Central Secretariat & Administrative Cadre --",
+    "Deputy Secretary / Under Secretary",
+    "Section Officer (SO)",
+    "Assistant Section Officer (ASO)",
+    "Senior Secretariat Assistant (UDC)",
+    "Junior Secretariat Assistant (LDC)",
+    "Multi-Tasking Staff (MTS)"
+  ]
+};
 
-  const designationsByCadre = {
-    "Indian Statistical Service (ISS)": [
-      "Director General (DG)",
-      "Additional Director General (ADG)",
-      "Deputy Director General (DDG)",
-      "Director / Joint Director",
-      "Deputy Director (STS)",
-      "Assistant Director (JTS)"
-    ],
-    "Subordinate Statistical Service (SSS)": [
-      "Senior Statistical Officer (SSO)",
-      "Junior Statistical Officer (JSO)"
-    ],
-    "State Directorate of Economics & Statistics (DES)": [
-      "District Statistical Officer (DSO)",
-      "Statistical Inspector",
-      "Field Investigator / Enumerator"
-    ],
-    "Central Secretariat & Administrative Cadre": [
-      "Deputy Secretary / Under Secretary",
-      "Section Officer (SO)",
-      "Assistant Section Officer (ASO)",
-      "Upper Division Clerk (UDC) / Lower Division Clerk (LDC)",
-      "Multi-Tasking Staff (MTS)"
-    ],
-    "IT & Technical / Data Science Staff": [
-      "Data Processing Assistant (DPA)",
-      "Data Entry Operator (DEO)",
-      "IT / Data Science Consultant"
-    ]
-  };
+function setupRefinedRegistration() {
+  const selects = document.querySelectorAll("select");
+  if (selects.length === 0) return;
 
-  function initForm() {
-    const selects = document.querySelectorAll("select");
-    if (selects.length === 0) return;
+  const deptSelect = selects[0];
+  const desigSelect = selects[1] || selects[0];
 
-    const deptSelect = selects[0];
-    const desigSelect = selects[1];
-    const cadreSelect = document.getElementById("regCadreSelect") || selects[2];
+  // 1. Populate clean, meaningful departments
+  if (deptSelect) {
+    deptSelect.innerHTML = "";
+    window.MOSPI_STRUCTURE.departments.forEach(dept => {
+      const opt = document.createElement("option");
+      opt.value = dept;
+      opt.innerText = dept;
+      deptSelect.appendChild(opt);
+    });
+  }
 
-    // Populate Department / Division dropdown
-    if (deptSelect) {
-      deptSelect.innerHTML = "";
-      divisions.forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.innerText = d;
-        deptSelect.appendChild(opt);
-      });
-    }
-
-    // Refresh Designation based on Cadre selection
-    function refreshDesignations() {
-      const cadre = cadreSelect ? cadreSelect.value : "Indian Statistical Service (ISS)";
-      const desigs = designationsByCadre[cadre] || designationsByCadre["Indian Statistical Service (ISS)"];
-      if (desigSelect) {
-        desigSelect.innerHTML = "";
-        desigs.forEach(role => {
-          const opt = document.createElement("option");
-          opt.value = role;
-          opt.innerText = role;
-          desigSelect.appendChild(opt);
-        });
+  // 2. Populate complete official designations
+  if (desigSelect && desigSelect !== deptSelect) {
+    desigSelect.innerHTML = "";
+    window.MOSPI_STRUCTURE.designations.forEach(desig => {
+      const opt = document.createElement("option");
+      opt.value = desig;
+      opt.innerText = desig;
+      if (desig.startsWith("--")) {
+        opt.disabled = true;
+        opt.style.fontWeight = "bold";
+        opt.style.background = "#f1f5f9";
       }
-    }
-
-    if (cadreSelect) {
-      cadreSelect.addEventListener("change", refreshDesignations);
-    }
-    refreshDesignations();
-
-    // Submission handler
-    const submitBtn = document.querySelector("button.btn-primary, button[type='submit'], button");
-    if (submitBtn) {
-      submitBtn.onclick = function(e) {
-        if (e) e.preventDefault();
-        const nameInp = document.querySelector("input[type='text'], input[placeholder*='Name']");
-        const emailInp = document.querySelector("input[type='email']");
-
-        const name = nameInp ? nameInp.value : "Harsha Vardhan";
-        const email = emailInp ? emailInp.value : "officer@gov.in";
-        const dept = deptSelect ? deptSelect.value : divisions[0];
-        const cadre = cadreSelect ? cadreSelect.value : "Indian Statistical Service (ISS)";
-        const desig = desigSelect ? desigSelect.value : "";
-
-        localStorage.setItem("mospi_user", email);
-        localStorage.setItem("mospi_user_name", name);
-        localStorage.setItem("mospi_registered_ministry", dept);
-        localStorage.setItem("mospi_registered_cadre", cadre);
-        localStorage.setItem("mospi_registered_designation", desig);
-
-        window.location.href = "dashboard.html";
-      };
-    }
+      desigSelect.appendChild(opt);
+    });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initForm);
-  } else {
-    initForm();
+  // 3. Form submit handler syncing to localStorage
+  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
+  if (regBtn) {
+    regBtn.onclick = function(e) {
+      if (e) e.preventDefault();
+      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
+      const emailInp = document.querySelector("input[type='email']");
+
+      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
+      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
+      const dept = deptSelect ? deptSelect.value : window.MOSPI_STRUCTURE.departments[0];
+      const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
+
+      let cadre = "Administrative Cadre";
+      if (desig.includes("ISS")) cadre = "Indian Statistical Service (ISS)";
+      else if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO")) cadre = "Subordinate Statistical Service (SSS)";
+      else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES")) cadre = "State DES Statistical Cadre";
+      else if (desig.includes("IT") || desig.includes("Data Processing") || desig.includes("Analyst")) cadre = "IT & Technical Cadre";
+
+      localStorage.setItem("mospi_user", email);
+      localStorage.setItem("mospi_user_name", name);
+      localStorage.setItem("mospi_registered_ministry", dept);
+      localStorage.setItem("mospi_registered_cadre", cadre);
+      localStorage.setItem("mospi_registered_designation", desig);
+
+      alert(`Registration Successful for ${name}!\nDesignation: ${desig}\nDivision: ${dept}`);
+      window.location.href = "dashboard.html";
+    };
   }
-})();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupRefinedRegistration);
+} else {
+  setupRefinedRegistration();
+}
 </script>
 <!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
 </body>
