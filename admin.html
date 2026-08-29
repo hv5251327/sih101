@@ -6,44 +6,28 @@
   <title>MoSPI & NSSTA Cadre Admin Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #1e3a8a;
-      --primary-light: #2563eb;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-    }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; }
     .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
     .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
     .header h2 { font-size: 1.4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 10px; }
     .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
     .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
     .stat-card h4 { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
     .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 6px; }
-    
-    /* Document Ingestion & AI Quiz Generator */
     .quiz-builder-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
     .form-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
     @media(max-width: 700px){ .form-row { grid-template-columns: 1fr; } }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
     .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; outline: none; background: #fff; }
-    .upload-box { border: 2px dashed #94a3b8; border-radius: 10px; padding: 32px; text-align: center; background: #f8fafc; cursor: pointer; transition: all 0.2s; }
+    .upload-box { border: 2px dashed #94a3b8; border-radius: 10px; padding: 32px; text-align: center; background: #f8fafc; cursor: pointer; }
     .upload-box:hover { border-color: var(--primary-light); background: #f0f9ff; }
     .btn-gen { background: var(--primary); color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; align-self: flex-start; }
     .btn-gen:hover { background: #172554; }
-
     .table-container { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; padding: 20px; }
-    .table-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th { background: #f8fafc; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: 12px; border-bottom: 2px solid var(--border); }
     td { padding: 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
@@ -54,96 +38,67 @@
   </style>
 </head>
 <body>
-
 <div class="container">
-  <!-- Top Admin Header -->
   <div class="header">
     <div>
       <h2><i class="fa-solid fa-chart-line"></i> MoSPI / NSSTA Apex Cadre Command Center</h2>
-      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">4-Pillar Competency Baseline, Target Deficit & Heatmap Diagnostics</p>
+      <p style="font-size: 0.85rem; color: var(--muted); margin-top: 2px;">4-Pillar Competency Baseline & Heatmap Diagnostics</p>
     </div>
     <div style="display: flex; gap: 12px;">
       <a href="login.html" style="background: #fee2e2; color: #b91c1c; text-decoration: none; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #fca5a5;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </div>
 
-  <!-- KPI Metrics Grid -->
   <div class="stats-grid">
-    <div class="stat-card">
-      <h4>Enrolled Officers</h4>
-      <div class="value" id="stat-officers">0</div>
-    </div>
-    <div class="stat-card">
-      <h4>Designations Tracked</h4>
-      <div class="value" id="stat-roles">17</div>
-    </div>
-    <div class="stat-card">
-      <h4>Avg Statistical Score</h4>
-      <div class="value" id="stat-avg-statistical" style="color: #2563eb;">0%</div>
-    </div>
-    <div class="stat-card">
-      <h4>Avg Technical Score</h4>
-      <div class="value" id="stat-avg-technical" style="color: #059669;">0%</div>
-    </div>
+    <div class="stat-card"><h4>Enrolled Officers</h4><div class="value" id="stat-officers">0</div></div>
+    <div class="stat-card"><h4>Designations Tracked</h4><div class="value" id="stat-roles">17</div></div>
+    <div class="stat-card"><h4>Avg Statistical Score</h4><div class="value" style="color: #2563eb;">0%</div></div>
+    <div class="stat-card"><h4>Avg Technical Score</h4><div class="value" style="color: #059669;">0%</div></div>
   </div>
 
-  <!-- MoSPI Document Ingestion & AI Quiz Generator with Dynamic DB Topics -->
   <div class="quiz-builder-section">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary);"><i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i> MoSPI Document Ingestion & AI Quiz Generator</h3>
       <span class="badge" style="background: #fef3c7; color: #92400e;">Automated Assessment Engine</span>
     </div>
-    <p style="font-size: 0.85rem; color: var(--muted);">Upload official NSSTA manual or guidelines PDF to automatically generate assessment MCQs linked directly under a video course topic.</p>
-
     <div class="form-row">
       <div class="form-group">
         <label for="quiz-topic-select">Select Video Course Topic (from Database)</label>
-        <select class="form-control" id="quiz-topic-select" required></select>
+        <select class="form-control" id="quiz-topic-select"></select>
       </div>
-
       <div class="form-group">
         <label for="quiz-count-select">Number of Questions</label>
         <select class="form-control" id="quiz-count-select">
           <option value="5">5 Questions</option>
           <option value="10">10 Questions</option>
-          <option value="15">15 Questions</option>
         </select>
       </div>
     </div>
-
     <div class="upload-box" onclick="document.getElementById('pdf-file-input').click()">
       <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.2rem; color: var(--primary-light); margin-bottom: 8px;"></i>
       <h4 id="pdf-file-label" style="font-size: 0.95rem; font-weight: 700; color: #1e293b;">Click to upload PDF Document or Drag & Drop</h4>
-      <p style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">Supports MoSPI guidelines, PLFS Manuals, SNA Handbooks (.pdf)</p>
       <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;" onchange="handlePdfSelect(event)">
     </div>
-
     <button class="btn-gen" onclick="generateAiQuiz()"><i class="fa-solid fa-wand-magic-sparkles"></i> Ingest Document & Generate AI Quiz</button>
-
-    <div id="quiz-preview" style="display: none; margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
-      <h4 style="color: #166534; font-size: 0.95rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Assessment Module Generated Successfully</h4>
-      <p id="quiz-preview-meta" style="font-size: 0.85rem; color: #15803d; margin-top: 4px;">Assessment questions indexed into `topic_quizzes` table and mapped to officer dashboard.</p>
+    <div id="quiz-preview" style="display: none; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
+      <h4 style="color: #166534; font-size: 0.95rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Assessment Module Stored Successfully</h4>
+      <p id="quiz-preview-meta" style="font-size: 0.85rem; color: #15803d; margin-top: 4px;"></p>
     </div>
   </div>
 
-  <!-- Full 17 Designations Competency Gap Heatmap Table -->
   <div class="table-container">
-    <div class="table-header-row">
-      <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fa-solid fa-table-cells" style="color: var(--primary-light);"></i> All 17 Official Designations Competency Gap Heatmap</h3>
-      <span class="badge">Real-Time NSSTA Benchmark Sync</span>
-    </div>
-
+    <div style="margin-bottom: 16px;"><h3 style="font-size: 1.1rem; font-weight: 800;">All 17 Official Designations Competency Gap Heatmap</h3></div>
     <div style="overflow-x: auto;">
-      <table id="heatmap-table">
+      <table>
         <thead>
           <tr>
             <th>Designation Title</th>
-            <th>Cadre Group</th>
+            <th>Cadre</th>
             <th style="text-align: center;">Officers</th>
-            <th style="text-align: center;">Statistical (Cur/Tgt)</th>
-            <th style="text-align: center;">Technical (Cur/Tgt)</th>
-            <th style="text-align: center;">Governance (Cur/Tgt)</th>
-            <th style="text-align: center;">Behavioural (Cur/Tgt)</th>
+            <th style="text-align: center;">Statistical</th>
+            <th style="text-align: center;">Technical</th>
+            <th style="text-align: center;">Governance</th>
+            <th style="text-align: center;">Behavioural</th>
           </tr>
         </thead>
         <tbody id="heatmap-body"></tbody>
@@ -151,29 +106,80 @@
     </div>
   </div>
 </div>
-
 <script>
-let selectedPdfFile = null;
+const DB_TOPICS = [
+  "System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)",
+  "System of Environmental-Economic Accounting (SEEA)",
+  "Executive Overview of Data Analytics & AI in Governance",
+  "Big Data Ecosystems for Official Statistics & Decision Support",
+  "Digital Personal Data Protection (DPDP) Act 2023 & Apex Compliance",
+  "Apex Public Leadership & Strategic Policy Formulation",
+  "Multivariate Analysis & Advanced Econometric Modelling",
+  "Data Science with R and Python for Official Imputation",
+  "Cyber Security Practices for Senior Government Officials",
+  "Conflict Resolution & Team Coaching for Division Heads",
+  "Index Numbers Compilation: CPI, IIP & WPI Frameworks",
+  "Advanced SQL & Relational Database Management for Survey Tabulation",
+  "Data Ethics & Information Security Fundamentals",
+  "Time Management & Project Supervision",
+  "Official Statistical System in India: Mandate, Structure & History",
+  "Statistical Computing with R (Basics to Intermediate)",
+  "Code of Conduct & Civil Services Conduct Rules",
+  "Foundations of Professional Communication",
+  "Periodic Labour Force Survey (PLFS) Schedule Scrutiny & Validation",
+  "CAPI (Computer-Assisted Personal Interviewing) Portal Validation Protocols",
+  "Field Respondent Confidentiality & Data Protection Guidelines",
+  "Field Inspection, Quality Audits & Enumerator Mentorship",
+  "Primary Survey Schedules: Concepts, Definitions & Operational Guidelines",
+  "CAPI Handheld Tablet Operation & Real-Time Sync",
+  "Ethics in Primary Data Collection & Information Security",
+  "Public Interviewing & Effective Communication Techniques",
+  "Gross State Domestic Product (GSDP) & District Domestic Product (DDP) Compilation",
+  "State Statistical Open Data Portals Architecture",
+  "Inter-Departmental Data Sharing & State Data Protocols",
+  "Inter-Ministerial Strategic Coordination & District Review Management",
+  "Local Level Planning & District Statistical Handbooks Formulation",
+  "District Open Data Systems & Dashboard Management",
+  "Civil Registration System (CRS) & Vital Statistics Record Maintenance",
+  "District Administration Liaison & Collectorate Coordination"
+];
 
+const ROLES_FALLBACK = [
+  { designation_name: "Director General (DG / Apex Level) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 95, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 98, current_governance: 0, target_behavioural: 95, current_behavioural: 0 },
+  { designation_name: "Additional Director General (ADG / HAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 94, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 95, current_governance: 0, target_behavioural: 92, current_behavioural: 0 },
+  { designation_name: "Deputy Director General (DDG / SAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 88, current_technical: 0, target_governance: 92, current_governance: 0, target_behavioural: 90, current_behavioural: 0 },
+  { designation_name: "Director / Joint Director (JAG) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 90, current_technical: 0, target_governance: 88, current_governance: 0, target_behavioural: 85, current_behavioural: 0 },
+  { designation_name: "Deputy Director (STS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 92, current_technical: 0, target_governance: 85, current_governance: 0, target_behavioural: 82, current_behavioural: 0 },
+  { designation_name: "Assistant Director (JTS) - ISS", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 90, current_technical: 0, target_governance: 85, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
+  { designation_name: "Probationer / Officer Trainee (ISS - NSSTA)", cadre_name: "Indian Statistical Service (ISS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, target_technical: 88, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
+  { designation_name: "Senior Statistical Officer (SSO / Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 88, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 80, current_behavioural: 0 },
+  { designation_name: "Senior Statistical Officer (SSO / Non-Gazetted)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 85, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 80, current_governance: 0, target_behavioural: 78, current_behavioural: 0 },
+  { designation_name: "Junior Statistical Officer (JSO)", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 82, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 78, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
+  { designation_name: "Statistical Assistant / Senior Field Investigator", cadre_name: "Subordinate Statistical Service (SSS)", enrolled_count: 0, target_statistical: 80, current_statistical: 0, target_technical: 78, current_technical: 0, target_governance: 75, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
+  { designation_name: "Director of Economics & Statistics (State Head)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 92, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 95, current_governance: 0, target_behavioural: 92, current_behavioural: 0 },
+  { designation_name: "Joint / Deputy Director (State DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 90, current_statistical: 0, target_technical: 85, current_technical: 0, target_governance: 88, current_governance: 0, target_behavioural: 85, current_behavioural: 0 },
+  { designation_name: "District Statistical Officer (DSO)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 85, current_statistical: 0, target_technical: 82, current_technical: 0, target_governance: 82, current_governance: 0, target_behavioural: 82, current_behavioural: 0 },
+  { designation_name: "Assistant Statistical Officer / Statistical Officer (State)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 82, current_statistical: 0, target_technical: 80, current_technical: 0, target_governance: 78, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
+  { designation_name: "Statistical Inspector / Research Assistant (DES)", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 80, current_statistical: 0, target_technical: 78, current_technical: 0, target_governance: 75, current_governance: 0, target_behavioural: 75, current_behavioural: 0 },
+  { designation_name: "Primary Field Investigator / Enumerator", cadre_name: "State DES Statistical Cadre", enrolled_count: 0, target_statistical: 78, current_statistical: 0, target_technical: 75, current_technical: 0, target_governance: 72, current_governance: 0, target_behavioural: 75, current_behavioural: 0 }
+];
+
+let selectedPdf = null;
 function handlePdfSelect(e) {
-  const file = e.target.files[0];
-  if (file) {
-    selectedPdfFile = file;
-    document.getElementById("pdf-file-label").innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Selected: <strong>${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)`;
+  if (e.target.files[0]) {
+    selectedPdf = e.target.files[0];
+    document.getElementById("pdf-file-label").innerHTML = `<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Selected: <strong>${selectedPdf.name}</strong>`;
   }
 }
 
 async function generateAiQuiz() {
-  if (!selectedPdfFile) {
-    alert("Please select a MoSPI / NSSTA PDF document to generate questions.");
-    return;
-  }
+  if (!selectedPdf) { alert("Please select a PDF document first."); return; }
   const topic = document.getElementById("quiz-topic-select").value;
   const count = parseInt(document.getElementById("quiz-count-select").value) || 5;
 
-  const generatedQuestions = [];
+  const qs = [];
   for (let i = 1; i <= count; i++) {
-    generatedQuestions.push({
+    qs.push({
       question: `Assessment Question ${i} on "${topic}": Which standard procedure applies as per the official manual?`,
       optA: `Standard Procedure A: Adhere strictly to MoSPI/NSSTA guidelines and validation rules.`,
       optB: `Standard Procedure B: Unverified estimation and ad-hoc approximation.`,
@@ -183,25 +189,58 @@ async function generateAiQuiz() {
     });
   }
 
-  // 1. Save in local browser storage for Cloudflare Pages support
   let localDb = JSON.parse(localStorage.getItem("mospi_topic_quizzes_db") || "{}");
-  localDb[topic.toLowerCase()] = generatedQuestions;
+  localDb[topic.toLowerCase()] = qs;
   localStorage.setItem("mospi_topic_quizzes_db", JSON.stringify(localDb));
 
-  // 2. Save in backend SQLite topic_quizzes table
   try {
     await fetch("http://127.0.0.1:5000/api/admin/save-quiz", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic_title: topic, questions: generatedQuestions })
+      body: JSON.stringify({ topic_title: topic, questions: qs })
     });
-  } catch(err) {
-    console.warn("Backend offline; quiz saved in browser database.");
-  }
+  } catch(e){}
 
   document.getElementById("quiz-preview").style.display = "block";
-  document.getElementById("quiz-preview-meta").innerText = `Successfully ingested "${selectedPdfFile.name}". Generated and stored ${count} MCQs in the database under topic: "${topic}". Officers watching this video will now receive these questions.`;
+  document.getElementById("quiz-preview-meta").innerText = `Generated and saved ${count} MCQs under topic: "${topic}". Linked directly to employee dashboard.`;
 }
+
+function initAdmin() {
+  const ts = document.getElementById("quiz-topic-select");
+  ts.innerHTML = "";
+  DB_TOPICS.forEach(t => {
+    const opt = document.createElement("option"); opt.value = t; opt.textContent = t;
+    ts.appendChild(opt);
+  });
+
+  let data = ROLES_FALLBACK;
+  try {
+    fetch("http://127.0.0.1:5000/api/admin/heatmap")
+      .then(r => r.json())
+      .then(d => {
+        if (d.heatmap_data && d.heatmap_data.length > 0) renderTable(d.heatmap_data);
+      }).catch(() => renderTable(data));
+  } catch(e) { renderTable(data); }
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById("heatmap-body");
+  tbody.innerHTML = "";
+  data.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="font-weight: 700;">${r.designation_name}</td>
+      <td><span class="cadre-tag ${r.cadre_name.includes('ISS')?'cadre-iss':(r.cadre_name.includes('SSS')?'cadre-sss':'cadre-des')}">${r.cadre_name.includes('ISS')?'ISS':(r.cadre_name.includes('SSS')?'SSS':'DES')}</span></td>
+      <td style="text-align: center; font-weight: 700;">${r.enrolled_count || 0}</td>
+      <td style="text-align: center;">${r.current_statistical || 0}% / ${r.target_statistical}%</td>
+      <td style="text-align: center;">${r.current_technical || 0}% / ${r.target_technical}%</td>
+      <td style="text-align: center;">${r.current_governance || 0}% / ${r.target_governance}%</td>
+      <td style="text-align: center;">${r.current_behavioural || 0}% / ${r.target_behavioural}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+document.addEventListener("DOMContentLoaded", initAdmin);
 </script>
 </body>
 </html>

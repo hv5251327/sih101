@@ -6,14 +6,13 @@
   <title>MoSPI & NSSTA Competency Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; --success: #16a34a; }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
     .container { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
     .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
     .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    .btn-logout { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
-    .btn-logout:hover { background: #fecaca; }
+    .btn-logout { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 0.85rem; }
     .bhashini-bar { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
@@ -23,19 +22,15 @@
     .video-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .video-frame { width: 100%; height: 200px; background: #000; border: none; }
     .video-body { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
-    
-    .btn-quiz { width: 100%; background: #f8fafc; border: 1.5px solid var(--primary-light); color: var(--primary-light); border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; transition: all 0.2s; }
-    .btn-quiz:hover { background: #eff6ff; }
+    .btn-quiz { width: 100%; background: #f8fafc; border: 1.5px solid var(--primary-light); color: var(--primary-light); border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; }
     .btn-quiz.completed { background: #dcfce7; border-color: #86efac; color: #15803d; cursor: default; }
-
-    /* Interactive Quiz Modal */
+    
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
-    .quiz-modal { background: #fff; width: 100%; max-width: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; }
+    .quiz-modal { background: #fff; width: 100%; max-width: 600px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; }
     .modal-header { background: var(--primary); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
     .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
     .quiz-q { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .quiz-opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-bottom: 6px; }
-    .quiz-opt:hover { background: #f8fafc; }
     .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
     .btn-sub-quiz { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     
@@ -49,48 +44,40 @@
     .chat-input-row { display: flex; border-top: 1px solid var(--border); }
     .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
     .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
-
+    
     #google_translate_element { display: inline-block; }
     .goog-te-gadget { font-size: 0px !important; }
     .goog-te-gadget span { display: none !important; }
-    .goog-te-combo { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff; color: #1e293b; font-size: 0.85rem; outline: none; }
+    .goog-te-combo { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff; color: #1e293b; font-size: 0.85rem; }
   </style>
   <script type="text/javascript">
     function googleTranslateElementInit() {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'hi,te,ta,bn,mr,gu,kn,ml,pa,en',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-      }, 'google_translate_element');
+      new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false }, 'google_translate_element');
     }
   </script>
   <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
     <div>
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
         <h2 id="officer-name" style="font-size: 1.35rem; font-weight: 800;">Officer Dashboard</h2>
-        <span id="officer-cadre" class="badge">ISS CADRE</span>
+        <span id="officer-cadre" class="badge">CADRE</span>
       </div>
-      <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);">Data Operations • Official Statistics</p>
+      <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);"></p>
     </div>
-
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="bhashini-bar">
         <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-        <span style="font-size: 0.85rem; font-weight: 700; color: #334155;">Bhashini:</span>
         <div id="google_translate_element"></div>
       </div>
-      <button class="btn-logout" onclick="logoutOfficer()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      <a href="login.html" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
     </div>
   </div>
 
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline</h3>
     <div class="grid-4" id="pillars-container"></div>
   </div>
 
@@ -100,7 +87,6 @@
   </div>
 </div>
 
-<!-- Interactive Quiz Modal -->
 <div class="modal-overlay" id="quiz-modal-overlay">
   <div class="quiz-modal">
     <div class="modal-header">
@@ -117,80 +103,52 @@
 
 <button id="chatbot-toggle" onclick="toggleChatbot()"><i class="fa-solid fa-robot"></i></button>
 <div id="chatbot-window">
-  <div class="chat-header">
-    <span><i class="fa-solid fa-brain"></i> MoSPI AI Learning Assistant</span>
-    <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
-  </div>
-  <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning assistant. Watch the recommended course video and attempt the quiz below to complete each module.</div>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" id="chat-input" placeholder="Ask about modules, pillars..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-    <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-  </div>
+  <div class="chat-header"><span><i class="fa-solid fa-brain"></i> MoSPI AI Assistant</span><i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i></div>
+  <div class="chat-messages" id="chat-messages"><div class="chat-bubble bubble-bot">Namaste! Complete your videos and attempt the topic quiz below each video to raise your competency score.</div></div>
+  <div class="chat-input-row"><input type="text" id="chat-input" placeholder="Ask AI..." onkeypress="if(event.key==='Enter') sendChat()"><button onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div>
 </div>
 
 <script>
-const ALL_COURSES_DB = [
-  {"id":"iss-apex-stat-1","target_group":"DG_ADG","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)","provider":"NSSTA / MoSPI","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-apex-stat-2","target_group":"DG_ADG","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"System of Environmental-Economic Accounting (SEEA)","provider":"UN / NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-apex-tech-1","target_group":"DG_ADG","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Executive Overview of Data Analytics & AI in Governance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-apex-tech-2","target_group":"DG_ADG","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Big Data Ecosystems for Official Statistics & Decision Support","provider":"NSSTA / iGOT","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-apex-gov-1","target_group":"DG_ADG","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Digital Personal Data Protection (DPDP) Act 2023 & Apex Compliance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-apex-beh-1","target_group":"DG_ADG","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Apex Public Leadership & Strategic Policy Formulation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+const ALL_COURSES = [
+  {"id":"iss-apex-stat-1","target_group":"DG_ADG","pillar":"statistical","title":"System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)","provider":"NSSTA / MoSPI","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-tech-1","target_group":"DG_ADG","pillar":"technical","title":"Executive Overview of Data Analytics & AI in Governance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-gov-1","target_group":"DG_ADG","pillar":"governance","title":"Digital Personal Data Protection (DPDP) Act 2023 & Apex Compliance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-beh-1","target_group":"DG_ADG","pillar":"behavioural","title":"Apex Public Leadership & Strategic Policy Formulation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
 
-  {"id":"iss-dir-stat-1","target_group":"DDG_DIR","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Multivariate Analysis & Advanced Econometric Modelling","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dir-tech-1","target_group":"DDG_DIR","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Data Science with R and Python for Official Imputation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dir-gov-1","target_group":"DDG_DIR","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Cyber Security Practices for Senior Government Officials","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dir-beh-1","target_group":"DDG_DIR","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Conflict Resolution & Team Coaching for Division Heads","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-stat-1","target_group":"DDG_DIR","pillar":"statistical","title":"Multivariate Analysis & Advanced Econometric Modelling","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-tech-1","target_group":"DDG_DIR","pillar":"technical","title":"Data Science with R and Python for Official Imputation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-gov-1","target_group":"DDG_DIR","pillar":"governance","title":"Cyber Security Practices for Senior Government Officials","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-beh-1","target_group":"DDG_DIR","pillar":"behavioural","title":"Conflict Resolution & Team Coaching for Division Heads","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
 
-  {"id":"iss-dd-stat-1","target_group":"DD_AD","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Index Numbers Compilation: CPI, IIP & WPI Frameworks","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dd-tech-1","target_group":"DD_AD","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Advanced SQL & Relational Database Management for Survey Tabulation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dd-gov-1","target_group":"DD_AD","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Data Ethics & Information Security Fundamentals","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-dd-beh-1","target_group":"DD_AD","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Time Management & Project Supervision","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-stat-1","target_group":"SSO","pillar":"statistical","title":"Periodic Labour Force Survey (PLFS) Schedule Scrutiny & Validation","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-tech-1","target_group":"SSO","pillar":"technical","title":"CAPI (Computer-Assisted Personal Interviewing) Portal Validation Protocols","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-gov-1","target_group":"SSO","pillar":"governance","title":"Field Respondent Confidentiality & Data Protection Guidelines","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-beh-1","target_group":"SSO","pillar":"behavioural","title":"Field Inspection, Quality Audits & Enumerator Mentorship","provider":"NSSTA / iGOT","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
 
-  {"id":"iss-ot-stat-1","target_group":"ISS_OT","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Official Statistical System in India: Mandate, Structure & History","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-ot-tech-1","target_group":"ISS_OT","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Statistical Computing with R (Basics to Intermediate)","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-ot-gov-1","target_group":"ISS_OT","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Code of Conduct & Civil Services Conduct Rules","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"iss-ot-beh-1","target_group":"ISS_OT","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Foundations of Professional Communication","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-stat-1","target_group":"JSO","pillar":"statistical","title":"Primary Survey Schedules: Concepts, Definitions & Operational Guidelines","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-tech-1","target_group":"JSO","pillar":"technical","title":"CAPI Handheld Tablet Operation & Real-Time Sync","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-gov-1","target_group":"JSO","pillar":"governance","title":"Ethics in Primary Data Collection & Information Security","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-beh-1","target_group":"JSO","pillar":"behavioural","title":"Public Interviewing & Effective Communication Techniques","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
 
-  {"id":"sss-sso-stat-1","target_group":"SSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Periodic Labour Force Survey (PLFS) Schedule Scrutiny & Validation","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-sso-tech-1","target_group":"SSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"CAPI (Computer-Assisted Personal Interviewing) Portal Validation Protocols","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-sso-gov-1","target_group":"SSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Field Respondent Confidentiality & Data Protection Guidelines","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-sso-beh-1","target_group":"SSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Field Inspection, Quality Audits & Enumerator Mentorship","provider":"NSSTA / iGOT","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-
-  {"id":"sss-jso-stat-1","target_group":"JSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Primary Survey Schedules: Concepts, Definitions & Operational Guidelines","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-jso-tech-1","target_group":"JSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"CAPI Handheld Tablet Operation & Real-Time Sync","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-jso-gov-1","target_group":"JSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Ethics in Primary Data Collection & Information Security","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"sss-jso-beh-1","target_group":"JSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Public Interviewing & Effective Communication Techniques","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-
-  {"id":"des-dir-stat-1","target_group":"DES_DIR","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Gross State Domestic Product (GSDP) & District Domestic Product (DDP) Compilation","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dir-tech-1","target_group":"DES_DIR","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"State Statistical Open Data Portals Architecture","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dir-gov-1","target_group":"DES_DIR","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Inter-Departmental Data Sharing & State Data Protocols","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dir-beh-1","target_group":"DES_DIR","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Inter-Ministerial Strategic Coordination & District Review Management","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-
-  {"id":"des-dso-stat-1","target_group":"DSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Local Level Planning & District Statistical Handbooks Formulation","provider":"NSSTA / State DES","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dso-tech-1","target_group":"DSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"District Open Data Systems & Dashboard Management","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dso-gov-1","target_group":"DSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Civil Registration System (CRS) & Vital Statistics Record Maintenance","provider":"ORGI / NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-  {"id":"des-dso-beh-1","target_group":"DSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"District Administration Liaison & Collectorate Coordination","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+  {"id":"des-dir-stat-1","target_group":"DES_DIR","pillar":"statistical","title":"Gross State Domestic Product (GSDP) & District Domestic Product (DDP) Compilation","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-tech-1","target_group":"DES_DIR","pillar":"technical","title":"State Statistical Open Data Portals Architecture","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-gov-1","target_group":"DES_DIR","pillar":"governance","title":"Inter-Departmental Data Sharing & State Data Protocols","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-beh-1","target_group":"DES_DIR","pillar":"behavioural","title":"Inter-Ministerial Strategic Coordination & District Review Management","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
 ];
 
-function resolveTargetGroup(desig) {
+function resolveGroup(desig) {
   const d = (desig || "").toLowerCase();
-  if (d.includes("director general") || d.includes("apex") || d.includes("additional director general") || d.includes("hag")) return "DG_ADG";
-  if (d.includes("deputy director general") || d.includes("sag") || d.includes("joint director") || d.includes("jag") || (d.includes("director") && d.includes("iss") && !d.includes("deputy") && !d.includes("assistant"))) return "DDG_DIR";
-  if (d.includes("deputy director") || d.includes("sts") || d.includes("assistant director") || d.includes("jts")) return "DD_AD";
-  if (d.includes("probationer") || d.includes("trainee")) return "ISS_OT";
+  if (d.includes("director general") || d.includes("apex") || d.includes("additional director general")) return "DG_ADG";
+  if (d.includes("deputy director general") || d.includes("director")) return "DDG_DIR";
   if (d.includes("senior statistical officer") || d.includes("sso")) return "SSO";
-  if (d.includes("director of economics") || d.includes("state head")) return "DES_DIR";
-  if (d.includes("district statistical officer") || d.includes("dso")) return "DSO";
+  if (d.includes("state head") || (d.includes("state des") && d.includes("director"))) return "DES_DIR";
   return "JSO";
 }
 
-let activeOfficerModules = [];
-let currentActiveQuizModule = null;
+let activeMods = [];
+let curQuiz = null;
 
-function renderDashboardUI() {
+function renderDashboard() {
   const name = localStorage.getItem("mospi_user_name") || "Officer";
   const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
   const cadre = localStorage.getItem("mospi_registered_cadre") || "Subordinate Statistical Service (SSS)";
@@ -200,69 +158,56 @@ function renderDashboardUI() {
   document.getElementById("officer-cadre").innerText = cadre;
   document.getElementById("officer-meta").innerText = `${desig} • ${dept}`;
 
-  const targetGroup = resolveTargetGroup(desig);
-  const doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
+  const group = resolveGroup(desig);
+  const done = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
 
-  activeOfficerModules = ALL_COURSES_DB.filter(m => m.target_group === targetGroup);
-  if (activeOfficerModules.length === 0) {
-    activeOfficerModules = ALL_COURSES_DB.filter(m => m.target_group === "JSO");
+  activeMods = ALL_COURSES.filter(m => m.target_group === group);
+  if (!activeMods.length) activeMods = ALL_COURSES.filter(m => m.target_group === "JSO");
+
+  activeMods.forEach(m => { m.is_completed = done.includes(m.id); });
+
+  function getScore(p) {
+    const list = activeMods.filter(m => m.pillar === p);
+    if (!list.length) return 0;
+    return Math.round((list.filter(m => m.is_completed).length / list.length) * 100);
   }
 
-  activeOfficerModules.forEach(m => {
-    m.is_completed = doneLocal.includes(m.id);
-  });
-
-  function getPillarScore(pKey) {
-    const mods = activeOfficerModules.filter(m => m.pillar === pKey);
-    if (!mods.length) return 0;
-    const done = mods.filter(m => m.is_completed).length;
-    return Math.round((done / mods.length) * 100);
-  }
-
-  const pillars = [
-    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: 85, current: getPillarScore("statistical") },
-    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: 85, current: getPillarScore("technical") },
-    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: 80, current: getPillarScore("governance") },
-    { key: "behavioural", title: "Managerial & Behavioural", color: "#7c3aed", target: 80, current: getPillarScore("behavioural") }
+  const pData = [
+    { title: "Statistical", color: "#2563eb", cur: getScore("statistical"), tgt: 85 },
+    { title: "Technical", color: "#059669", cur: getScore("technical"), tgt: 85 },
+    { title: "Governance", color: "#d97706", cur: getScore("governance"), tgt: 80 },
+    { title: "Behavioural", color: "#7c3aed", cur: getScore("behavioural"), tgt: 80 }
   ];
 
   const grid = document.getElementById("pillars-container");
   grid.innerHTML = "";
-  pillars.forEach(p => {
-    const gap = Math.max(0, p.target - p.current);
+  pData.forEach(p => {
     const div = document.createElement("div");
     div.className = "card";
     div.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.85rem; font-weight: 700; color: #1e293b;">${p.title}</span>
-        <span style="font-size: 0.75rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: ${gap > 0 ? '#fee2e2' : '#dcfce7'}; color: ${gap > 0 ? '#b91c1c' : '#15803d'};">
-          ${gap > 0 ? 'Gap: +' + gap + '%' : 'Completed'}
-        </span>
+      <div style="display:flex; justify-content:space-between; font-weight:700; font-size:0.85rem;">
+        <span>${p.title}</span><span>${p.cur}% / ${p.tgt}%</span>
       </div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${p.current}%; background: ${p.color};"></div></div>
-      <div style="font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between;">
-        <span>Current: <strong>${p.current}%</strong></span>
-        <span>Target: <strong>${p.target}%</strong></span>
-      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${p.cur}%; background:${p.color};"></div></div>
     `;
     grid.appendChild(div);
   });
 
   const vGrid = document.getElementById("video-modules-container");
   vGrid.innerHTML = "";
-  activeOfficerModules.forEach(m => {
+  activeMods.forEach(m => {
     const card = document.createElement("div");
     card.className = "video-card";
     card.innerHTML = `
       <iframe class="video-frame" src="${m.embedUrl}" allowfullscreen></iframe>
       <div class="video-body">
         <div>
-          <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.provider}</span>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
+          <span class="badge" style="background:#f1f5f9; color:#475569; margin-bottom:6px; display:inline-block;">${m.provider}</span>
+          <h4 style="font-size:0.95rem; font-weight:700; color:#1e293b;">${m.title}</h4>
         </div>
-        <button class="btn-quiz ${m.is_completed ? 'completed' : ''}" onclick="${m.is_completed ? '' : `openQuizModal('${m.id}', '${m.title.replace(/'/g, "\\'")}')`}">
+        <button class="btn-quiz ${m.is_completed ? 'completed' : ''}" onclick="${m.is_completed ? '' : `openQuiz('${m.id}', '${m.title.replace(/'/g, "\\'")}')`}">
           <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-pen-to-square'}"></i>
-          <span>${m.is_completed ? 'Competency Assessment Passed & Completed' : 'Attempt Topic Quiz to Complete Course'}</span>
+          <span>${m.is_completed ? 'Assessment Passed' : 'Attempt Topic Quiz'}</span>
         </button>
       </div>
     `;
@@ -270,72 +215,70 @@ function renderDashboardUI() {
   });
 }
 
-function openQuizModal(moduleId, title) {
-  currentActiveQuizModule = { id: moduleId, title: title };
+async function openQuiz(id, title) {
+  curQuiz = { id: id, title: title };
   document.getElementById("quiz-modal-title").innerHTML = `<i class="fa-solid fa-pen-nib"></i> Quiz: ${title}`;
-  
   const body = document.getElementById("quiz-modal-body");
-  body.innerHTML = `
-    <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #334155;">
-      <strong>Assessment Instructions:</strong> Answer all questions based on the video course. Passing score is required to mark the course completed.
-    </div>
-
-    <div>
-      <div class="quiz-q">1. What is the primary standard or protocol emphasized in "${title}"?</div>
-      <label class="quiz-opt"><input type="radio" name="q1" value="a"> Official MoSPI / NSSTA Verified Standard Operating Procedure</label>
-      <label class="quiz-opt"><input type="radio" name="q1" value="b"> Unverified secondary estimation</label>
-      <label class="quiz-opt"><input type="radio" name="q1" value="c"> Ad-hoc manual approximation</label>
-    </div>
-
-    <div>
-      <div class="quiz-q">2. How does adhering to these guidelines improve data reliability and competency?</div>
-      <label class="quiz-opt"><input type="radio" name="q2" value="a"> Ensures statistical consistency and cross-cadre data integrity</label>
-      <label class="quiz-opt"><input type="radio" name="q2" value="b"> Reduces overall data points</label>
-      <label class="quiz-opt"><input type="radio" name="q2" value="c"> Bypasses digital validation rules</label>
-    </div>
-  `;
-
+  body.innerHTML = `<div style="text-align:center; padding:20px;">Loading questions...</div>`;
   document.getElementById("quiz-modal-overlay").style.display = "flex";
+
+  let qs = [];
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/quiz/get-by-topic", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic_title: title })
+    });
+    const d = await res.json();
+    if (d.status === "success" && d.questions && d.questions.length > 0) qs = d.questions;
+  } catch(e){}
+
+  if (!qs.length) {
+    const localDb = JSON.parse(localStorage.getItem("mospi_topic_quizzes_db") || "{}");
+    qs = localDb[title.toLowerCase()] || [];
+  }
+
+  if (!qs.length) {
+    qs = [
+      { question: `What standard applies in "${title}"?`, optA: "MoSPI/NSSTA Standard Operating Guidelines", optB: "Unverified approximation", optC: "Ad-hoc estimation", optD: "Bypass validation", correct: "a" },
+      { question: `Why is this module critical?`, optA: "Ensures cross-cadre statistical data integrity", optB: "Reduces survey data size", optC: "Skips review checks", optD: "None of these", correct: "a" }
+    ];
+  }
+
+  let html = `<div style="background:#f1f5f9; padding:10px; border-radius:6px; font-size:0.85rem; margin-bottom:12px;">Answer all questions based on the video:</div>`;
+  qs.forEach((q, i) => {
+    html += `
+      <div style="margin-bottom:12px;">
+        <div class="quiz-q">${i+1}. ${q.question}</div>
+        <label class="quiz-opt"><input type="radio" name="q_${i}" value="a"> ${q.optA}</label>
+        <label class="quiz-opt"><input type="radio" name="q_${i}" value="b"> ${q.optB}</label>
+      </div>
+    `;
+  });
+  curQuiz.total = qs.length;
+  body.innerHTML = html;
 }
 
 function closeQuizModal() {
   document.getElementById("quiz-modal-overlay").style.display = "none";
-  currentActiveQuizModule = null;
+  curQuiz = null;
 }
 
 function submitActiveQuiz() {
-  if (!currentActiveQuizModule) return;
-  const q1 = document.querySelector('input[name="q1"]:checked');
-  const q2 = document.querySelector('input[name="q2"]:checked');
-
-  if (!q1 || !q2) {
-    alert("Please answer all questions before submitting.");
-    return;
+  if (!curQuiz) return;
+  for (let i = 0; i < curQuiz.total; i++) {
+    if (!document.querySelector(`input[name="q_${i}"]:checked`)) {
+      alert("Please answer all questions."); return;
+    }
   }
-
-  let doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
-  if (!doneLocal.includes(currentActiveQuizModule.id)) {
-    doneLocal.push(currentActiveQuizModule.id);
-    localStorage.setItem("mospi_completed_video_ids", JSON.stringify(doneLocal));
+  let done = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
+  if (!done.includes(curQuiz.id)) {
+    done.push(curQuiz.id);
+    localStorage.setItem("mospi_completed_video_ids", JSON.stringify(done));
   }
-
-  const officerEmail = localStorage.getItem("mospi_user") || "officer@gov.in";
-  try {
-    fetch("http://127.0.0.1:5000/api/officer/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: officerEmail, module_id: currentActiveQuizModule.id })
-    }).catch(() => {});
-  } catch(e) {}
-
-  alert(`Congratulations! You passed the assessment for "${currentActiveQuizModule.title}". The course is now marked as Completed.`);
+  alert(`Assessment passed for "${curQuiz.title}"! Course marked as Completed.`);
   closeQuizModal();
-  renderDashboardUI();
-}
-
-function logoutOfficer() {
-  localStorage.removeItem("mospi_user");
-  window.location.href = "login.html";
+  renderDashboard();
 }
 
 function toggleChatbot() {
@@ -343,26 +286,17 @@ function toggleChatbot() {
   w.style.display = (w.style.display === "flex") ? "none" : "flex";
 }
 
-function sendChatMessage() {
+function sendChat() {
   const inp = document.getElementById("chat-input");
-  const msg = inp.value.trim();
-  if (!msg) return;
+  if (!inp.value.trim()) return;
   const c = document.getElementById("chat-messages");
-  
-  const u = document.createElement("div");
-  u.className = "chat-bubble bubble-user";
-  u.innerText = msg;
-  c.appendChild(u);
+  const u = document.createElement("div"); u.className = "chat-bubble bubble-user"; u.innerText = inp.value; c.appendChild(u);
   inp.value = "";
-
-  const b = document.createElement("div");
-  b.className = "chat-bubble bubble-bot";
-  b.innerText = "To improve your score, complete the recommended video courses above and pass each topic assessment quiz.";
-  c.appendChild(b);
+  const b = document.createElement("div"); b.className = "chat-bubble bubble-bot"; b.innerText = "To increase your competency score, complete your assigned video modules and pass the topic quiz below each."; c.appendChild(b);
   c.scrollTop = c.scrollHeight;
 }
 
-document.addEventListener("DOMContentLoaded", renderDashboardUI);
+document.addEventListener("DOMContentLoaded", renderDashboard);
 </script>
 </body>
 </html>
