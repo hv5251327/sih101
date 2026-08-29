@@ -254,7 +254,7 @@
 
 
 
-<!-- NSSTA_FULL_REGISTRATION_ENGINE -->
+
 <script>
 window.MOSPI_STRUCTURE = {
   departments: [
@@ -271,8 +271,6 @@ window.MOSPI_STRUCTURE = {
     "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
     "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
     "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
-    "Cadre Management Division — ISS & SSS Service Administration",
-    "General Administration, Vigilance & Budget Division — Secretariat Operations",
     "State Directorate of Economics & Statistics (DES) — State HQ",
     "District Statistical Office (DSO) — Sub-Divisional Field Unit"
   ],
@@ -297,31 +295,18 @@ window.MOSPI_STRUCTURE = {
     "District Statistical Officer (DSO)",
     "Assistant Statistical Officer / Statistical Officer (State)",
     "Statistical Inspector / Research Assistant (DES)",
-    "Primary Field Investigator / Enumerator",
-    "-- IT, Systems & Technical Data Cadre --",
-    "Joint Director (Systems & Big Data Engineering)",
-    "Senior Data Processing Assistant (DPA Grade B/A)",
-    "Junior Data Processing Assistant / Data Analyst",
-    "Data Entry Operator (DEO Grade A/B/C)",
-    "IT / Cloud Infrastructure & GIS Specialist",
-    "-- Central Secretariat & Administrative Cadre --",
-    "Deputy Secretary / Under Secretary",
-    "Section Officer (SO)",
-    "Assistant Section Officer (ASO)",
-    "Senior Secretariat Assistant (UDC)",
-    "Junior Secretariat Assistant (LDC)",
-    "Multi-Tasking Staff (MTS)"
+    "Primary Field Investigator / Enumerator"
   ]
 };
 
-function setupRefinedRegistration() {
+function setupPureStatisticalRegistration() {
   const selects = document.querySelectorAll("select");
   if (selects.length === 0) return;
 
   const deptSelect = selects[0];
   const desigSelect = selects[1] || selects[0];
 
-  // 1. Populate clean, meaningful departments
+  // 1. Populate Pure Statistical & Data Divisions
   if (deptSelect) {
     deptSelect.innerHTML = "";
     window.MOSPI_STRUCTURE.departments.forEach(dept => {
@@ -332,7 +317,7 @@ function setupRefinedRegistration() {
     });
   }
 
-  // 2. Populate complete official designations
+  // 2. Populate Exclusively Statistical Designations
   if (desigSelect && desigSelect !== deptSelect) {
     desigSelect.innerHTML = "";
     window.MOSPI_STRUCTURE.designations.forEach(desig => {
@@ -348,7 +333,7 @@ function setupRefinedRegistration() {
     });
   }
 
-  // 3. Form submit handler syncing to localStorage
+  // 3. Form Submit Handler
   const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
   if (regBtn) {
     regBtn.onclick = function(e) {
@@ -361,11 +346,12 @@ function setupRefinedRegistration() {
       const dept = deptSelect ? deptSelect.value : window.MOSPI_STRUCTURE.departments[0];
       const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
 
-      let cadre = "Administrative Cadre";
-      if (desig.includes("ISS")) cadre = "Indian Statistical Service (ISS)";
-      else if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO")) cadre = "Subordinate Statistical Service (SSS)";
-      else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES")) cadre = "State DES Statistical Cadre";
-      else if (desig.includes("IT") || desig.includes("Data Processing") || desig.includes("Analyst")) cadre = "IT & Technical Cadre";
+      let cadre = "Indian Statistical Service (ISS)";
+      if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO") || desig.includes("Statistical Assistant")) {
+        cadre = "Subordinate Statistical Service (SSS)";
+      } else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES") || desig.includes("Enumerator")) {
+        cadre = "State DES Statistical Cadre";
+      }
 
       localStorage.setItem("mospi_user", email);
       localStorage.setItem("mospi_user_name", name);
@@ -380,243 +366,454 @@ function setupRefinedRegistration() {
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupRefinedRegistration);
+  document.addEventListener("DOMContentLoaded", setupPureStatisticalRegistration);
 } else {
-  setupRefinedRegistration();
+  setupPureStatisticalRegistration();
+}
+</script>
+<script>
+window.MOSPI_STRUCTURE = {
+  departments: [
+    "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates",
+    "Economic Statistics Division (ESD) — IIP, ASI & Industrial Surveys",
+    "Price Statistics Division (PSD) — CPI, Inflation Indices & Price Monitoring",
+    "Social Statistics Division (SSD) — SDGs, Gender & Social Metrics",
+    "Field Operations Division (FOD) — Primary Data Collection & Field Scrutiny",
+    "Survey Design and Research Division (SDRD) — Sampling & Questionnaires",
+    "Household Survey Division (HSD) — PLFS & Consumption Surveys",
+    "Enterprise Survey Division (EnSD) — ASUSE & Service Sector Surveys",
+    "Data Processing Division (DPD) — Scrutiny, Validation & Tabulation",
+    "Data Informatics & Innovation Division (DIID) — Cloud, Big Data Lake & AI",
+    "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
+    "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
+    "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
+    "State Directorate of Economics & Statistics (DES) — State HQ",
+    "District Statistical Office (DSO) — Sub-Divisional Field Unit"
+  ],
+  designations: [
+    "-- Indian Statistical Service (ISS) [Group A Central Civil Service] --",
+    "Director General (DG / Apex Level) - ISS",
+    "Additional Director General (ADG / HAG) - ISS",
+    "Deputy Director General (DDG / SAG) - ISS",
+    "Director (JAG / Selection Grade) - ISS",
+    "Joint Director (JAG) - ISS",
+    "Deputy Director (STS) - ISS",
+    "Assistant Director (JTS) - ISS",
+    "Probationer / Officer Trainee (ISS - NSSTA)",
+    "-- Subordinate Statistical Service (SSS) [Group B Statistical Service] --",
+    "Senior Statistical Officer (SSO / Gazetted)",
+    "Senior Statistical Officer (SSO / Non-Gazetted)",
+    "Junior Statistical Officer (JSO)",
+    "Statistical Assistant / Senior Field Investigator",
+    "-- State Statistical Cadres (Directorate of Economics & Statistics) --",
+    "Director of Economics & Statistics (State Head)",
+    "Joint / Deputy Director (State DES)",
+    "District Statistical Officer (DSO)",
+    "Assistant Statistical Officer / Statistical Officer (State)",
+    "Statistical Inspector / Research Assistant (DES)",
+    "Primary Field Investigator / Enumerator"
+  ]
+};
+
+function setupPureStatisticalRegistration() {
+  const selects = document.querySelectorAll("select");
+  if (selects.length === 0) return;
+
+  const deptSelect = selects[0];
+  const desigSelect = selects[1] || selects[0];
+
+  // 1. Populate Pure Statistical & Data Divisions
+  if (deptSelect) {
+    deptSelect.innerHTML = "";
+    window.MOSPI_STRUCTURE.departments.forEach(dept => {
+      const opt = document.createElement("option");
+      opt.value = dept;
+      opt.innerText = dept;
+      deptSelect.appendChild(opt);
+    });
+  }
+
+  // 2. Populate Exclusively Statistical Designations
+  if (desigSelect && desigSelect !== deptSelect) {
+    desigSelect.innerHTML = "";
+    window.MOSPI_STRUCTURE.designations.forEach(desig => {
+      const opt = document.createElement("option");
+      opt.value = desig;
+      opt.innerText = desig;
+      if (desig.startsWith("--")) {
+        opt.disabled = true;
+        opt.style.fontWeight = "bold";
+        opt.style.background = "#f1f5f9";
+      }
+      desigSelect.appendChild(opt);
+    });
+  }
+
+  // 3. Form Submit Handler
+  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
+  if (regBtn) {
+    regBtn.onclick = function(e) {
+      if (e) e.preventDefault();
+      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
+      const emailInp = document.querySelector("input[type='email']");
+
+      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
+      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
+      const dept = deptSelect ? deptSelect.value : window.MOSPI_STRUCTURE.departments[0];
+      const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
+
+      let cadre = "Indian Statistical Service (ISS)";
+      if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO") || desig.includes("Statistical Assistant")) {
+        cadre = "Subordinate Statistical Service (SSS)";
+      } else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES") || desig.includes("Enumerator")) {
+        cadre = "State DES Statistical Cadre";
+      }
+
+      localStorage.setItem("mospi_user", email);
+      localStorage.setItem("mospi_user_name", name);
+      localStorage.setItem("mospi_registered_ministry", dept);
+      localStorage.setItem("mospi_registered_cadre", cadre);
+      localStorage.setItem("mospi_registered_designation", desig);
+
+      alert(`Registration Successful for ${name}!\nDesignation: ${desig}\nDivision: ${dept}`);
+      window.location.href = "dashboard.html";
+    };
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", setupPureStatisticalRegistration);
+} else {
+  setupPureStatisticalRegistration();
+}
+</script>
+<!-- NSSTA_4PILLAR_COMPETENCY_FRAMEWORK -->
+<script>
+window.NSSTA_STATISTICAL_ROLES_DB = {
+  // --- Indian Statistical Service (ISS) ---
+  "Director General (DG / Apex Level) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 95, technical: 85, governance: 98, behavioural: 95 },
+    focusAreas: {
+      statistical: ["UN Fundamental Principles of Official Statistics", "National Data Governance Standards", "Macro-Statistical Aggregates"],
+      technical: ["AI/ML Strategic Roadmap in Official Stats", "Enterprise Cloud Architecture (NIC MeghRaj)"],
+      governance: ["DPDP Act 2023", "National Data Governance Framework Policy (NDGFP)", "Institutional Privacy"],
+      behavioural: ["High-Level Inter-Ministerial Leadership", "Strategic Negotiation & UN Representation", "Crisis & Change Management"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-LEAD-901", title: "Apex Statistical Leadership & Policy Governance", iGOT: "iGOT-MGT-APEX-901", pillar: "Behavioural" },
+      { id: "NSSTA-GOV-902", title: "National Data Governance & DPDP Act Compliance", iGOT: "iGOT-GOV-DPDP-902", pillar: "Digital Governance" }
+    ]
+  },
+  "Additional Director General (ADG / HAG) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 94, technical: 85, governance: 95, behavioural: 92 },
+    focusAreas: {
+      statistical: ["System of National Accounts (SNA 2008 & 2025)", "Large-Scale Survey Frameworks", "Data Quality Assurance (DQAF)"],
+      technical: ["Automated Data Pipelines", "Cloud Analytics & Metadata Harmonization"],
+      governance: ["Open Data Policy (NDSAP)", "Digital Public Infrastructure", "Cybersecurity Strategy"],
+      behavioural: ["Executive Decision Making", "Cross-Departmental Collaboration", "Workforce Mentorship"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-STAT-801", title: "Advanced Macroeconomic Frameworks & SUT", iGOT: "iGOT-STAT-SNA-801", pillar: "Statistical" },
+      { id: "NSSTA-MGT-802", title: "Transformational Leadership in Public Services", iGOT: "iGOT-MGT-LEAD-802", pillar: "Behavioural" }
+    ]
+  },
+  "Deputy Director General (DDG / SAG) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 92, technical: 88, governance: 92, behavioural: 90 },
+    focusAreas: {
+      statistical: ["Sampling Design & Error Scrutiny", "Price & Industrial Statistics (CPI / IIP)", "SDG Indicator Monitoring"],
+      technical: ["Python & R for Official Data Validation", "GIS-Based Block Mapping"],
+      governance: ["Data Sharing Protocols & Consent Artifacts", "Digital Personal Data Protection"],
+      behavioural: ["Project Portfolio Management", "Conflict Resolution", "Strategic Communication"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-GOV-701", title: "Data Privacy & Governance Frameworks", iGOT: "iGOT-GOV-PRIV-701", pillar: "Digital Governance" },
+      { id: "NSSTA-TECH-702", title: "Big Data & AI Applications in Official Statistics", iGOT: "iGOT-AI-DATA-702", pillar: "Technical" }
+    ]
+  },
+  "Director / Joint Director (JAG / Selection Grade) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 92, technical: 90, governance: 88, behavioural: 85 },
+    focusAreas: {
+      statistical: ["Index Numbers & Base Year Revisions", "Socio-Economic Survey Methodologies", "Supply and Use Tables (SUT)"],
+      technical: ["Python / R Statistical Modeling", "SQL Databases & Automated Tabulations"],
+      governance: ["Government Cyber Security Hygiene", "Digital Signatures & e-Office Workflow"],
+      behavioural: ["Team Leadership & Workflow Optimization", "Evidence-Based Reporting", "Public Speaking"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-STAT-601", title: "Socio-Economic Survey Methodology & Validation", iGOT: "iGOT-STAT-SURV-601", pillar: "Statistical" },
+      { id: "NSSTA-TECH-602", title: "Advanced Python for Econometric & Statistical Modeling", iGOT: "iGOT-PY-STAT-602", pillar: "Technical" }
+    ]
+  },
+  "Deputy Director (STS) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 90, technical: 92, governance: 85, behavioural: 82 },
+    focusAreas: {
+      statistical: ["Survey Sampling & Weight Estimation", "National Accounts Aggregation", "PLFS / HCES Scrutiny"],
+      technical: ["Python, R, Stata, SQL", "Data Visualization (Tableau/PowerBI)", "API Pipelines"],
+      governance: ["DPDP Act Basics", "NIC Cloud & Open Data Standards"],
+      behavioural: ["Operational Project Management", "Interpersonal Communication", "Professional Ethics"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-TECH-501", title: "Official Data Analytics using Python and SQL", iGOT: "iGOT-DATA-PY-501", pillar: "Technical" },
+      { id: "NSSTA-STAT-502", title: "National Accounts Compilation & GSDP Estimation", iGOT: "iGOT-STAT-NAD-502", pillar: "Statistical" }
+    ]
+  },
+  "Assistant Director (JTS) - ISS": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 90, technical: 90, governance: 85, behavioural: 80 },
+    focusAreas: {
+      statistical: ["Probability Sampling & Schedule Design", "Price Index Formulas", "Labour Statistics"],
+      technical: ["Python Programming & Data Cleaning", "R for Data Scrubbing", "SQL Queries"],
+      governance: ["Cyber Hygiene & e-Office Administration", "Government Procurement Rules (GeM)"],
+      behavioural: ["Technical Report Writing", "Time Management", "Ethical Public Service Conduct"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-STAT-401", title: "Foundation in Survey Design & Sampling Estimation", iGOT: "iGOT-STAT-SAMP-401", pillar: "Statistical" },
+      { id: "NSSTA-TECH-402", title: "Python Data Analysis, Pandas & Tabulation", iGOT: "iGOT-TECH-PY-402", pillar: "Technical" }
+    ]
+  },
+  "Probationer / Officer Trainee (ISS - NSSTA)": {
+    cadre: "Indian Statistical Service (ISS)",
+    benchmarks: { statistical: 88, technical: 88, governance: 82, behavioural: 80 },
+    focusAreas: {
+      statistical: ["Foundations of Official Statistics", "Survey & Census Methodologies", "Macro-aggregates"],
+      technical: ["Modern Statistical Computing (Python/R/SQL)", "CAPI Systems"],
+      governance: ["Civil Service Rules & Code of Conduct", "Government Information Security"],
+      behavioural: ["Public Administration Foundations", "Collaborative Teamwork", "Presentation Skills"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-FND-101", title: "NSSTA Induction: Official Statistics & Public Administration", iGOT: "iGOT-NSSTA-IND-101", pillar: "Statistical" },
+      { id: "NSSTA-GOV-102", title: "Government Security & Civil Service Ethics", iGOT: "iGOT-CORE-ETH-102", pillar: "Behavioural" }
+    ]
+  },
+
+  // --- Subordinate Statistical Service (SSS) ---
+  "Senior Statistical Officer (SSO / Gazetted)": {
+    cadre: "Subordinate Statistical Service (SSS)",
+    benchmarks: { statistical: 88, technical: 85, governance: 82, behavioural: 80 },
+    focusAreas: {
+      statistical: ["Survey Supervision & Primary Data Scrutiny", "PLFS & ASUSE Schedules", "Price Quotation Audits"],
+      technical: ["CAPI Software & Tablets", "Bhuvan GIS Block Boundary Verification", "Excel & Python Scrutiny"],
+      governance: ["Data Collection Protocols", "Digital Record Keeping"],
+      behavioural: ["Field Team Supervision", "Field Conflict Management", "Effective Interviewing"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-SSS-301", title: "Supervisory Field Scrutiny & CAPI Operations", iGOT: "iGOT-SSS-CAPI-301", pillar: "Technical" },
+      { id: "NSSTA-STAT-302", title: "Socio-Economic Survey Protocols & Error Checking", iGOT: "iGOT-STAT-PLFS-302", pillar: "Statistical" }
+    ]
+  },
+  "Senior Statistical Officer (SSO / Non-Gazetted)": {
+    cadre: "Subordinate Statistical Service (SSS)",
+    benchmarks: { statistical: 85, technical: 82, governance: 80, behavioural: 78 },
+    focusAreas: {
+      statistical: ["Household & Enterprise Survey Validation", "Agricultural Statistics", "Data Quality Auditing"],
+      technical: ["CAPI Tools", "Basic R/Python Data Cleaning", "Spreadsheet Tabulation"],
+      governance: ["Field Safety & Privacy Guidelines", "Government Cyber Hygiene"],
+      behavioural: ["Supervisory Skills", "Effective Communication with Respondents"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-SSS-201", title: "Enterprise & Household Survey Validation Protocols", iGOT: "iGOT-SSS-ASUSE-201", pillar: "Statistical" },
+      { id: "NSSTA-TECH-202", title: "Automated Data Cleaning for Statistical Officers", iGOT: "iGOT-TECH-CLN-202", pillar: "Technical" }
+    ]
+  },
+  "Junior Statistical Officer (JSO)": {
+    cadre: "Subordinate Statistical Service (SSS)",
+    benchmarks: { statistical: 82, technical: 82, governance: 78, behavioural: 75 },
+    focusAreas: {
+      statistical: ["Primary Field Data Collection", "Urban Frame Survey (UFS)", "Price Quotation Collection"],
+      technical: ["CAPI Tablet Operations", "Bhuvan GIS Ground Truthing", "MS Excel Data Entry"],
+      governance: ["Information Privacy in Field Surveys", "Official Code of Conduct"],
+      behavioural: ["Field Communication", "Active Listening", "Problem Solving"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-JSO-101", title: "CAPI Field Data Collection & GPS Tagging", iGOT: "iGOT-TECH-GIS-101", pillar: "Technical" },
+      { id: "NSSTA-JSO-102", title: "Price Collection & Household Schedules", iGOT: "iGOT-STAT-CPI-102", pillar: "Statistical" }
+    ]
+  },
+  "Statistical Assistant / Senior Field Investigator": {
+    cadre: "Subordinate Statistical Service (SSS)",
+    benchmarks: { statistical: 80, technical: 78, governance: 75, behavioural: 75 },
+    focusAreas: {
+      statistical: ["Village & Enterprise Questionnaires", "Sample Unit Identification", "Data Recording"],
+      technical: ["Tablet-based CAPI Entry", "Digital Uploads & Offline Sync"],
+      governance: ["Survey Ethics & Respondent Data Protection"],
+      behavioural: ["Interviewing Techniques", "Patience & Empathy in Field Engagement"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-FLD-101", title: "Field Enumeration & Primary Data Quality", iGOT: "iGOT-FLD-ENUM-101", pillar: "Statistical" }
+    ]
+  },
+
+  // --- State Directorate of Economics & Statistics (DES) ---
+  "Director of Economics & Statistics (State Head)": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 92, technical: 85, governance: 95, behavioural: 92 },
+    focusAreas: {
+      statistical: ["Gross State Domestic Product (GSDP) & DDP", "State SDG Indicator Framework", "Pool Survey Estimates"],
+      technical: ["State Statistical Portals", "Cloud Storage & Open Data"],
+      governance: ["State-Centre Data Sharing Policies", "DPDP Act Guidelines"],
+      behavioural: ["State Level Leadership", "Policy Advisory to State Government"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-DES-901", title: "Sub-National & State Income Compilation Frameworks", iGOT: "iGOT-STAT-GSDP-901", pillar: "Statistical" },
+      { id: "NSSTA-SDG-902", title: "SDG Localization & District Level Monitoring", iGOT: "iGOT-SDG-LOC-902", pillar: "Digital Governance" }
+    ]
+  },
+  "Joint / Deputy Director (State DES)": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 90, technical: 85, governance: 88, behavioural: 85 },
+    focusAreas: {
+      statistical: ["State Income Accounts", "District Statistical Handbooks", "Agricultural Crop Estimation (EARAS)"],
+      technical: ["Python / R for State Tabulations", "GIS District Mapping"],
+      governance: ["e-Governance & Digital Records", "Cyber Hygiene"],
+      behavioural: ["District Team Coordination", "Technical Review Meetings"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-DES-501", title: "District Domestic Product (DDP) Estimation Methodologies", iGOT: "iGOT-STAT-DDP-501", pillar: "Statistical" }
+    ]
+  },
+  "District Statistical Officer (DSO)": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 85, technical: 82, governance: 82, behavioural: 82 },
+    focusAreas: {
+      statistical: ["District Statistical Data Aggregation", "Local Price Collection", "Crop Cutting Experiments"],
+      technical: ["District Data Entry Systems", "GIS Mapping Tools"],
+      governance: ["RTI & Official Records", "District Data Integrity"],
+      behavioural: ["District Administration Liaison", "Enumerator Supervision"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-DSO-301", title: "District Statistical Management & Field Scrutiny", iGOT: "iGOT-DES-DSO-301", pillar: "Statistical" }
+    ]
+  },
+  "Assistant Statistical Officer / Statistical Officer (State)": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 82, technical: 80, governance: 78, behavioural: 75 },
+    focusAreas: {
+      statistical: ["State Sample Tabulation", "Vital Statistics Registration (CRS)", "Price Verification"],
+      technical: ["Spreadsheets & Statistical Software", "Web Portal Submission"],
+      governance: ["Civil Registration Compliance", "Data Security"],
+      behavioural: ["Time Management", "Analytical Reporting"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-ASO-201", title: "Vital & Sub-National Statistical Methodologies", iGOT: "iGOT-STAT-CRS-201", pillar: "Statistical" }
+    ]
+  },
+  "Statistical Inspector / Research Assistant (DES)": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 80, technical: 78, governance: 75, behavioural: 75 },
+    focusAreas: {
+      statistical: ["Field Inspection of Crop Estimates", "Market Price Reporting", "Sample Verification"],
+      technical: ["Mobile Application Data Reporting", "Tablet Entry"],
+      governance: ["Survey Protocols & Ethics"],
+      behavioural: ["Field Coordination", "Objective Reporting"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-INSP-101", title: "Field Inspection Standards & Crop Cutting Protocols", iGOT: "iGOT-DES-INSP-101", pillar: "Statistical" }
+    ]
+  },
+  "Primary Field Investigator / Enumerator": {
+    cadre: "State DES Statistical Cadre",
+    benchmarks: { statistical: 78, technical: 75, governance: 72, behavioural: 75 },
+    focusAreas: {
+      statistical: ["Household Listing", "Local Market Price Collection", "Village Schedules"],
+      technical: ["Mobile/Tablet Application Usage", "GPS Geo-tagging"],
+      governance: ["Confidentiality of Survey Records"],
+      behavioural: ["Citizen Interaction", "Interviewing & Communication Skills"]
+    },
+    recommendedCourses: [
+      { id: "NSSTA-ENUM-101", title: "Primary Data Collection & Field Geo-tagging", iGOT: "iGOT-FLD-GEO-101", pillar: "Technical" }
+    ]
+  }
+};
+</script>
+<!-- END_NSSTA_4PILLAR_COMPETENCY_FRAMEWORK -->
+<!-- NSSTA_FULL_REGISTRATION_ENGINE -->
+<script>
+function initPureStatisticalRegistration() {
+  const selects = document.querySelectorAll("select");
+  if (selects.length === 0) return;
+
+  const deptSelect = selects[0];
+  const desigSelect = selects[1] || selects[0];
+
+  // 1. Populate Pure Statistical Divisions
+  if (deptSelect) {
+    deptSelect.innerHTML = "";
+    const departments = [
+      "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates",
+      "Economic Statistics Division (ESD) — IIP, ASI & Industrial Surveys",
+      "Price Statistics Division (PSD) — CPI, Inflation Indices & Price Monitoring",
+      "Social Statistics Division (SSD) — SDGs, Gender & Social Metrics",
+      "Field Operations Division (FOD) — Primary Data Collection & Field Scrutiny",
+      "Survey Design and Research Division (SDRD) — Sampling & Questionnaires",
+      "Household Survey Division (HSD) — PLFS & Consumption Surveys",
+      "Enterprise Survey Division (EnSD) — ASUSE & Service Sector Surveys",
+      "Data Processing Division (DPD) — Scrutiny, Validation & Tabulation",
+      "Data Informatics & Innovation Division (DIID) — Cloud, Big Data Lake & AI",
+      "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
+      "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
+      "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
+      "State Directorate of Economics & Statistics (DES) — State HQ",
+      "District Statistical Office (DSO) — Sub-Divisional Field Unit"
+    ];
+    departments.forEach(dept => {
+      const opt = document.createElement("option");
+      opt.value = dept;
+      opt.innerText = dept;
+      deptSelect.appendChild(opt);
+    });
+  }
+
+  // 2. Populate All Statistical Designations from Matrix
+  if (desigSelect && desigSelect !== deptSelect) {
+    desigSelect.innerHTML = "";
+    Object.keys(window.NSSTA_STATISTICAL_ROLES_DB).forEach(role => {
+      const opt = document.createElement("option");
+      opt.value = role;
+      opt.innerText = role;
+      desigSelect.appendChild(opt);
+    });
+  }
+
+  // 3. Save directly to localStorage with 4-pillar benchmarks
+  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
+  if (regBtn) {
+    regBtn.onclick = function(e) {
+      if (e) e.preventDefault();
+      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
+      const emailInp = document.querySelector("input[type='email']");
+
+      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
+      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
+      const dept = deptSelect ? deptSelect.value : "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates";
+      const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
+
+      const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desig] || window.NSSTA_STATISTICAL_ROLES_DB["Assistant Director (JTS) - ISS"];
+
+      localStorage.setItem("mospi_user", email);
+      localStorage.setItem("mospi_user_name", name);
+      localStorage.setItem("mospi_registered_ministry", dept);
+      localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+      localStorage.setItem("mospi_registered_designation", desig);
+      localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
+      localStorage.setItem("mospi_focus_areas", JSON.stringify(roleData.focusAreas));
+      localStorage.setItem("mospi_recommended_courses", JSON.stringify(roleData.recommendedCourses));
+
+      alert(`Registration Successful for ${name}!\nDesignation: ${desig}\nDivision: ${dept}`);
+      window.location.href = "dashboard.html";
+    };
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPureStatisticalRegistration);
+} else {
+  initPureStatisticalRegistration();
 }
 </script>
 <!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
-<script>
-window.MOSPI_STRUCTURE = {
-  departments: [
-    "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates",
-    "Economic Statistics Division (ESD) — IIP, ASI & Industrial Surveys",
-    "Price Statistics Division (PSD) — CPI, Inflation Indices & Price Monitoring",
-    "Social Statistics Division (SSD) — SDGs, Gender & Social Metrics",
-    "Field Operations Division (FOD) — Primary Data Collection & Field Scrutiny",
-    "Survey Design and Research Division (SDRD) — Sampling & Questionnaires",
-    "Household Survey Division (HSD) — PLFS & Consumption Surveys",
-    "Enterprise Survey Division (EnSD) — ASUSE & Service Sector Surveys",
-    "Data Processing Division (DPD) — Scrutiny, Validation & Tabulation",
-    "Data Informatics & Innovation Division (DIID) — Cloud, Big Data Lake & AI",
-    "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
-    "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
-    "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
-    "State Directorate of Economics & Statistics (DES) — State HQ",
-    "District Statistical Office (DSO) — Sub-Divisional Field Unit"
-  ],
-  designations: [
-    "-- Indian Statistical Service (ISS) [Group A Central Civil Service] --",
-    "Director General (DG / Apex Level) - ISS",
-    "Additional Director General (ADG / HAG) - ISS",
-    "Deputy Director General (DDG / SAG) - ISS",
-    "Director (JAG / Selection Grade) - ISS",
-    "Joint Director (JAG) - ISS",
-    "Deputy Director (STS) - ISS",
-    "Assistant Director (JTS) - ISS",
-    "Probationer / Officer Trainee (ISS - NSSTA)",
-    "-- Subordinate Statistical Service (SSS) [Group B Statistical Service] --",
-    "Senior Statistical Officer (SSO / Gazetted)",
-    "Senior Statistical Officer (SSO / Non-Gazetted)",
-    "Junior Statistical Officer (JSO)",
-    "Statistical Assistant / Senior Field Investigator",
-    "-- State Statistical Cadres (Directorate of Economics & Statistics) --",
-    "Director of Economics & Statistics (State Head)",
-    "Joint / Deputy Director (State DES)",
-    "District Statistical Officer (DSO)",
-    "Assistant Statistical Officer / Statistical Officer (State)",
-    "Statistical Inspector / Research Assistant (DES)",
-    "Primary Field Investigator / Enumerator"
-  ]
-};
-
-function setupPureStatisticalRegistration() {
-  const selects = document.querySelectorAll("select");
-  if (selects.length === 0) return;
-
-  const deptSelect = selects[0];
-  const desigSelect = selects[1] || selects[0];
-
-  // 1. Populate Pure Statistical & Data Divisions
-  if (deptSelect) {
-    deptSelect.innerHTML = "";
-    window.MOSPI_STRUCTURE.departments.forEach(dept => {
-      const opt = document.createElement("option");
-      opt.value = dept;
-      opt.innerText = dept;
-      deptSelect.appendChild(opt);
-    });
-  }
-
-  // 2. Populate Exclusively Statistical Designations
-  if (desigSelect && desigSelect !== deptSelect) {
-    desigSelect.innerHTML = "";
-    window.MOSPI_STRUCTURE.designations.forEach(desig => {
-      const opt = document.createElement("option");
-      opt.value = desig;
-      opt.innerText = desig;
-      if (desig.startsWith("--")) {
-        opt.disabled = true;
-        opt.style.fontWeight = "bold";
-        opt.style.background = "#f1f5f9";
-      }
-      desigSelect.appendChild(opt);
-    });
-  }
-
-  // 3. Form Submit Handler
-  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
-  if (regBtn) {
-    regBtn.onclick = function(e) {
-      if (e) e.preventDefault();
-      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
-      const emailInp = document.querySelector("input[type='email']");
-
-      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
-      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
-      const dept = deptSelect ? deptSelect.value : window.MOSPI_STRUCTURE.departments[0];
-      const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
-
-      let cadre = "Indian Statistical Service (ISS)";
-      if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO") || desig.includes("Statistical Assistant")) {
-        cadre = "Subordinate Statistical Service (SSS)";
-      } else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES") || desig.includes("Enumerator")) {
-        cadre = "State DES Statistical Cadre";
-      }
-
-      localStorage.setItem("mospi_user", email);
-      localStorage.setItem("mospi_user_name", name);
-      localStorage.setItem("mospi_registered_ministry", dept);
-      localStorage.setItem("mospi_registered_cadre", cadre);
-      localStorage.setItem("mospi_registered_designation", desig);
-
-      alert(`Registration Successful for ${name}!\nDesignation: ${desig}\nDivision: ${dept}`);
-      window.location.href = "dashboard.html";
-    };
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupPureStatisticalRegistration);
-} else {
-  setupPureStatisticalRegistration();
-}
-</script>
-<script>
-window.MOSPI_STRUCTURE = {
-  departments: [
-    "National Accounts Division (NAD) — GDP, GSDP & Macro Aggregates",
-    "Economic Statistics Division (ESD) — IIP, ASI & Industrial Surveys",
-    "Price Statistics Division (PSD) — CPI, Inflation Indices & Price Monitoring",
-    "Social Statistics Division (SSD) — SDGs, Gender & Social Metrics",
-    "Field Operations Division (FOD) — Primary Data Collection & Field Scrutiny",
-    "Survey Design and Research Division (SDRD) — Sampling & Questionnaires",
-    "Household Survey Division (HSD) — PLFS & Consumption Surveys",
-    "Enterprise Survey Division (EnSD) — ASUSE & Service Sector Surveys",
-    "Data Processing Division (DPD) — Scrutiny, Validation & Tabulation",
-    "Data Informatics & Innovation Division (DIID) — Cloud, Big Data Lake & AI",
-    "National Statistical Systems Training Academy (NSSTA) — Capacity Building",
-    "Coordination and International Cooperation Division (CICD) — UN & Global Stats",
-    "Administrative Statistics & Policy Division (ASPD) — Data Governance & Policy",
-    "State Directorate of Economics & Statistics (DES) — State HQ",
-    "District Statistical Office (DSO) — Sub-Divisional Field Unit"
-  ],
-  designations: [
-    "-- Indian Statistical Service (ISS) [Group A Central Civil Service] --",
-    "Director General (DG / Apex Level) - ISS",
-    "Additional Director General (ADG / HAG) - ISS",
-    "Deputy Director General (DDG / SAG) - ISS",
-    "Director (JAG / Selection Grade) - ISS",
-    "Joint Director (JAG) - ISS",
-    "Deputy Director (STS) - ISS",
-    "Assistant Director (JTS) - ISS",
-    "Probationer / Officer Trainee (ISS - NSSTA)",
-    "-- Subordinate Statistical Service (SSS) [Group B Statistical Service] --",
-    "Senior Statistical Officer (SSO / Gazetted)",
-    "Senior Statistical Officer (SSO / Non-Gazetted)",
-    "Junior Statistical Officer (JSO)",
-    "Statistical Assistant / Senior Field Investigator",
-    "-- State Statistical Cadres (Directorate of Economics & Statistics) --",
-    "Director of Economics & Statistics (State Head)",
-    "Joint / Deputy Director (State DES)",
-    "District Statistical Officer (DSO)",
-    "Assistant Statistical Officer / Statistical Officer (State)",
-    "Statistical Inspector / Research Assistant (DES)",
-    "Primary Field Investigator / Enumerator"
-  ]
-};
-
-function setupPureStatisticalRegistration() {
-  const selects = document.querySelectorAll("select");
-  if (selects.length === 0) return;
-
-  const deptSelect = selects[0];
-  const desigSelect = selects[1] || selects[0];
-
-  // 1. Populate Pure Statistical & Data Divisions
-  if (deptSelect) {
-    deptSelect.innerHTML = "";
-    window.MOSPI_STRUCTURE.departments.forEach(dept => {
-      const opt = document.createElement("option");
-      opt.value = dept;
-      opt.innerText = dept;
-      deptSelect.appendChild(opt);
-    });
-  }
-
-  // 2. Populate Exclusively Statistical Designations
-  if (desigSelect && desigSelect !== deptSelect) {
-    desigSelect.innerHTML = "";
-    window.MOSPI_STRUCTURE.designations.forEach(desig => {
-      const opt = document.createElement("option");
-      opt.value = desig;
-      opt.innerText = desig;
-      if (desig.startsWith("--")) {
-        opt.disabled = true;
-        opt.style.fontWeight = "bold";
-        opt.style.background = "#f1f5f9";
-      }
-      desigSelect.appendChild(opt);
-    });
-  }
-
-  // 3. Form Submit Handler
-  const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
-  if (regBtn) {
-    regBtn.onclick = function(e) {
-      if (e) e.preventDefault();
-      const nameInp = document.querySelector("input[placeholder*='Harsha'], input[name*='name'], input[type='text']");
-      const emailInp = document.querySelector("input[type='email']");
-
-      const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
-      const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
-      const dept = deptSelect ? deptSelect.value : window.MOSPI_STRUCTURE.departments[0];
-      const desig = desigSelect ? desigSelect.value : "Assistant Director (JTS) - ISS";
-
-      let cadre = "Indian Statistical Service (ISS)";
-      if (desig.includes("SSS") || desig.includes("Statistical Officer") || desig.includes("JSO") || desig.includes("Statistical Assistant")) {
-        cadre = "Subordinate Statistical Service (SSS)";
-      } else if (desig.includes("State") || desig.includes("DSO") || desig.includes("DES") || desig.includes("Enumerator")) {
-        cadre = "State DES Statistical Cadre";
-      }
-
-      localStorage.setItem("mospi_user", email);
-      localStorage.setItem("mospi_user_name", name);
-      localStorage.setItem("mospi_registered_ministry", dept);
-      localStorage.setItem("mospi_registered_cadre", cadre);
-      localStorage.setItem("mospi_registered_designation", desig);
-
-      alert(`Registration Successful for ${name}!\nDesignation: ${desig}\nDivision: ${dept}`);
-      window.location.href = "dashboard.html";
-    };
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupPureStatisticalRegistration);
-} else {
-  setupPureStatisticalRegistration();
-}
-</script>
 </body>
 </html>
