@@ -1,6 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Dynamically uses Cloud API when deployed, falls back to localhost during local dev
+  window.API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+    ? "${window.API_BASE}" 
+    : window.location.origin;
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Cadre Registration | iGOT MoSPI Platform</title>
@@ -257,7 +263,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
       // Synchronize directly with backend database for admin views
       try {
-        await fetch("http://127.0.0.1:5000/api/register", {
+        await fetch("${window.API_BASE}/api/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: nameVal, email: emailVal, department: deptVal, designation: desigVal })

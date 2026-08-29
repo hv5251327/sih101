@@ -1,6 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Dynamically uses Cloud API when deployed, falls back to localhost during local dev
+  window.API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+    ? "${window.API_BASE}" 
+    : window.location.origin;
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoSPI & NSSTA Competency Portal</title>
@@ -239,7 +245,7 @@ async function initDashboard() {
   let cadreKey = (cadre.includes("ISS") || desig.includes("ISS") || desig.includes("Director")) ? "ISS" : (cadre.includes("DES") || desig.includes("State") || desig.includes("District")) ? "DES" : "SSS";
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/officer/recommendations", {
+    const res = await fetch("${window.API_BASE}/api/officer/recommendations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, designation: desig })
@@ -328,7 +334,7 @@ async function handleCertUpload(e, moduleId, pillar, title) {
   }
 
   try {
-    await fetch("http://127.0.0.1:5000/api/officer/progress", {
+    await fetch("${window.API_BASE}/api/officer/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, module_id: moduleId, pillar: pillar })
@@ -378,7 +384,7 @@ async function runBhashini(lang) {
   const textsToFetch = remainingNodes.map(el => el.getAttribute("data-original") || el.innerText.trim());
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/translate", {
+    const res = await fetch("${window.API_BASE}/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texts: textsToFetch, target_lang: lang })
@@ -414,7 +420,7 @@ async function sendChatMessage() {
 
   const desig = localStorage.getItem("mospi_registered_designation") || "Officer";
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
+    const res = await fetch("${window.API_BASE}/api/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: msg, designation: desig })

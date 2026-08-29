@@ -1,6 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  // Dynamically uses Cloud API when deployed, falls back to localhost during local dev
+  window.API_BASE = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+    ? "${window.API_BASE}" 
+    : window.location.origin;
+</script>
 <!-- ADMIN_RBAC_GUARD -->
 <script>
 (function enforceAdminRBAC() {
@@ -544,7 +550,7 @@ async function loadAdminHeatmap() {
   if (!tableBody) return;
 
   try {
-    const res = await fetch("http://127.0.0.1:5000/api/admin/heatmap");
+    const res = await fetch("${window.API_BASE}/api/admin/heatmap");
     const data = await res.json();
     if (data.heatmap_data && data.heatmap_data.length > 0) {
       tableBody.innerHTML = "";
