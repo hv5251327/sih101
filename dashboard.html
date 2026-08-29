@@ -326,6 +326,21 @@ function markCourseCompleted(id, successMsg) {
     done.push(id);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify(done));
   }
+
+  // Find pillar of completed module
+  const modObj = activeMods.find(m => m.id === id);
+  const pillar = modObj ? modObj.pillar : "statistical";
+  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+
+  // Send completion to backend SQLite DB
+  try {
+    fetch("http://127.0.0.1:5000/api/officer/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, module_id: id, pillar: pillar })
+    }).catch(() => {});
+  } catch(e) {}
+
   alert(successMsg);
   renderDashboard();
 }

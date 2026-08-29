@@ -27,7 +27,7 @@
   <div class="header">
     <i class="fa-solid fa-shield-halved" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 8px;"></i>
     <h2>MoSPI Competency Portal</h2>
-    <p>Sign in with Officer or Admin credentials</p>
+    <p>Officer Login & Admin Command Center</p>
   </div>
   <form id="login-form">
     <div class="form-group">
@@ -50,13 +50,17 @@ document.getElementById("login-form").onsubmit = function(e) {
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
+  // Instant Admin Authentication
   if (email === "admin@mospi.gov.in" && password === "admin123") {
     localStorage.setItem("mospi_user", "admin@mospi.gov.in");
+    localStorage.setItem("mospi_user_role", "admin");
     window.location.href = "admin.html";
     return false;
   }
 
+  // Officer Authentication
   localStorage.setItem("mospi_user", email);
+  localStorage.setItem("mospi_user_role", "officer");
   if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
   if (!localStorage.getItem("mospi_registered_designation")) localStorage.setItem("mospi_registered_designation", "Junior Statistical Officer (JSO)");
   if (!localStorage.getItem("mospi_registered_cadre")) localStorage.setItem("mospi_registered_cadre", "Subordinate Statistical Service (SSS)");
@@ -67,14 +71,17 @@ document.getElementById("login-form").onsubmit = function(e) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: email, password: password })
     }).then(r => r.json()).then(d => {
-      if (d.status === "success" && d.user) {
+      if (d.status === "success" && d.role === "admin") {
+        window.location.href = "admin.html";
+      } else if (d.status === "success" && d.user) {
         localStorage.setItem("mospi_user_name", d.user.name);
         localStorage.setItem("mospi_registered_designation", d.user.designation);
+        window.location.href = "dashboard.html";
       }
-    }).catch(()=>{});
-  } catch(err){}
-
-  window.location.href = "dashboard.html";
+    }).catch(()=>{ window.location.href = "dashboard.html"; });
+  } catch(err){
+    window.location.href = "dashboard.html";
+  }
   return false;
 };
 </script>
