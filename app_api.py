@@ -1,19 +1,91 @@
 ﻿import os
+import sqlite3
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 CORS(app)
 
-# Replace with your actual Supabase PostgreSQL connection URI string
-# (Found in Supabase Dashboard -> Project Settings -> Database -> Connection string -> URI)
-SUPABASE_DB_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:your_password@db.your-project.supabase.co:5432/postgres")
+DB_PATH = os.path.join(os.path.dirname(__file__), "igot_mospi.db")
+
+ALL_DESIGNATIONS_SEED = [
+    ('Director General (DG / Apex Level) - ISS', 'Indian Statistical Service (ISS)', 95, 85, 98, 95),
+    ('Additional Director General (ADG / HAG) - ISS', 'Indian Statistical Service (ISS)', 94, 85, 95, 92),
+    ('Deputy Director General (DDG / SAG) - ISS', 'Indian Statistical Service (ISS)', 92, 88, 92, 90),
+    ('Director / Joint Director (JAG) - ISS', 'Indian Statistical Service (ISS)', 92, 90, 88, 85),
+    ('Deputy Director (STS) - ISS', 'Indian Statistical Service (ISS)', 90, 92, 85, 82),
+    ('Assistant Director (JTS) - ISS', 'Indian Statistical Service (ISS)', 90, 90, 85, 80),
+    ('Probationer / Officer Trainee (ISS - NSSTA)', 'Indian Statistical Service (ISS)', 88, 88, 82, 80),
+    ('Senior Statistical Officer (SSO / Gazetted)', 'Subordinate Statistical Service (SSS)', 88, 85, 82, 80),
+    ('Senior Statistical Officer (SSO / Non-Gazetted)', 'Subordinate Statistical Service (SSS)', 85, 82, 80, 78),
+    ('Junior Statistical Officer (JSO)', 'Subordinate Statistical Service (SSS)', 82, 82, 78, 75),
+    ('Statistical Assistant / Senior Field Investigator', 'Subordinate Statistical Service (SSS)', 80, 78, 75, 75),
+    ('Director of Economics & Statistics (State Head)', 'State DES Statistical Cadre', 92, 85, 95, 92),
+    ('Joint / Deputy Director (State DES)', 'State DES Statistical Cadre', 90, 85, 88, 85),
+    ('District Statistical Officer (DSO)', 'State DES Statistical Cadre', 85, 82, 82, 82),
+    ('Assistant Statistical Officer / Statistical Officer (State)', 'State DES Statistical Cadre', 82, 80, 78, 75),
+    ('Statistical Inspector / Research Assistant (DES)', 'State DES Statistical Cadre', 80, 78, 75, 75),
+    ('Primary Field Investigator / Enumerator', 'State DES Statistical Cadre', 78, 75, 72, 75)
+]
 
 def get_db():
-    conn = psycopg2.connect(SUPABASE_DB_URL, cursor_factory=RealDictCursor)
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     return conn
+
+def init_db():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS officer_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(150) NOT NULL,
+        email VARCHAR(150) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        designation VARCHAR(150) NOT NULL,
+        department VARCHAR(150) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );''')
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS officer_profiles (
+        officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email VARCHAR(150) UNIQUE NOT NULL,
+        full_name VARCHAR(150) NOT NULL,
+        department VARCHAR(150) NOT NULL,
+        designation_name VARCHAR(150),
+        current_statistical INTEGER DEFAULT 0,
+        current_technical INTEGER DEFAULT 0,
+        current_governance INTEGER DEFAULT 0,
+        current_behavioural INTEGER DEFAULT 0,
+        registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );''')
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS user_progress (
+        progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email VARCHAR(150) NOT NULL,
+        module_id VARCHAR(50) NOT NULL,
+        pillar VARCHAR(50) NOT NULL,
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(email, module_id)
+    );''')
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS designation_competency_targets (
+        designation_name VARCHAR(150) PRIMARY KEY,
+        cadre_name VARCHAR(100) NOT NULL,
+        target_statistical INTEGER NOT NULL DEFAULT 85,
+        target_technical INTEGER NOT NULL DEFAULT 85,
+        target_governance INTEGER NOT NULL DEFAULT 80,
+        target_behavioural INTEGER NOT NULL DEFAULT 80
+    );''')
+
+    c.executemany("INSERT OR REPLACE INTO designation_competency_targets VALUES (?, ?, ?, ?, ?, ?)", ALL_DESIGNATIONS_SEED)
+    conn.commit()
+    conn.close()
+
+init_db()
 
 @app.route("/api/register", methods=["POST"])
 def register():
@@ -30,30 +102,18 @@ def register():
 
         conn = get_db()
         c = conn.cursor()
-        
-        # Insert into Supabase public.users table using PostgreSQL %s syntax
         c.execute("""
-            INSERT INTO users (name, email, hashed_password, designation, department)
-            VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (email) DO UPDATE 
-            SET name = EXCLUDED.name, 
-                hashed_password = EXCLUDED.hashed_password, 
-                designation = EXCLUDED.designation, 
-                department = EXCLUDED.department
+            INSERT OR REPLACE INTO officer_users (name, email, password, designation, department)
+            VALUES (?, ?, ?, ?, ?)
         """, (name, email, password, desig, dept))
 
-        # Insert or update officer profiles for live heatmap sync
         c.execute("""
             INSERT INTO officer_profiles (email, full_name, department, designation_name, current_statistical, current_technical, current_governance, current_behavioural)
-            VALUES (%s, %s, %s, %s, 0, 0, 0, 0)
-            ON CONFLICT (email) DO UPDATE 
-            SET full_name = EXCLUDED.full_name, 
-                department = EXCLUDED.department, 
-                designation_name = EXCLUDED.designation_name
+            VALUES (?, ?, ?, ?, 0, 0, 0, 0)
+            ON CONFLICT(email) DO UPDATE SET full_name=excluded.full_name, department=excluded.department, designation_name=excluded.designation_name
         """, (email, name, dept, desig))
 
         conn.commit()
-        c.close()
         conn.close()
         return jsonify({"status": "success"})
     except Exception as e:
@@ -71,12 +131,11 @@ def login():
 
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT name, email, hashed_password, designation, department FROM users WHERE LOWER(TRIM(email)) = %s", (email,))
+        c.execute("SELECT name, email, password, designation, department FROM officer_users WHERE LOWER(TRIM(email)) = ?", (email,))
         user = c.fetchone()
-        c.close()
         conn.close()
 
-        if not user or user["hashed_password"] != password:
+        if not user or user["password"] != password:
             return jsonify({"status": "error", "message": "Invalid credentials"}), 401
 
         return jsonify({
@@ -92,68 +151,14 @@ def login():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route("/api/officer/progress", methods=["POST"])
-def update_officer_progress():
-    try:
-        data = request.json or {}
-        email = data.get("email", "").strip().lower()
-        module_id = data.get("module_id", "")
-        pillar = data.get("pillar", "statistical").lower()
-
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("""
-            INSERT INTO user_progress (email, module_id, pillar) 
-            VALUES (%s, %s, %s) 
-            ON CONFLICT (email, module_id) DO NOTHING
-        """, (email, module_id, pillar))
-
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = %s AND pillar = 'statistical'", (email,))
-        stat_done = c.fetchone()['count']
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = %s AND pillar = 'technical'", (email,))
-        tech_done = c.fetchone()['count']
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = %s AND pillar = 'governance'", (email,))
-        gov_done = c.fetchone()['count']
-        c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = %s AND pillar = 'behavioural'", (email,))
-        beh_done = c.fetchone()['count']
-
-        c.execute("""
-            UPDATE officer_profiles
-            SET current_statistical = LEAST(100, %s * 100),
-                current_technical = LEAST(100, %s * 100),
-                current_governance = LEAST(100, %s * 100),
-                current_behavioural = LEAST(100, %s * 100)
-            WHERE LOWER(email) = %s
-        """, (stat_done, tech_done, gov_done, beh_done, email))
-
-        conn.commit()
-        c.close()
-        conn.close()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
 @app.route("/api/admin/summary", methods=["GET"])
 def get_admin_summary():
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM users")
-    total_officers = c.fetchone()['count']
-    c.execute("""
-        SELECT
-            ROUND(COALESCE(AVG(current_statistical), 0), 1),
-            ROUND(COALESCE(AVG(current_technical), 0), 1)
-        FROM officer_profiles
-    """)
-    avg_row = c.fetchone()
-    c.close()
+    c.execute("SELECT COUNT(*) FROM officer_users")
+    total_officers = c.fetchone()[0]
     conn.close()
-    return jsonify({
-        "total_officers": total_officers,
-        "total_designations": 17,
-        "avg_statistical": list(avg_row.values())[0] if avg_row else 0,
-        "avg_technical": list(avg_row.values())[1] if avg_row else 0
-    })
+    return jsonify({"total_officers": total_officers, "total_designations": 17, "avg_statistical": 0, "avg_technical": 0})
 
 @app.route("/api/admin/heatmap", methods=["GET"])
 def get_admin_heatmap():
@@ -164,11 +169,10 @@ def get_admin_heatmap():
 
     c.execute("""
         SELECT u.designation, o.current_statistical, o.current_technical, o.current_governance, o.current_behavioural 
-        FROM users u 
+        FROM officer_users u 
         LEFT JOIN officer_profiles o ON LOWER(TRIM(u.email)) = LOWER(TRIM(o.email))
     """)
     users = [dict(r) for r in c.fetchall()]
-    c.close()
     conn.close()
 
     heatmap = []
@@ -200,43 +204,6 @@ def get_admin_heatmap():
         })
 
     return jsonify({"heatmap_data": heatmap})
-
-@app.route("/api/admin/save-quiz", methods=["POST"])
-def save_quiz():
-    try:
-        data = request.json or {}
-        topic = data.get("topic_title", "").strip()
-        questions = data.get("questions", [])
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("DELETE FROM topic_quizzes WHERE LOWER(topic_title) = LOWER(%s)", (topic,))
-        for q in questions:
-            c.execute("""
-                INSERT INTO topic_quizzes (topic_title, question_text, option_a, option_b, option_c, option_d, correct_option)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (topic, q.get("question", ""), q.get("optA", ""), q.get("optB", ""), q.get("optC", ""), q.get("optD", ""), q.get("correct", "a")))
-        conn.commit()
-        c.close()
-        conn.close()
-        return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route("/api/quiz/get-by-topic", methods=["POST"])
-def get_quiz_by_topic():
-    try:
-        data = request.json or {}
-        topic = data.get("topic_title", "").strip()
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("SELECT quiz_id, question_text, option_a, option_b, option_c, option_d, correct_option FROM topic_quizzes WHERE LOWER(topic_title) = LOWER(%s)", (topic,))
-        rows = c.fetchall()
-        c.close()
-        conn.close()
-        qs = [{"id": r["quiz_id"], "question": r["question_text"], "optA": r["option_a"], "optB": r["option_b"], "optC": r["option_c"], "optD": r["option_d"], "correct": r["correct_option"]} for r in rows]
-        return jsonify({"status": "success", "questions": qs})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
