@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoSPI Officer Registration</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root { --primary: #1e3a8a; --primary-hover: #172554; --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #cbd5e1; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -57,6 +58,10 @@
   </div>
 </div>
 <script>
+const SUPABASE_URL = "https://hv5251327.supabase.co"; // Replace with your exact project URL if different
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // Public Anon Key
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 window.NSSTA_ROLES = {
   "Director General (DG / Apex Level) - ISS": "Indian Statistical Service (ISS)",
   "Additional Director General (ADG / HAG) - ISS": "Indian Statistical Service (ISS)",
@@ -96,14 +101,12 @@ function init() {
   const desig = document.getElementById("designation_select");
 
   DIVISIONS.forEach(d => {
-    const opt = document.createElement("option");
-    opt.value = d; opt.textContent = d;
+    const opt = document.createElement("option"); opt.value = d; opt.textContent = d;
     dept.appendChild(opt);
   });
 
   Object.keys(window.NSSTA_ROLES).forEach(r => {
-    const opt = document.createElement("option");
-    opt.value = r; opt.textContent = r;
+    const opt = document.createElement("option"); opt.value = r; opt.textContent = r;
     desig.appendChild(opt);
   });
 
@@ -116,31 +119,44 @@ function init() {
     const desigVal = desig.value;
     const cadreVal = window.NSSTA_ROLES[desigVal] || "Subordinate Statistical Service (SSS)";
 
+    // Local state fallback
     localStorage.setItem("mospi_user", emailVal);
     localStorage.setItem("mospi_user_name", nameVal);
     localStorage.setItem("mospi_registered_ministry", deptVal);
     localStorage.setItem("mospi_registered_cadre", cadreVal);
     localStorage.setItem("mospi_registered_designation", desigVal);
-    localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
 
-    let officers = JSON.parse(localStorage.getItem("mospi_all_registered_officers") || "[]");
-    officers = officers.filter(o => o.email !== emailVal);
-    officers.push({ name: nameVal, email: emailVal, designation: desigVal, cadre: cadreVal, department: deptVal });
-    localStorage.setItem("mospi_all_registered_officers", JSON.stringify(officers));
+    // Write to Supabase table 'users'
+    if (supabase) {
+      try {
+        await supabase.from("users").upsert({
+          name: nameVal,
+          email: emailVal,
+          password: passVal,
+          designation: desigVal,
+          department: deptVal
+        });
+        await supabase.from("officer_profiles").upsert({
+          email: emailVal,
+          full_name: nameVal,
+          department: deptVal,
+          designation_name: desigVal,
+          current_statistical: 0,
+          current_technical: 0,
+          current_governance: 0,
+          current_behavioural: 0
+        });
+      } catch(err) { console.error("Supabase direct insert error:", err); }
+    }
 
+    // Also notify local Flask backend if running
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/register", {
+      await fetch("http://127.0.0.1:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: nameVal, email: emailVal, password: passVal, department: deptVal, designation: desigVal })
       });
-      const data = await response.json();
-      if (data.status !== "success") {
-        console.warn("Server warning:", data.message);
-      }
-    } catch(err) {
-      console.warn("Backend offline; saved to local profile cache.");
-    }
+    } catch(err) {}
 
     alert("Registration Successful!");
     window.location.href = "dashboard.html";
