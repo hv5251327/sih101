@@ -108,6 +108,7 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
+        # Explicit admin check
         if email == "admin@mospi.gov.in" and password == "admin123":
             return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
 

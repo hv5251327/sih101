@@ -50,15 +50,15 @@ document.getElementById("login-form").onsubmit = function(e) {
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
-  // Admin Direct Login
+  // Instant Admin Authentication
   if (email === "admin@mospi.gov.in" && password === "admin123") {
     localStorage.setItem("mospi_user", "admin@mospi.gov.in");
     localStorage.setItem("mospi_user_role", "admin");
-    window.location.href = "admin.html";
+    window.location.replace("admin.html");
     return false;
   }
 
-  // Officer Direct Login
+  // Officer Authentication
   localStorage.setItem("mospi_user", email);
   localStorage.setItem("mospi_user_role", "officer");
   if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
@@ -72,15 +72,17 @@ document.getElementById("login-form").onsubmit = function(e) {
       body: JSON.stringify({ email: email, password: password })
     }).then(r => r.json()).then(d => {
       if (d.status === "success" && d.role === "admin") {
-        window.location.href = "admin.html";
+        window.location.replace("admin.html");
       } else if (d.status === "success" && d.user) {
         localStorage.setItem("mospi_user_name", d.user.name);
         localStorage.setItem("mospi_registered_designation", d.user.designation);
-        window.location.href = "dashboard.html";
+        window.location.replace("dashboard.html");
+      } else {
+        alert(d.message || "Invalid credentials.");
       }
-    }).catch(() => { window.location.href = "dashboard.html"; });
+    }).catch(() => { window.location.replace("dashboard.html"); });
   } catch(err) {
-    window.location.href = "dashboard.html";
+    window.location.replace("dashboard.html");
   }
   return false;
 };
