@@ -107,11 +107,9 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
-        # Admin Login Check
         if email == "admin@gmail.com" and password == "1234":
             return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
 
-        # Officer Login Check
         conn = get_db()
         c = conn.cursor()
         c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
@@ -205,7 +203,7 @@ def update_officer_progress():
 
         conn.commit()
         conn.close()
-        return jsonify({"status": "success", "message": "Progress recorded"})
+        return jsonify({"status": "success", "message": "Progress recorded in database"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -217,7 +215,12 @@ def get_admin_summary():
     total_officers = c.fetchone()[0]
     c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")
     total_roles = c.fetchone()[0]
-    c.execute("SELECT ROUND(COALESCE(AVG(current_statistical), 0), 1), ROUND(COALESCE(AVG(current_technical), 0), 1) FROM officer_profiles")
+    c.execute("""
+        SELECT
+            ROUND(COALESCE(AVG(current_statistical), 0), 1),
+            ROUND(COALESCE(AVG(current_technical), 0), 1)
+        FROM officer_profiles
+    """)
     avg_row = c.fetchone()
     conn.close()
     return jsonify({
@@ -235,7 +238,7 @@ def get_admin_heatmap():
         SELECT
             t.designation_name,
             t.cadre_name,
-            COUNT(u.id) AS enrolled_count,
+            COUNT(DISTINCT u.id) AS enrolled_count,
             t.target_statistical,
             ROUND(COALESCE(AVG(o.current_statistical), 0), 1) AS current_statistical,
             ROUND(MAX(0, t.target_statistical - COALESCE(AVG(o.current_statistical), 0)), 1) AS gap_statistical,
@@ -249,8 +252,8 @@ def get_admin_heatmap():
             ROUND(COALESCE(AVG(o.current_behavioural), 0), 1) AS current_behavioural,
             ROUND(MAX(0, t.target_behavioural - COALESCE(AVG(o.current_behavioural), 0)), 1) AS gap_behavioural
         FROM designation_competency_targets t
-        LEFT JOIN users u ON LOWER(t.designation_name) = LOWER(u.designation)
-        LEFT JOIN officer_profiles o ON LOWER(u.email) = LOWER(o.email)
+        LEFT JOIN users u ON LOWER(TRIM(t.designation_name)) = LOWER(TRIM(u.designation))
+        LEFT JOIN officer_profiles o ON LOWER(TRIM(u.email)) = LOWER(TRIM(o.email))
         GROUP BY t.designation_name, t.cadre_name, t.target_statistical, t.target_technical, t.target_governance, t.target_behavioural
         ORDER BY t.cadre_name, t.target_statistical DESC
     """)
