@@ -253,87 +253,96 @@
     }
   </script>
 
+
 <!-- NSSTA_FULL_REGISTRATION_ENGINE -->
 <script>
-window.NSSTA_DIRECTORY = {
-  "National Accounts Division (NAD)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Deputy Director / Assistant Director (ISS)", "Joint Director / Director (ISS)", "Additional Director General (ADG)"]
-  },
-  "Field Operations Division (FOD)": {
-    cadre: "Subordinate Statistical Service (SSS)",
-    designations: ["Senior Statistical Officer (SSO)", "Junior Statistical Officer (JSO)", "Regional Director / DDG (ISS)"]
-  },
-  "Survey Design & Research Division (SDRD)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Director (SDRD / Sampling)", "Senior Statistical Officer (SSO)", "Joint Director (ISS)"]
-  },
-  "Economic & Price Statistics Division (ESD/PSD)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Director (CPI/IIP Indices)", "Deputy Director (Price Statistics)", "Senior Statistical Officer (SSO)"]
-  },
-  "Data Informatics & Innovation Division (DIID)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Director (Big Data & AI)", "Senior System Analyst", "Assistant Director (IT/Database)"]
-  },
-  "Ministry of Agriculture & Farmers Welfare (DES)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Adviser (Agriculture Statistics)", "Deputy Director (Crops & Yields)", "Statistical Officer"]
-  },
-  "Ministry of Finance (Dept of Economic Affairs)": {
-    cadre: "Indian Statistical Service (ISS)",
-    designations: ["Senior Adviser", "Director (Macro-Fiscal Analysis)", "Deputy Director (Economic Statistics)"]
-  },
-  "State Directorate of Economics & Statistics (DES)": {
-    cadre: "State Statistical Cadre (DES)",
-    designations: ["Director of Economics & Statistics", "District Statistical Officer (DSO)", "Statistical Officer / Research Officer"]
-  },
-  "Central Secretariat / General Administration": {
-    cadre: "Central Secretariat Service (CSS)",
-    designations: ["Under Secretary", "Section Officer (SO)", "Assistant Section Officer (ASO)"]
-  }
+window.MOSPI_ORGANIZATION_DATA = {
+  divisions: [
+    "Central Statistics - Economics Statistics Division (ESD)",
+    "Central Statistics - Social Statistics Division (SSD)",
+    "Central Statistics - National Accounts Division (NAD)",
+    "Central Statistics - Price Statistics Division (PSD)",
+    "National Sample Survey - Household Survey Division (HSD)",
+    "National Sample Survey - Enterprise Survey Division (EnSD)",
+    "National Sample Survey - Field Operations Division (FOD)",
+    "National Sample Survey - Coordination & Quality Control Division (C&QCD)",
+    "Data Governance - Capacity Development Division",
+    "Data Governance - Coordination & International Cooperation Division (CICD)",
+    "Data Governance - Administrative Statistics & Policy Division (ASPD)",
+    "Data Governance - Data Informatics & Innovation Division (DIID)",
+    "Data Governance - State Unit",
+    "Administration - Administration Division",
+    "Administration - Indian Statistical Service Division",
+    "Administration - Subordinate Statistical Service Division",
+    "Administration - Budget & Finance Division",
+    "Administration - Vigilance Division",
+    "Administration - Infrastructure & Project Monitoring Division (IPMD)"
+  ],
+  cadres: [
+    "Indian Statistical Service (ISS) - Director General (DG)",
+    "Indian Statistical Service (ISS) - Additional Director General (ADG)",
+    "Indian Statistical Service (ISS) - Deputy Director General (DDG)",
+    "Indian Statistical Service (ISS) - Director / Joint Director",
+    "Indian Statistical Service (ISS) - Deputy Director",
+    "Indian Statistical Service (ISS) - Assistant Director",
+    "Subordinate Statistical Service (SSS) - Senior Statistical Officer (SSO)",
+    "Subordinate Statistical Service (SSS) - Junior Statistical Officer (JSO)",
+    "Administrative Cadre - Deputy Secretary / Under Secretary",
+    "Administrative Cadre - Section Officer (SO)",
+    "Administrative Cadre - Assistant Section Officer (ASO)",
+    "Administrative Cadre - Upper Division Clerk (UDC) / Lower Division Clerk (LDC)",
+    "Administrative Cadre - Multi-Tasking Staff (MTS)",
+    "IT & Technical Staff - Data Processing Assistant (DPA)",
+    "IT & Technical Staff - Data Entry Operator (DEO)",
+    "IT & Technical Staff - IT / Data Science Consultant",
+    "State DES Cadre - District Statistical Officer (DSO)",
+    "State DES Cadre - Statistical Inspector",
+    "State DES Cadre - Field Investigator / Enumerator"
+  ]
 };
 
-function setupNSSTARegistration() {
+function setupExactRegistration() {
   const selects = document.querySelectorAll("select");
+  if (!selects || selects.length < 2) return;
+
   const deptSelect = selects[0];
   const desigSelect = selects[1];
-  const cadreInput = document.querySelector("input[placeholder*='Statistical Service'], input[value*='Statistical Service']") || document.querySelectorAll("input")[3];
+  let cadreInput = document.querySelector("input[placeholder*='Statistical Service'], input[value*='Statistical Service']") || document.querySelectorAll("input")[3];
   const regBtn = document.querySelector("button:has-text('Register'), button[type='submit'], .btn-primary, button");
 
-  if (!deptSelect) return;
-
-  // 1. Populate all Official NSSTA Departments & Ministries
+  // Populate Divisions
   deptSelect.innerHTML = "";
-  Object.keys(window.NSSTA_DIRECTORY).forEach(dept => {
+  window.MOSPI_ORGANIZATION_DATA.divisions.forEach(div => {
     const opt = document.createElement("option");
-    opt.value = dept;
-    opt.innerText = dept;
+    opt.value = div;
+    opt.innerText = div;
     deptSelect.appendChild(opt);
   });
 
-  // 2. Cascade update Designations and Cadre
-  function syncFields() {
-    const selectedDept = deptSelect.value;
-    const data = window.NSSTA_DIRECTORY[selectedDept] || window.NSSTA_DIRECTORY["National Accounts Division (NAD)"];
+  // Populate Designations / Cadre Specifics
+  desigSelect.innerHTML = "";
+  window.MOSPI_ORGANIZATION_DATA.cadres.forEach(cadre => {
+    const opt = document.createElement("option");
+    opt.value = cadre;
+    opt.innerText = cadre;
+    desigSelect.appendChild(opt);
+  });
 
-    if (cadreInput) cadreInput.value = data.cadre;
+  function updateCadreField() {
+    const selected = desigSelect.value;
+    let mainCadre = "General Statistical Cadre";
+    if (selected.includes("Indian Statistical Service")) mainCadre = "Indian Statistical Service (ISS)";
+    else if (selected.includes("Subordinate Statistical Service")) mainCadre = "Subordinate Statistical Service (SSS)";
+    else if (selected.includes("Administrative Cadre")) mainCadre = "Administrative Cadre";
+    else if (selected.includes("IT & Technical Staff")) mainCadre = "IT & Technical Cadre";
+    else if (selected.includes("State DES Cadre")) mainCadre = "State DES Statistical Cadre";
 
-    if (desigSelect) {
-      desigSelect.innerHTML = "";
-      data.designations.forEach(desig => {
-        const opt = document.createElement("option");
-        opt.value = desig;
-        opt.innerText = desig;
-        desigSelect.appendChild(opt);
-      });
-    }
+    if (cadreInput) cadreInput.value = mainCadre;
   }
 
-  deptSelect.addEventListener("change", syncFields);
-  syncFields();
+  desigSelect.addEventListener("change", updateCadreField);
+  updateCadreField();
 
-  // 3. Save profile to storage and navigate
   if (regBtn) {
     regBtn.onclick = function(e) {
       if (e) e.preventDefault();
@@ -343,25 +352,25 @@ function setupNSSTARegistration() {
       const name = (nameInp && nameInp.value.trim()) ? nameInp.value.trim() : "Harsha Vardhan";
       const email = (emailInp && emailInp.value.trim()) ? emailInp.value.trim() : "officer@gov.in";
       const dept = deptSelect.value;
-      const desig = desigSelect ? desigSelect.value : "";
+      const designation = desigSelect.value;
       const cadre = cadreInput ? cadreInput.value : "Indian Statistical Service (ISS)";
 
       localStorage.setItem("mospi_user", email);
       localStorage.setItem("mospi_user_name", name);
       localStorage.setItem("mospi_registered_ministry", dept);
       localStorage.setItem("mospi_registered_cadre", cadre);
-      localStorage.setItem("mospi_registered_designation", desig);
+      localStorage.setItem("mospi_registered_designation", designation);
 
-      alert(`Registration Successful for ${name}!\nCadre: ${cadre}\nDepartment: ${dept}`);
+      alert(`Registration Successful for ${name}!\nCadre: ${designation}\nDivision: ${dept}`);
       window.location.href = "dashboard.html";
     };
   }
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", setupNSSTARegistration);
+  document.addEventListener("DOMContentLoaded", setupExactRegistration);
 } else {
-  setupNSSTARegistration();
+  setupExactRegistration();
 }
 </script>
 <!-- END_NSSTA_FULL_REGISTRATION_ENGINE -->
