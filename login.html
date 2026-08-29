@@ -18,7 +18,7 @@
     .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
     .btn-submit { width: 100%; background: var(--primary); color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
     .btn-submit:hover { background: var(--primary-hover); }
-    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); }
+    .footer-links { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--muted); display: flex; justify-content: space-between; }
     .footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; }
   </style>
 </head>
@@ -41,7 +41,8 @@
     <button type="submit" class="btn-submit"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard</button>
   </form>
   <div class="footer-links">
-    New Officer? <a href="register.html">Register here</a>
+    <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+    <span>New Officer? <a href="register.html">Register here</a></span>
   </div>
 </div>
 <script>
