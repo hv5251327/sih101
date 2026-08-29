@@ -36,14 +36,11 @@
     .chat-input-row { display: flex; border-top: 1px solid var(--border); }
     .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
     .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
-    
-    /* Clean, seamless Google Translate integration */
+
     #google_translate_element { display: inline-block; }
     .goog-te-gadget { font-size: 0px !important; }
     .goog-te-gadget span { display: none !important; }
     .goog-te-combo { border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff; color: #1e293b; font-size: 0.85rem; outline: none; }
-    .goog-te-banner-frame { display: none !important; }
-    body { top: 0px !important; }
   </style>
   <script type="text/javascript">
     function googleTranslateElementInit() {
@@ -60,7 +57,6 @@
 <body>
 
 <div class="container">
-  <!-- Header -->
   <div class="header">
     <div>
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
@@ -73,27 +69,24 @@
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="bhashini-bar">
         <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-        <span style="font-size: 0.85rem; font-weight: 700; color: #334155;">Bhashini Translator:</span>
+        <span style="font-size: 0.85rem; font-weight: 700; color: #334155;">Bhashini:</span>
         <div id="google_translate_element"></div>
       </div>
       <button class="btn-logout" onclick="logoutOfficer()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </div>
   </div>
 
-  <!-- 4-Pillar Baseline & Gap Grid -->
   <div>
     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
     <div class="grid-4" id="pillars-container"></div>
   </div>
 
-  <!-- AI Recommended Video Modules Section -->
   <div>
     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Certificate Upload</h3>
     <div class="video-grid" id="video-modules-container"></div>
   </div>
 </div>
 
-<!-- Floating AI Chatbot -->
 <button id="chatbot-toggle" onclick="toggleChatbot()"><i class="fa-solid fa-robot"></i></button>
 <div id="chatbot-window">
   <div class="chat-header">
@@ -110,92 +103,100 @@
 </div>
 
 <script>
+const ALL_COURSES_DB = [
+  {"id":"iss-apex-stat-1","target_group":"DG_ADG","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"System of National Accounts (SNA 2025 Updates & Macroeconomic Aggregates)","provider":"NSSTA / MoSPI","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-stat-2","target_group":"DG_ADG","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"System of Environmental-Economic Accounting (SEEA)","provider":"UN / NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-tech-1","target_group":"DG_ADG","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Executive Overview of Data Analytics & AI in Governance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-tech-2","target_group":"DG_ADG","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Big Data Ecosystems for Official Statistics & Decision Support","provider":"NSSTA / iGOT","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-gov-1","target_group":"DG_ADG","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Digital Personal Data Protection (DPDP) Act 2023 & Apex Compliance","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-apex-beh-1","target_group":"DG_ADG","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Apex Public Leadership & Strategic Policy Formulation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"iss-dir-stat-1","target_group":"DDG_DIR","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Multivariate Analysis & Advanced Econometric Modelling","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-tech-1","target_group":"DDG_DIR","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Data Science with R and Python for Official Imputation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-gov-1","target_group":"DDG_DIR","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Cyber Security Practices for Senior Government Officials","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dir-beh-1","target_group":"DDG_DIR","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Conflict Resolution & Team Coaching for Division Heads","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"iss-dd-stat-1","target_group":"DD_AD","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Index Numbers Compilation: CPI, IIP & WPI Frameworks","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dd-tech-1","target_group":"DD_AD","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Advanced SQL & Relational Database Management for Survey Tabulation","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dd-gov-1","target_group":"DD_AD","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Data Ethics & Information Security Fundamentals","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-dd-beh-1","target_group":"DD_AD","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Time Management & Project Supervision","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"iss-ot-stat-1","target_group":"ISS_OT","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Official Statistical System in India: Mandate, Structure & History","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-ot-tech-1","target_group":"ISS_OT","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"Statistical Computing with R (Basics to Intermediate)","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-ot-gov-1","target_group":"ISS_OT","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Code of Conduct & Civil Services Conduct Rules","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"iss-ot-beh-1","target_group":"ISS_OT","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Foundations of Professional Communication","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"sss-sso-stat-1","target_group":"SSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Periodic Labour Force Survey (PLFS) Schedule Scrutiny & Validation","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-tech-1","target_group":"SSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"CAPI (Computer-Assisted Personal Interviewing) Portal Validation Protocols","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-gov-1","target_group":"SSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Field Respondent Confidentiality & Data Protection Guidelines","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-sso-beh-1","target_group":"SSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Field Inspection, Quality Audits & Enumerator Mentorship","provider":"NSSTA / iGOT","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"sss-jso-stat-1","target_group":"JSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Primary Survey Schedules: Concepts, Definitions & Operational Guidelines","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-tech-1","target_group":"JSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"CAPI Handheld Tablet Operation & Real-Time Sync","provider":"NSSTA / FOD","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-gov-1","target_group":"JSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Ethics in Primary Data Collection & Information Security","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"sss-jso-beh-1","target_group":"JSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Public Interviewing & Effective Communication Techniques","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"des-dir-stat-1","target_group":"DES_DIR","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Gross State Domestic Product (GSDP) & District Domestic Product (DDP) Compilation","provider":"NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-tech-1","target_group":"DES_DIR","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"State Statistical Open Data Portals Architecture","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-gov-1","target_group":"DES_DIR","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Inter-Departmental Data Sharing & State Data Protocols","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dir-beh-1","target_group":"DES_DIR","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"Inter-Ministerial Strategic Coordination & District Review Management","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+
+  {"id":"des-dso-stat-1","target_group":"DSO","pillar":"statistical","pillarTitle":"Statistical Frameworks","title":"Local Level Planning & District Statistical Handbooks Formulation","provider":"NSSTA / State DES","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dso-tech-1","target_group":"DSO","pillar":"technical","pillarTitle":"Technical Tools & AI/GIS","title":"District Open Data Systems & Dashboard Management","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dso-gov-1","target_group":"DSO","pillar":"governance","pillarTitle":"Digital Governance & Privacy","title":"Civil Registration System (CRS) & Vital Statistics Record Maintenance","provider":"ORGI / NSSTA","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
+  {"id":"des-dso-beh-1","target_group":"DSO","pillar":"behavioural","pillarTitle":"Managerial & Behavioural","title":"District Administration Liaison & Collectorate Coordination","provider":"iGOT Karmayogi","embedUrl":"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+];
+
+function resolveTargetGroup(desig) {
+  const d = (desig || "").toLowerCase();
+  if (d.includes("director general") || d.includes("apex") || d.includes("additional director general") || d.includes("hag")) return "DG_ADG";
+  if (d.includes("deputy director general") || d.includes("sag") || d.includes("joint director") || d.includes("jag") || (d.includes("director") && d.includes("iss") && !d.includes("deputy") && !d.includes("assistant"))) return "DDG_DIR";
+  if (d.includes("deputy director") || d.includes("sts") || d.includes("assistant director") || d.includes("jts")) return "DD_AD";
+  if (d.includes("probationer") || d.includes("trainee")) return "ISS_OT";
+  if (d.includes("senior statistical officer") || d.includes("sso")) return "SSO";
+  if (d.includes("director of economics") || d.includes("state head")) return "DES_DIR";
+  if (d.includes("district statistical officer") || d.includes("dso")) return "DSO";
+  return "JSO";
+}
+
 let activeOfficerModules = [];
-
-const DEFAULT_BENCHMARKS = {
-  "ISS": { statistical: 92, technical: 90, governance: 88, behavioural: 85 },
-  "SSS": { statistical: 82, technical: 82, governance: 78, behavioural: 75 },
-  "DES": { statistical: 85, technical: 82, governance: 82, behavioural: 82 }
-};
-
-const MASTER_VIDEO_CATALOG = {
-  "ISS": [
-    { id: "iss-stat-1", title: "SNA 2008 & 2025: National Accounts Compilation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "iss-stat-2", title: "Large-Scale Survey Design & Probability Weight Estimation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "iss-tech-1", title: "Advanced Python & SQL for Official Sample Imputation", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "iss-gov-1", title: "DPDP Act 2023 & National Data Governance Architecture", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "iss-beh-1", title: "Apex Statistical Leadership & Inter-Ministerial Policy Negotiation", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
-  ],
-  "SSS": [
-    { id: "sss-stat-1", title: "PLFS & ASUSE Schedule Filling & Validation Guidelines", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "sss-stat-2", title: "Consumer Price Index (CPI) Rural/Urban Quotation Protocols", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "sss-tech-1", title: "CAPI Tablet Operations & Real-Time Data Synchronization", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "sss-tech-2", title: "Bhuvan GIS Ground Truthing & Urban Frame Survey Mapping", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "sss-gov-1", title: "Field Data Confidentiality & Respondent Privacy Protocols", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "sss-beh-1", title: "Enumerator Team Supervision & Effective Public Interviewing", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
-  ],
-  "DES": [
-    { id: "des-stat-1", title: "Gross State Domestic Product (GSDP) & State Income Estimation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "des-stat-2", title: "Crop Estimation Surveys (EARAS) & State Agricultural Statistics", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "des-tech-1", title: "State Statistical Open Portals & GIS District Tabulation", pillar: "technical", pillarTitle: "Technical Tools & AI/GIS", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "des-gov-1", title: "Civil Registration System (CRS) & State-Centre Data Protocols", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-    { id: "des-beh-1", title: "District Administration Liaison & Field Survey Coordination", pillar: "behavioural", pillarTitle: "Managerial & Behavioural", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
-  ]
-};
 
 function renderDashboardUI() {
   const name = localStorage.getItem("mospi_user_name") || "Officer";
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
-  const desig = localStorage.getItem("mospi_registered_designation") || "Assistant Director (JTS) - ISS";
-  const cadre = localStorage.getItem("mospi_registered_cadre") || "Indian Statistical Service (ISS)";
-  const dept = localStorage.getItem("mospi_registered_ministry") || "National Accounts Division (NAD)";
+  const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
+  const cadre = localStorage.getItem("mospi_registered_cadre") || "Subordinate Statistical Service (SSS)";
+  const dept = localStorage.getItem("mospi_registered_ministry") || "Field Operations Division (FOD)";
 
   document.getElementById("officer-name").innerText = name;
   document.getElementById("officer-cadre").innerText = cadre;
   document.getElementById("officer-meta").innerText = `${desig} • ${dept}`;
 
-  let cadreKey = "SSS";
-  if (cadre.includes("ISS") || desig.includes("ISS") || desig.includes("Director")) {
-    cadreKey = "ISS";
-  } else if (cadre.includes("DES") || desig.includes("DES") || desig.includes("State") || desig.includes("District")) {
-    cadreKey = "DES";
-  }
-
-  let benchmarks = DEFAULT_BENCHMARKS[cadreKey];
-  try {
-    const raw = localStorage.getItem("mospi_competency_benchmarks");
-    if (raw) benchmarks = JSON.parse(raw);
-  } catch(e) {}
-
+  const targetGroup = resolveTargetGroup(desig);
   const doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
-  
-  if (!activeOfficerModules || activeOfficerModules.length === 0) {
-    activeOfficerModules = (MASTER_VIDEO_CATALOG[cadreKey] || MASTER_VIDEO_CATALOG["ISS"]).map(m => {
-      const clone = Object.assign({}, m);
-      clone.is_completed = doneLocal.includes(m.id);
-      return clone;
-    });
-  } else {
-    activeOfficerModules.forEach(m => {
-      m.is_completed = doneLocal.includes(m.id);
-    });
+
+  activeOfficerModules = ALL_COURSES_DB.filter(m => m.target_group === targetGroup);
+  if (activeOfficerModules.length === 0) {
+    activeOfficerModules = ALL_COURSES_DB.filter(m => m.target_group === "JSO");
   }
 
-  function getPillarScore(pillarKey) {
-    const mods = activeOfficerModules.filter(m => m.pillar === pillarKey);
+  activeOfficerModules.forEach(m => {
+    m.is_completed = doneLocal.includes(m.id);
+  });
+
+  function getPillarScore(pKey) {
+    const mods = activeOfficerModules.filter(m => m.pillar === pKey);
     if (!mods.length) return 0;
     const done = mods.filter(m => m.is_completed).length;
     return Math.round((done / mods.length) * 100);
   }
 
   const pillars = [
-    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: getPillarScore("statistical") },
-    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: benchmarks.technical, current: getPillarScore("technical") },
-    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: getPillarScore("governance") },
-    { key: "behavioural", title: "Managerial & Behavioural", color: "#7c3aed", target: benchmarks.behavioural, current: getPillarScore("behavioural") }
+    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: 85, current: getPillarScore("statistical") },
+    { key: "technical", title: "Technical Tools & Computing", color: "#059669", target: 85, current: getPillarScore("technical") },
+    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: 80, current: getPillarScore("governance") },
+    { key: "behavioural", title: "Managerial & Behavioural", color: "#7c3aed", target: 80, current: getPillarScore("behavioural") }
   ];
 
-  // Render Pillars
   const grid = document.getElementById("pillars-container");
   grid.innerHTML = "";
   pillars.forEach(p => {
@@ -218,7 +219,6 @@ function renderDashboardUI() {
     grid.appendChild(div);
   });
 
-  // Render Videos
   const vGrid = document.getElementById("video-modules-container");
   vGrid.innerHTML = "";
   activeOfficerModules.forEach(m => {
@@ -228,7 +228,7 @@ function renderDashboardUI() {
       <iframe class="video-frame" src="${m.embedUrl}" allowfullscreen></iframe>
       <div class="video-body">
         <div>
-          <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.pillarTitle}</span>
+          <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.provider}</span>
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
         </div>
         <div class="upload-zone" style="${m.is_completed ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${m.is_completed ? '' : `document.getElementById('input-${m.id}').click()`}">
@@ -236,7 +236,7 @@ function renderDashboardUI() {
           <span style="font-size: 0.8rem; font-weight: 600; color: ${m.is_completed ? '#15803d' : '#334155'}; margin-left: 6px;">
             ${m.is_completed ? 'Certificate Verified & Recorded' : 'Upload Completion Certificate'}
           </span>
-          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="handleCertUpload(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
+          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="handleCertUpload(event, '${m.id}', '${m.title}')">`}
         </div>
       </div>
     `;
@@ -244,56 +244,18 @@ function renderDashboardUI() {
   });
 }
 
-async function initDashboard() {
-  renderDashboardUI();
-
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
-  const desig = localStorage.getItem("mospi_registered_designation") || "Assistant Director (JTS) - ISS";
-
-  try {
-    const res = await fetch("http://127.0.0.1:5000/api/officer/recommendations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, designation: desig })
-    });
-    const data = await res.json();
-    if (data.modules && data.modules.length > 0) {
-      activeOfficerModules = data.modules;
-      renderDashboardUI();
-    }
-  } catch(err) {
-    console.warn("Backend API sync offline; running on local data.");
-  }
-}
-
-async function handleCertUpload(e, moduleId, pillar, title) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+function handleCertUpload(e, moduleId, title) {
   let doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
   if (!doneLocal.includes(moduleId)) {
     doneLocal.push(moduleId);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify(doneLocal));
   }
-
-  try {
-    await fetch("http://127.0.0.1:5000/api/officer/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, module_id: moduleId, pillar: pillar })
-    });
-  } catch(err) {
-    console.warn("Backend API offline; progress recorded locally.", err);
-  }
-
   alert(`Certificate for "${title}" verified successfully!`);
   renderDashboardUI();
 }
 
 function logoutOfficer() {
   localStorage.removeItem("mospi_user");
-  localStorage.removeItem("mospi_user_name");
   window.location.href = "login.html";
 }
 
@@ -302,7 +264,7 @@ function toggleChatbot() {
   w.style.display = (w.style.display === "flex") ? "none" : "flex";
 }
 
-async function sendChatMessage() {
+function sendChatMessage() {
   const inp = document.getElementById("chat-input");
   const msg = inp.value.trim();
   if (!msg) return;
@@ -313,30 +275,15 @@ async function sendChatMessage() {
   u.innerText = msg;
   c.appendChild(u);
   inp.value = "";
-  c.scrollTop = c.scrollHeight;
 
-  const desig = localStorage.getItem("mospi_registered_designation") || "Officer";
-  try {
-    const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg, designation: desig })
-    });
-    const d = await res.json();
-    const b = document.createElement("div");
-    b.className = "chat-bubble bubble-bot";
-    b.innerText = d.reply;
-    c.appendChild(b);
-  } catch(e) {
-    const b = document.createElement("div");
-    b.className = "chat-bubble bubble-bot";
-    b.innerText = "I am ready to assist with your MoSPI training pathway.";
-    c.appendChild(b);
-  }
+  const b = document.createElement("div");
+  b.className = "chat-bubble bubble-bot";
+  b.innerText = "To improve your score, complete the recommended video courses above and upload your completion certificate.";
+  c.appendChild(b);
   c.scrollTop = c.scrollHeight;
 }
 
-document.addEventListener("DOMContentLoaded", initDashboard);
+document.addEventListener("DOMContentLoaded", renderDashboardUI);
 </script>
 </body>
 </html>
