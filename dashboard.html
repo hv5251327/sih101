@@ -6,7 +6,7 @@
   <title>MoSPI & NSSTA Competency Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+    :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; --success: #16a34a; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
     .container { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
@@ -22,9 +22,22 @@
     .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; }
     .video-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
     .video-frame { width: 100%; height: 200px; background: #000; border: none; }
-    .video-body { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .upload-zone { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 10px; text-align: center; margin-top: 10px; background: #f8fafc; cursor: pointer; }
-    .upload-zone:hover { border-color: var(--primary-light); background: #f0f9ff; }
+    .video-body { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
+    
+    .btn-quiz { width: 100%; background: #f8fafc; border: 1.5px solid var(--primary-light); color: var(--primary-light); border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; transition: all 0.2s; }
+    .btn-quiz:hover { background: #eff6ff; }
+    .btn-quiz.completed { background: #dcfce7; border-color: #86efac; color: #15803d; cursor: default; }
+
+    /* Interactive Quiz Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
+    .quiz-modal { background: #fff; width: 100%; max-width: 600px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; }
+    .modal-header { background: var(--primary); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    .quiz-q { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .quiz-opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 0.85rem; margin-bottom: 6px; }
+    .quiz-opt:hover { background: #f8fafc; }
+    .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: #f8fafc; }
+    .btn-sub-quiz { background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     
     #chatbot-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 1000; }
     #chatbot-window { position: fixed; bottom: 90px; right: 24px; width: 350px; height: 460px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); display: none; flex-direction: column; z-index: 1000; overflow: hidden; }
@@ -82,8 +95,23 @@
   </div>
 
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Certificate Upload</h3>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Topic Assessments</h3>
     <div class="video-grid" id="video-modules-container"></div>
+  </div>
+</div>
+
+<!-- Interactive Quiz Modal -->
+<div class="modal-overlay" id="quiz-modal-overlay">
+  <div class="quiz-modal">
+    <div class="modal-header">
+      <span id="quiz-modal-title" style="font-weight: 700; font-size: 1rem;"><i class="fa-solid fa-pen-nib"></i> Topic Competency Quiz</span>
+      <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeQuizModal()"></i>
+    </div>
+    <div class="modal-body" id="quiz-modal-body"></div>
+    <div class="modal-footer">
+      <button style="background: #e2e8f0; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;" onclick="closeQuizModal()">Cancel</button>
+      <button class="btn-sub-quiz" onclick="submitActiveQuiz()">Submit Assessment</button>
+    </div>
   </div>
 </div>
 
@@ -94,7 +122,7 @@
     <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
   </div>
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning assistant. Ask me about your role recommendations or pillar gaps.</div>
+    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning assistant. Watch the recommended course video and attempt the quiz below to complete each module.</div>
   </div>
   <div class="chat-input-row">
     <input type="text" id="chat-input" placeholder="Ask about modules, pillars..." onkeypress="if(event.key==='Enter') sendChatMessage()">
@@ -160,6 +188,7 @@ function resolveTargetGroup(desig) {
 }
 
 let activeOfficerModules = [];
+let currentActiveQuizModule = null;
 
 function renderDashboardUI() {
   const name = localStorage.getItem("mospi_user_name") || "Officer";
@@ -231,26 +260,76 @@ function renderDashboardUI() {
           <span class="badge" style="background: #f1f5f9; color: #475569; margin-bottom: 6px; display: inline-block;">${m.provider}</span>
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
         </div>
-        <div class="upload-zone" style="${m.is_completed ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${m.is_completed ? '' : `document.getElementById('input-${m.id}').click()`}">
-          <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-file-arrow-up'}" style="color: ${m.is_completed ? '#15803d' : 'var(--primary-light)'};"></i>
-          <span style="font-size: 0.8rem; font-weight: 600; color: ${m.is_completed ? '#15803d' : '#334155'}; margin-left: 6px;">
-            ${m.is_completed ? 'Certificate Verified & Recorded' : 'Upload Completion Certificate'}
-          </span>
-          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="handleCertUpload(event, '${m.id}', '${m.title}')">`}
-        </div>
+        <button class="btn-quiz ${m.is_completed ? 'completed' : ''}" onclick="${m.is_completed ? '' : `openQuizModal('${m.id}', '${m.title.replace(/'/g, "\\'")}')`}">
+          <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-pen-to-square'}"></i>
+          <span>${m.is_completed ? 'Competency Assessment Passed & Completed' : 'Attempt Topic Quiz to Complete Course'}</span>
+        </button>
       </div>
     `;
     vGrid.appendChild(card);
   });
 }
 
-function handleCertUpload(e, moduleId, title) {
+function openQuizModal(moduleId, title) {
+  currentActiveQuizModule = { id: moduleId, title: title };
+  document.getElementById("quiz-modal-title").innerHTML = `<i class="fa-solid fa-pen-nib"></i> Quiz: ${title}`;
+  
+  const body = document.getElementById("quiz-modal-body");
+  body.innerHTML = `
+    <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; font-size: 0.85rem; color: #334155;">
+      <strong>Assessment Instructions:</strong> Answer all questions based on the video course. Passing score is required to mark the course completed.
+    </div>
+
+    <div>
+      <div class="quiz-q">1. What is the primary standard or protocol emphasized in "${title}"?</div>
+      <label class="quiz-opt"><input type="radio" name="q1" value="a"> Official MoSPI / NSSTA Verified Standard Operating Procedure</label>
+      <label class="quiz-opt"><input type="radio" name="q1" value="b"> Unverified secondary estimation</label>
+      <label class="quiz-opt"><input type="radio" name="q1" value="c"> Ad-hoc manual approximation</label>
+    </div>
+
+    <div>
+      <div class="quiz-q">2. How does adhering to these guidelines improve data reliability and competency?</div>
+      <label class="quiz-opt"><input type="radio" name="q2" value="a"> Ensures statistical consistency and cross-cadre data integrity</label>
+      <label class="quiz-opt"><input type="radio" name="q2" value="b"> Reduces overall data points</label>
+      <label class="quiz-opt"><input type="radio" name="q2" value="c"> Bypasses digital validation rules</label>
+    </div>
+  `;
+
+  document.getElementById("quiz-modal-overlay").style.display = "flex";
+}
+
+function closeQuizModal() {
+  document.getElementById("quiz-modal-overlay").style.display = "none";
+  currentActiveQuizModule = null;
+}
+
+function submitActiveQuiz() {
+  if (!currentActiveQuizModule) return;
+  const q1 = document.querySelector('input[name="q1"]:checked');
+  const q2 = document.querySelector('input[name="q2"]:checked');
+
+  if (!q1 || !q2) {
+    alert("Please answer all questions before submitting.");
+    return;
+  }
+
   let doneLocal = JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
-  if (!doneLocal.includes(moduleId)) {
-    doneLocal.push(moduleId);
+  if (!doneLocal.includes(currentActiveQuizModule.id)) {
+    doneLocal.push(currentActiveQuizModule.id);
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify(doneLocal));
   }
-  alert(`Certificate for "${title}" verified successfully!`);
+
+  const officerEmail = localStorage.getItem("mospi_user") || "officer@gov.in";
+  try {
+    fetch("http://127.0.0.1:5000/api/officer/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: officerEmail, module_id: currentActiveQuizModule.id })
+    }).catch(() => {});
+  } catch(e) {}
+
+  alert(`Congratulations! You passed the assessment for "${currentActiveQuizModule.title}". The course is now marked as Completed.`);
+  closeQuizModal();
   renderDashboardUI();
 }
 
@@ -278,7 +357,7 @@ function sendChatMessage() {
 
   const b = document.createElement("div");
   b.className = "chat-bubble bubble-bot";
-  b.innerText = "To improve your score, complete the recommended video courses above and upload your completion certificate.";
+  b.innerText = "To improve your score, complete the recommended video courses above and pass each topic assessment quiz.";
   c.appendChild(b);
   c.scrollTop = c.scrollHeight;
 }
