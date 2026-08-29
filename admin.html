@@ -206,6 +206,15 @@ async function generateAiQuiz() {
 }
 
 function initAdmin() {
+  // Fetch live summary data
+  try {
+    fetch("http://127.0.0.1:5000/api/admin/summary")
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById("stat-officers").innerText = d.total_officers || 0;
+        document.getElementById("stat-roles").innerText = d.total_designations || 17;
+      }).catch(() => {});
+  } catch(e) {}
   const ts = document.getElementById("quiz-topic-select");
   ts.innerHTML = "";
   DB_TOPICS.forEach(t => {

@@ -199,7 +199,7 @@ def update_officer_progress():
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'behavioural'", (email,))
         beh_done = c.fetchone()[0]
 
-        # Update officer profile metrics
+        # Update officer profile metrics (assuming 1 module per pillar = 100%)
         c.execute("""
             UPDATE officer_profiles 
             SET current_statistical = MIN(100, ? * 100),
