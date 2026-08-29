@@ -2,7 +2,8 @@
 import sqlite3
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from deep_translator import GoogleTranslator
+import requests
+import urllib.parse
 
 app = Flask(__name__)
 CORS(app)
@@ -35,28 +36,6 @@ def init_db():
         recommended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(officer_email, module_id)
     );''')
-
-    # Seed all latest official designations
-    all_designations = [
-        ('Director General (DG / Apex Level) - ISS', 'Indian Statistical Service (ISS)', 95, 85, 98, 95),
-        ('Additional Director General (ADG / HAG) - ISS', 'Indian Statistical Service (ISS)', 94, 85, 95, 92),
-        ('Deputy Director General (DDG / SAG) - ISS', 'Indian Statistical Service (ISS)', 92, 88, 92, 90),
-        ('Director / Joint Director (JAG) - ISS', 'Indian Statistical Service (ISS)', 92, 90, 88, 85),
-        ('Deputy Director (STS) - ISS', 'Indian Statistical Service (ISS)', 90, 92, 85, 82),
-        ('Assistant Director (JTS) - ISS', 'Indian Statistical Service (ISS)', 90, 90, 85, 80),
-        ('Probationer / Officer Trainee (ISS - NSSTA)', 'Indian Statistical Service (ISS)', 88, 88, 82, 80),
-        ('Senior Statistical Officer (SSO / Gazetted)', 'Subordinate Statistical Service (SSS)', 88, 85, 82, 80),
-        ('Senior Statistical Officer (SSO / Non-Gazetted)', 'Subordinate Statistical Service (SSS)', 85, 82, 80, 78),
-        ('Junior Statistical Officer (JSO)', 'Subordinate Statistical Service (SSS)', 82, 82, 78, 75),
-        ('Statistical Assistant / Senior Field Investigator', 'Subordinate Statistical Service (SSS)', 80, 78, 75, 75),
-        ('Director of Economics & Statistics (State Head)', 'State DES Statistical Cadre', 92, 85, 95, 92),
-        ('Joint / Deputy Director (State DES)', 'State DES Statistical Cadre', 90, 85, 88, 85),
-        ('District Statistical Officer (DSO)', 'State DES Statistical Cadre', 85, 82, 82, 82),
-        ('Assistant Statistical Officer / Statistical Officer (State)', 'State DES Statistical Cadre', 82, 80, 78, 75),
-        ('Statistical Inspector / Research Assistant (DES)', 'State DES Statistical Cadre', 80, 78, 75, 75),
-        ('Primary Field Investigator / Enumerator', 'State DES Statistical Cadre', 78, 75, 72, 75)
-    ]
-    c.executemany("INSERT OR REPLACE INTO designation_competency_targets VALUES (?, ?, ?, ?, ?, ?)", all_designations)
     conn.commit()
     conn.close()
 
@@ -68,7 +47,7 @@ VIDEO_CATALOG = {
         {"id": "iss-stat-2", "title": "Large-Scale Survey Design & Probability Weight Estimation", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
         {"id": "iss-tech-1", "title": "Advanced Python & SQL for Official Sample Imputation", "pillar": "technical", "pillarTitle": "Technical Tools & AI/GIS", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
         {"id": "iss-gov-1", "title": "DPDP Act 2023 & National Data Governance Architecture", "pillar": "governance", "pillarTitle": "Digital Governance & Privacy", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
-        {"id": "iss-beh-1", "title": "Apex Statistical Leadership & Inter-Ministerial Policy Negotiation", "pillar": "behavioural", "pillarTitle": "Managerial & Behavioural", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
+        {"id": "iss-beh-1", "title": "Apex Statistical Leadership & Policy Negotiation", "pillar": "behavioural", "pillarTitle": "Managerial & Behavioural", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"}
     ],
     "SSS": [
         {"id": "sss-stat-1", "title": "PLFS & ASUSE Schedule Filling & Validation Guidelines", "pillar": "statistical", "pillarTitle": "Statistical Frameworks", "embedUrl": "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"},
@@ -146,18 +125,29 @@ def update_progress():
     conn.close()
     return jsonify({"status": "success", "pillar": pillar, "new_percentage": percentage})
 
+# Direct Free Google/Bhashini Multi-Language API Endpoint
 @app.route("/api/translate", methods=["POST"])
 def translate():
     data = request.json or {}
     texts = data.get("texts", [])
     target = data.get("target_lang", "en")
-    if target == "en":
+    
+    if target == "en" or not texts:
         return jsonify({"translations": texts})
-    try:
-        t = GoogleTranslator(source="auto", target=target)
-        return jsonify({"translations": [t.translate(x) for x in texts]})
-    except Exception as e:
-        return jsonify({"translations": texts, "error": str(e)})
+
+    translated = []
+    for t in texts:
+        if not t.strip():
+            translated.append(t)
+            continue
+        try:
+            url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={target}&dt=t&q={urllib.parse.quote(t)}"
+            res = requests.get(url, timeout=5).json()
+            translated.append(res[0][0][0] if res and res[0] and res[0][0] else t)
+        except Exception:
+            translated.append(t)
+
+    return jsonify({"translations": translated})
 
 @app.route("/api/chatbot", methods=["POST"])
 def chatbot():
@@ -167,11 +157,11 @@ def chatbot():
     if "pillar" in msg or "competency" in msg:
         reply = "MoSPI tests 4 core pillars: Statistical Frameworks, Technical Tools & Computing, Digital Governance (DPDP), and Behavioural Management."
     elif "certificate" in msg or "video" in msg:
-        reply = f"For your rank as {desig}, complete each allocated video module and upload the certificate to systematically close your competency gap."
+        reply = f"For your role as {desig}, complete each module and upload its certificate to update that pillar's verified completion score."
     elif "gap" in msg:
-        reply = "The gap percentage represents the deficit between your completed modules and the target benchmark defined by NSSTA."
+        reply = "The gap percentage represents the difference between your completed courses and the NSSTA target benchmark."
     else:
-        reply = f"Namaste! As your MoSPI Learning AI Assistant, I can guide you through the training modules prescribed for {desig}."
+        reply = f"Namaste! As your MoSPI Learning AI Assistant, I can guide you through the training roadmap mapped to {desig}."
     return jsonify({"reply": reply})
 
 if __name__ == "__main__":

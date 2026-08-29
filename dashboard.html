@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MoSPI & NSSTA Competency Portal</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root { --primary: #1e3a8a; --primary-light: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -16,9 +15,7 @@
     .btn-logout { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 6px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
     .btn-logout:hover { background: #fecaca; }
     .bhashini-bar { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
-    .grid-2 { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
-    @media(max-width: 900px){ .grid-2 { grid-template-columns: 1fr; } }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
     .progress-bar-bg { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 10px 0 6px 0; }
     .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
@@ -39,9 +36,13 @@
     .chat-input-row { display: flex; border-top: 1px solid var(--border); }
     .chat-input-row input { flex-grow: 1; border: none; padding: 10px 12px; outline: none; font-size: 0.85rem; }
     .chat-input-row button { background: var(--primary); color: #fff; border: none; padding: 0 16px; cursor: pointer; }
+    #google_translate_element { display: none; }
   </style>
+  <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
+
+<div id="google_translate_element"></div>
 
 <div class="container">
   <!-- Header -->
@@ -57,7 +58,7 @@
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="bhashini-bar">
         <i class="fa-solid fa-language" style="color: #2563eb;"></i>
-        <label for="bhashini-select" style="font-size: 0.8rem;">Bhashini AI:</label>
+        <label for="bhashini-select" style="font-size: 0.8rem;">Bhashini / Language:</label>
         <select id="bhashini-select" onchange="runBhashini(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 3px 6px; font-weight: 600;">
           <option value="en">English</option>
           <option value="hi">हिंदी (Hindi)</option>
@@ -71,21 +72,13 @@
     </div>
   </div>
 
-  <!-- Main Analytics Section (Pillars Grid + Pie Chart) -->
-  <div class="grid-2">
-    <div>
-      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
-      <div class="grid-4" id="pillars-container"></div>
-    </div>
-    <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--text);">Overall Competency Fulfillment</h4>
-      <div style="width: 220px; height: 220px;">
-        <canvas id="competencyPieChart"></canvas>
-      </div>
-    </div>
+  <!-- 4-Pillar Baseline & Gap Grid (No Pie Chart) -->
+  <div>
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Deficit Gap</h3>
+    <div class="grid-4" id="pillars-container"></div>
   </div>
 
-  <!-- Video Modules Section -->
+  <!-- AI Recommended Video Modules Section -->
   <div>
     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> AI Tailored Video Modules & Certificate Upload</h3>
     <div class="video-grid" id="video-modules-container"></div>
@@ -109,7 +102,6 @@
 </div>
 
 <script>
-let pieChartInstance = null;
 let activeOfficerModules = [];
 
 const FALLBACK_MODULES = {
@@ -156,7 +148,6 @@ async function initDashboard() {
 
   let cadreKey = (cadre.includes("ISS") || desig.includes("ISS") || desig.includes("Director")) ? "ISS" : (cadre.includes("DES") || desig.includes("State") || desig.includes("District")) ? "DES" : "SSS";
 
-  // Fetch from API or fallback locally
   try {
     const res = await fetch("http://127.0.0.1:5000/api/officer/recommendations", {
       method: "POST",
@@ -188,7 +179,6 @@ async function initDashboard() {
     { key: "behavioural", title: "Managerial & Behavioural", color: "#7c3aed", target: benchmarks.behavioural, current: getPillarScore("behavioural") }
   ];
 
-  // Render Pillars
   const grid = document.getElementById("pillars-container");
   grid.innerHTML = "";
   pillars.forEach(p => {
@@ -211,10 +201,6 @@ async function initDashboard() {
     grid.appendChild(div);
   });
 
-  // Render Enhanced Chart.js Pie Chart
-  renderPieChart(pillars);
-
-  // Render Videos
   const vGrid = document.getElementById("video-modules-container");
   vGrid.innerHTML = "";
   activeOfficerModules.forEach(m => {
@@ -240,36 +226,6 @@ async function initDashboard() {
   });
 }
 
-function renderPieChart(pillars) {
-  const ctx = document.getElementById('competencyPieChart');
-  if (!ctx) return;
-  if (pieChartInstance) pieChartInstance.destroy();
-
-  const labels = pillars.map(p => p.title.split(' ')[0]);
-  const dataVals = pillars.map(p => p.current || 10);
-  const colors = ["#2563eb", "#059669", "#d97706", "#7c3aed"];
-
-  pieChartInstance = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: dataVals,
-        backgroundColor: colors,
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
-      }
-    }
-  });
-}
-
 async function handleCertUpload(e, moduleId, pillar, title) {
   const file = e.target.files[0];
   if (!file) return;
@@ -288,7 +244,7 @@ async function handleCertUpload(e, moduleId, pillar, title) {
       body: JSON.stringify({ email: email, module_id: moduleId, pillar: pillar })
     });
   } catch(err) {
-    console.warn("Backend API sync offline; state recorded in localStorage.", err);
+    console.warn("Backend offline; progress saved locally.", err);
   }
 
   alert(`Certificate for "${title}" verified successfully!`);
@@ -301,8 +257,27 @@ function logoutOfficer() {
   window.location.href = "login.html";
 }
 
+// Bhashini / Google Multi-Language Engine
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'hi,te,ta,bn,mr,en', autoDisplay: false}, 'google_translate_element');
+}
+
 async function runBhashini(lang) {
-  if (lang === "en") { initDashboard(); return; }
+  if (lang === "en") {
+    const el = document.querySelector('.goog-te-combo');
+    if (el) { el.value = 'en'; el.dispatchEvent(new Event('change')); }
+    return;
+  }
+
+  // 1. Try Google Translate widget if available
+  const combo = document.querySelector('.goog-te-combo');
+  if (combo) {
+    combo.value = lang;
+    combo.dispatchEvent(new Event('change'));
+    return;
+  }
+
+  // 2. Direct API fallback translation
   const els = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button")).filter(e => e.children.length === 0 && e.innerText.trim());
   const texts = els.map(e => e.innerText.trim());
 
@@ -319,13 +294,13 @@ async function runBhashini(lang) {
       });
     }
   } catch(e) {
-    console.error("Bhashini translation failed:", e);
+    console.error("Translation failed:", e);
   }
 }
 
 function toggleChatbot() {
   const w = document.getElementById("chatbot-window");
-  w.style.display = (w.style.display === "flex") ? "none" : "flex";
+  w.style.display = (win = (w.style.display === "flex") ? "none" : "flex");
 }
 
 async function sendChatMessage() {
