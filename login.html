@@ -50,7 +50,7 @@ document.getElementById("login-form").onsubmit = function(e) {
   const email = document.getElementById("login_email").value.trim().toLowerCase();
   const password = document.getElementById("login_password").value.trim();
 
-  // Instant Admin Authentication
+  // Admin Direct Login
   if (email === "admin@mospi.gov.in" && password === "admin123") {
     localStorage.setItem("mospi_user", "admin@mospi.gov.in");
     localStorage.setItem("mospi_user_role", "admin");
@@ -58,7 +58,7 @@ document.getElementById("login-form").onsubmit = function(e) {
     return false;
   }
 
-  // Officer Authentication
+  // Officer Direct Login
   localStorage.setItem("mospi_user", email);
   localStorage.setItem("mospi_user_role", "officer");
   if (!localStorage.getItem("mospi_user_name")) localStorage.setItem("mospi_user_name", email.split("@")[0]);
@@ -78,8 +78,8 @@ document.getElementById("login-form").onsubmit = function(e) {
         localStorage.setItem("mospi_registered_designation", d.user.designation);
         window.location.href = "dashboard.html";
       }
-    }).catch(()=>{ window.location.href = "dashboard.html"; });
-  } catch(err){
+    }).catch(() => { window.location.href = "dashboard.html"; });
+  } catch(err) {
     window.location.href = "dashboard.html";
   }
   return false;

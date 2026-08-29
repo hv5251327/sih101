@@ -108,11 +108,9 @@ def login():
         email = data.get("email", "").strip().lower()
         password = data.get("password", "").strip()
 
-        # Admin Login
         if email == "admin@mospi.gov.in" and password == "admin123":
             return jsonify({"status": "success", "role": "admin", "redirect": "admin.html"})
 
-        # Officer Login from users table
         conn = get_db()
         c = conn.cursor()
         c.execute("SELECT email, password, full_name, designation, department FROM users WHERE LOWER(email) = ?", (email,))
@@ -171,7 +169,6 @@ def register():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Officer Completes Course: Records in DB & Updates Officer Profile Competencies
 @app.route("/api/officer/progress", methods=["POST"])
 def update_officer_progress():
     try:
@@ -185,11 +182,8 @@ def update_officer_progress():
 
         conn = get_db()
         c = conn.cursor()
-
-        # Insert progress
         c.execute("INSERT OR IGNORE INTO user_progress (email, module_id, pillar) VALUES (?, ?, ?)", (email, module_id, pillar))
 
-        # Recalculate pillar scores (each module completion contributes 100% per pillar module)
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'statistical'", (email,))
         stat_done = c.fetchone()[0]
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'technical'", (email,))
@@ -199,7 +193,6 @@ def update_officer_progress():
         c.execute("SELECT COUNT(*) FROM user_progress WHERE LOWER(email) = ? AND pillar = 'behavioural'", (email,))
         beh_done = c.fetchone()[0]
 
-        # Update officer profile metrics
         c.execute("""
             UPDATE officer_profiles 
             SET current_statistical = MIN(100, ? * 100),
@@ -211,21 +204,18 @@ def update_officer_progress():
 
         conn.commit()
         conn.close()
-        return jsonify({"status": "success", "message": "Progress recorded in database"})
+        return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Admin Summary & Heatmap: Reflects Live Real-Time Officer Completions
 @app.route("/api/admin/summary", methods=["GET"])
 def get_admin_summary():
     conn = get_db()
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM users")
     total_officers = c.fetchone()[0]
-
     c.execute("SELECT COUNT(DISTINCT designation_name) FROM designation_competency_targets")
     total_roles = c.fetchone()[0]
-
     c.execute("""
         SELECT 
             ROUND(COALESCE(AVG(current_statistical), 0), 1),
@@ -234,7 +224,6 @@ def get_admin_summary():
     """)
     avg_row = c.fetchone()
     conn.close()
-
     return jsonify({
         "total_officers": total_officers,
         "total_designations": total_roles,
