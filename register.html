@@ -24,8 +24,7 @@
     .form-group { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
     .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; }
-    .form-control:focus { border-color: var(--primary); ring: 2px var(--primary); }
-    .cadre-preview { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px; margin-top: 6px; font-size: 0.8rem; color: #475569; }
+    .form-control:focus { border-color: var(--primary); }
     .btn-submit { width: 100%; background: var(--primary); color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
     .btn-submit:hover { background: var(--primary-hover); }
     .footer-links { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--muted); }
@@ -59,11 +58,7 @@
 
     <div class="form-group">
       <label for="designation_select">Official Designation</label>
-      <select id="designation_select" class="form-control" onchange="updateCadrePreview()" required></select>
-      <div id="cadre-preview-box" class="cadre-preview">
-        <strong>Assigned Cadre:</strong> <span id="cadre-name-display">Subordinate Statistical Service (SSS)</span><br>
-        <strong>Mandated Targets:</strong> <span id="benchmarks-display">Stat: 82% | Tech: 82% | Gov: 78% | Beh: 75%</span>
-      </div>
+      <select id="designation_select" class="form-control" required></select>
     </div>
 
     <button type="submit" class="btn-submit"><i class="fa-solid fa-user-check"></i> Register Officer Profile</button>
@@ -129,8 +124,6 @@ function initRegistration() {
     desigSelect.appendChild(opt);
   });
 
-  updateCadrePreview();
-
   document.getElementById("officer-registration-form").onsubmit = async function(e) {
     e.preventDefault();
     const nameVal = document.getElementById("officer_name").value.trim();
@@ -139,7 +132,6 @@ function initRegistration() {
     const desigVal = desigSelect.value;
     const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal];
 
-    // Store profile locally for fast client rendering
     localStorage.setItem("mospi_user", emailVal);
     localStorage.setItem("mospi_user_name", nameVal);
     localStorage.setItem("mospi_registered_ministry", deptVal);
@@ -148,7 +140,6 @@ function initRegistration() {
     localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
     localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
 
-    // Persist directly into SQLite database for admin visibility
     try {
       await fetch("http://127.0.0.1:5000/api/register", {
         method: "POST",
@@ -156,23 +147,13 @@ function initRegistration() {
         body: JSON.stringify({ name: nameVal, email: emailVal, department: deptVal, designation: desigVal })
       });
     } catch(err) {
-      console.warn("Backend API offline; data cached in browser.", err);
+      console.warn("Backend offline, data saved locally.", err);
     }
 
-    alert(`Registration Successful!\nRole: ${desigVal}\nCadre: ${roleData.cadre}`);
+    alert("Registration Successful!");
     window.location.href = "dashboard.html";
     return false;
   };
-}
-
-function updateCadrePreview() {
-  const desigSelect = document.getElementById("designation_select");
-  const selectedRole = desigSelect.value;
-  const roleData = window.NSSTA_STATISTICAL_ROLES_DB[selectedRole] || window.NSSTA_STATISTICAL_ROLES_DB["Junior Statistical Officer (JSO)"];
-
-  document.getElementById("cadre-name-display").innerText = roleData.cadre;
-  document.getElementById("benchmarks-display").innerText = 
-    `Stat: ${roleData.benchmarks.statistical}% | Tech: ${roleData.benchmarks.technical}% | Gov: ${roleData.benchmarks.governance}% | Beh: ${roleData.benchmarks.behavioural}%`;
 }
 
 document.addEventListener("DOMContentLoaded", initRegistration);

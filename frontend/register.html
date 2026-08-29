@@ -2,204 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cadre Registration | iGOT MoSPI Platform</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoSPI / NSSTA Officer Registration</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary-navy: #15325b;
-      --accent-gold: #e58a2b;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #cbd5e1;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body {
-      background: var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .top-strip {
-      background: #0d213a;
-      color: #f1f5f9;
-      padding: 6px 36px;
-      font-size: 11px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 500;
-    }
-    .main-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-    .reg-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 36px 32px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-      border: 1px solid var(--border);
-    }
-    .brand-icon {
-      text-align: center;
-      margin-bottom: 12px;
-      font-size: 32px;
-      color: var(--accent-gold);
-    }
-    .reg-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--primary-navy);
-      text-align: center;
-      margin-bottom: 6px;
-    }
-    .reg-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .form-group {
-      margin-bottom: 16px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: #334155;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      background: #fff;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: var(--accent-gold);
-    }
-    .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background: var(--accent-gold);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background 0.2s;
-    }
-    .btn-submit:hover {
-      background: #cf781e;
-    }
-    .bottom-links {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .bottom-links a {
-      color: var(--primary-navy);
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .alert-box {
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      display: none;
-    }
-    .alert-error {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: 1px solid #f87171;
-    }
-    .alert-success {
-      background: #dcfce7;
-      color: #15803d;
-      border: 1px solid #86efac;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .reg-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 580px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h2 { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+    .header p { font-size: 0.875rem; color: var(--muted); }
+    .form-group { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: #334155; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--primary); }
+    .btn-submit { width: 100%; background: var(--primary); color: #fff; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+    .btn-submit:hover { background: var(--primary-hover); }
+    .footer-links { text-align: center; margin-top: 16px; font-size: 0.85rem; color: var(--muted); }
+    .footer-links a { color: var(--primary); text-decoration: none; font-weight: 600; }
   </style>
 </head>
 <body>
 
-  <div class="top-strip">
-    <div><i class="fa-solid fa-flag"></i> Government of India | MoSPI</div>
-    <div>iGOT Karmayogi Bharat Integrated</div>
+<div class="reg-card">
+  <div class="header">
+    <i class="fa-solid fa-landmark" style="font-size: 2rem; color: var(--primary); margin-bottom: 8px;"></i>
+    <h2>MoSPI & NSSTA Competency Portal</h2>
+    <p>Official Statistics Officer Registration & 4-Pillar Baseline Setup</p>
   </div>
 
-  <div class="main-wrap">
-    <div class="reg-card">
-      <div class="brand-icon">
-        <i class="fa-solid fa-id-card"></i>
-      </div>
-      <h1 class="reg-title">New Officer Registration</h1>
-      <p class="reg-subtitle">National Statistical & Administrative Cadres</p>
-
-      <div id="alertBox" class="alert-box"></div>
-
-      <form id="regForm" onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="regName" placeholder="e.g. Harsha Vardhan" required>
-        </div>
-        <div class="form-group">
-          <label>Official Email Address</label>
-          <input type="email" id="regEmail" placeholder="officer@gov.in" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="regPass" placeholder="Enter secure password" required>
-        </div>
-        <div class="form-group">
-          <label>Department / Division</label>
-          <select id="regDept">
-            <option value="National Accounts Division (NAD)">National Accounts Division (NAD)</option>
-            <option value="Price Statistics Division (PSD)">Price Statistics Division (PSD)</option>
-            <option value="Survey Operations / PLFS">Survey Operations / PLFS</option>
-            <option value="Industrial Statistics Wing (ISW)">Industrial Statistics Wing (ISW)</option>
-            <option value="Economic Statistics Division (ESD)">Economic Statistics Division (ESD)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Designation</label>
-          <select id="regDesig">
-            <option value="Deputy Director / Assistant Director (ISS)">Deputy Director / Assistant Director (ISS)</option>
-            <option value="Senior Statistical Officer (SSO)">Senior Statistical Officer (SSO)</option>
-            <option value="Junior Statistical Officer (JSO)">Junior Statistical Officer (JSO)</option>
-            <option value="Director / Joint Director">Director / Joint Director</option>
-          </select>
-        </div>
-        
-        <button type="submit" id="submitBtn" class="btn-submit">Register Officer Account</button>
-      </form>
-
-      <div class="bottom-links">
-        Already registered? <a href="login.html">Employee Login</a> | <a href="index.html">Back to Home</a>
-      </div>
+  <form id="officer-registration-form">
+    <div class="form-group">
+      <label for="officer_name">Full Name</label>
+      <input type="text" id="officer_name" class="form-control" placeholder="e.g. Nagari Harsha Vardhan" required>
     </div>
-  </div>
 
-  
+    <div class="form-group">
+      <label for="officer_email">Government Email ID</label>
+      <input type="email" id="officer_email" class="form-control" placeholder="e.g. officer@gov.in" required>
+    </div>
+
+    <div class="form-group">
+      <label for="department_select">Statistical Division / Directorate</label>
+      <select id="department_select" class="form-control" required></select>
+    </div>
+
+    <div class="form-group">
+      <label for="designation_select">Official Designation</label>
+      <select id="designation_select" class="form-control" required></select>
+    </div>
+
+    <button type="submit" class="btn-submit"><i class="fa-solid fa-user-check"></i> Register Officer Profile</button>
+  </form>
+
+  <div class="footer-links">
+    Already registered? <a href="login.html">Login here</a>
+  </div>
+</div>
+
 <script>
 window.NSSTA_STATISTICAL_ROLES_DB = {
   "Director General (DG / Apex Level) - ISS": { cadre: "Indian Statistical Service (ISS)", benchmarks: { statistical: 95, technical: 85, governance: 98, behavioural: 95 } },
@@ -221,56 +90,73 @@ window.NSSTA_STATISTICAL_ROLES_DB = {
   "Primary Field Investigator / Enumerator": { cadre: "State DES Statistical Cadre", benchmarks: { statistical: 78, technical: 75, governance: 72, behavioural: 75 } }
 };
 
-document.addEventListener("DOMContentLoaded", function() {
-  const desigSelect = document.querySelector("#designation, select[name*='desig']");
-  if (desigSelect) {
-    desigSelect.innerHTML = "";
-    Object.keys(window.NSSTA_STATISTICAL_ROLES_DB).forEach(role => {
-      const opt = document.createElement("option");
-      opt.value = role;
-      opt.textContent = role;
-      desigSelect.appendChild(opt);
-    });
-  }
+const STATISTICAL_DIVISIONS = [
+  "National Accounts Division (NAD) — Macro Aggregates & GDP",
+  "Economic Statistics Division (ESD) — IIP & ASI",
+  "Price Statistics Division (PSD) — CPI & Inflation",
+  "Social Statistics Division (SSD) — SDG Metrics",
+  "Field Operations Division (FOD) — Primary Field Surveys",
+  "Survey Design and Research Division (SDRD) — Sampling Design",
+  "Data Processing Division (DPD) — Validation & Tabulation",
+  "Data Informatics & Innovation Division (DIID) — Cloud & AI",
+  "National Statistical Systems Training Academy (NSSTA) — Training HQ",
+  "State Directorate of Economics & Statistics (DES) — State HQ",
+  "District Statistical Office (DSO) — Field Unit"
+];
 
-  const form = document.querySelector("form");
-  if (form) {
-    form.onsubmit = async function(e) {
-      if (e) e.preventDefault();
-      const nameInp = document.querySelector("input[name*='name'], input[placeholder*='name' i]");
-      const emailInp = document.querySelector("input[type='email'], input[name*='email']");
-      const deptSelect = document.querySelector("#department, select[name*='dept']");
-      
-      const nameVal = nameInp ? nameInp.value.trim() : "Officer";
-      const emailVal = emailInp ? emailInp.value.trim() : "officer@gov.in";
-      const desigVal = desigSelect ? desigSelect.value : "Junior Statistical Officer (JSO)";
-      const deptVal = deptSelect ? deptSelect.value : "Field Operations Division (FOD)";
-      const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal] || { cadre: "Subordinate Statistical Service (SSS)", benchmarks: { statistical: 82, technical: 82, governance: 78, behavioural: 75 } };
+function initRegistration() {
+  const deptSelect = document.getElementById("department_select");
+  const desigSelect = document.getElementById("designation_select");
 
-      localStorage.setItem("mospi_user", emailVal);
-      localStorage.setItem("mospi_user_name", nameVal);
-      localStorage.setItem("mospi_registered_ministry", deptVal);
-      localStorage.setItem("mospi_registered_cadre", roleData.cadre);
-      localStorage.setItem("mospi_registered_designation", desigVal);
-      localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
-      localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
+  deptSelect.innerHTML = "";
+  STATISTICAL_DIVISIONS.forEach(dept => {
+    const opt = document.createElement("option");
+    opt.value = dept;
+    opt.textContent = dept;
+    deptSelect.appendChild(opt);
+  });
 
-      // Synchronize directly with backend database for admin views
-      try {
-        await fetch("http://127.0.0.1:5000/api/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: nameVal, email: emailVal, department: deptVal, designation: desigVal })
-        });
-      } catch(err) {
-        console.warn("Backend API sync offline; registration stored locally.");
-      }
+  desigSelect.innerHTML = "";
+  Object.keys(window.NSSTA_STATISTICAL_ROLES_DB).forEach(role => {
+    const opt = document.createElement("option");
+    opt.value = role;
+    opt.textContent = role;
+    desigSelect.appendChild(opt);
+  });
 
-      window.location.href = "dashboard.html";
-      return false;
-    };
-  }
-});
+  document.getElementById("officer-registration-form").onsubmit = async function(e) {
+    e.preventDefault();
+    const nameVal = document.getElementById("officer_name").value.trim();
+    const emailVal = document.getElementById("officer_email").value.trim();
+    const deptVal = deptSelect.value;
+    const desigVal = desigSelect.value;
+    const roleData = window.NSSTA_STATISTICAL_ROLES_DB[desigVal];
+
+    localStorage.setItem("mospi_user", emailVal);
+    localStorage.setItem("mospi_user_name", nameVal);
+    localStorage.setItem("mospi_registered_ministry", deptVal);
+    localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+    localStorage.setItem("mospi_registered_designation", desigVal);
+    localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
+    localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
+
+    try {
+      await fetch("http://127.0.0.1:5000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameVal, email: emailVal, department: deptVal, designation: desigVal })
+      });
+    } catch(err) {
+      console.warn("Backend offline, data saved locally.", err);
+    }
+
+    alert("Registration Successful!");
+    window.location.href = "dashboard.html";
+    return false;
+  };
+}
+
+document.addEventListener("DOMContentLoaded", initRegistration);
 </script>
 </body>
 </html>
