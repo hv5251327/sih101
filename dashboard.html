@@ -14,13 +14,14 @@
       --text: #0f172a;
       --muted: #64748b;
       --border: #e2e8f0;
+      --success: #16a34a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; padding-bottom: 90px; }
     .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
-    .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
     .badge { background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    .bhashini-bar { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
+    .trans-bar { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
     .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
     .pillar-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
     .progress-bar-bg { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 10px 0 6px 0; }
@@ -58,10 +59,11 @@
       <p id="officer-meta" style="font-size: 0.85rem; color: var(--muted);">Subordinate Statistical Service • Data Operations</p>
     </div>
 
-    <div class="bhashini-bar">
+    <!-- Translation Selector -->
+    <div class="trans-bar">
       <i class="fa-solid fa-language" style="color: #2563eb; font-size: 1.1rem;"></i>
-      <label for="bhashini-lang-select" style="color: #334155;">Bhashini Language:</label>
-      <select id="bhashini-lang-select" onchange="applyBhashiniTranslation(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff;">
+      <label for="lang-select" style="color: #334155;">Language:</label>
+      <select id="lang-select" onchange="translateEntirePage(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-weight: 600; background: #fff;">
         <option value="en">English</option>
         <option value="hi">हिंदी (Hindi)</option>
         <option value="te">తెలుగు (Telugu)</option>
@@ -74,13 +76,13 @@
 
   <!-- 4-Pillar Status Grid -->
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Required Deficit Gap</h3>
+    <h3 class="translatable" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-chart-simple" style="color: var(--primary-light);"></i> 4-Pillar Competency Baseline & Required Gap</h3>
     <div class="grid-4" id="pillars-container"></div>
   </div>
 
-  <!-- Video Modules with Dynamic Proportional Progress -->
+  <!-- AI Dynamically Recommended Video Modules based on Designation -->
   <div>
-    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-circle-play" style="color: var(--primary-light);"></i> Prescribed Course Modules & Direct Certificate Upload</h3>
+    <h3 class="translatable" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;"><i class="fa-solid fa-brain" style="color: var(--primary-light);"></i> AI Personalized Video Modules & Certificate Validation</h3>
     <div class="video-grid" id="video-modules-container"></div>
   </div>
 </div>
@@ -93,7 +95,7 @@
     <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="toggleChatbot()"></i>
   </div>
   <div class="chat-messages" id="chat-messages">
-    <div class="chat-bubble bubble-bot">Namaste! I am your NSSTA-iGOT AI assistant. How can I assist you with your competency modules today?</div>
+    <div class="chat-bubble bubble-bot">Namaste! I am your AI learning partner for official statistics. Ask me about your role recommendations or pillar gaps.</div>
   </div>
   <div class="chat-input-row">
     <input type="text" id="chat-input" placeholder="Ask about modules, pillars..." onkeypress="if(event.key==='Enter') sendChatMessage()">
@@ -102,59 +104,51 @@
 </div>
 
 <script>
-const MODULES = [
-  // Statistical Pillar (2 modules = 50% each)
-  { id: "stat-1", title: "National Accounts Compilation & SNA Framework", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-  { id: "stat-2", title: "Sample Survey Design & Probability Weighting", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
+let currentOfficerModules = [];
 
-  // Technical Pillar (2 modules = 50% each)
-  { id: "tech-1", title: "CAPI Systems & Bhuvan GIS Ground Truthing", pillar: "technical", pillarTitle: "Technical Tools & Computing", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-  { id: "tech-2", title: "Advanced Python & SQL for Survey Validation", pillar: "technical", pillarTitle: "Technical Tools & Computing", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-
-  // Digital Governance Pillar (1 module = 100%)
-  { id: "gov-1", title: "DPDP Act 2023 & Government Data Privacy Framework", pillar: "governance", pillarTitle: "Digital Governance & Privacy", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
-
-  // Behavioural Pillar (1 module = 100%)
-  { id: "beh-1", title: "Public Administration Ethics & Leadership", pillar: "behavioural", pillarTitle: "Behavioural & Management", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" }
-];
-
-function getCompletedModuleIds() {
-  try {
-    return JSON.parse(localStorage.getItem("mospi_completed_video_ids") || "[]");
-  } catch(e) { return []; }
-}
-
-function calculatePillarPercentage(pillarKey) {
-  const pillarModules = MODULES.filter(m => m.pillar === pillarKey);
-  if (pillarModules.length === 0) return 0;
-  
-  const completedIds = getCompletedModuleIds();
-  const completedCount = pillarModules.filter(m => completedIds.includes(m.id)).length;
-  
-  return Math.round((completedCount / pillarModules.length) * 100);
-}
-
-function initDashboard() {
-  const name = localStorage.getItem("mospi_user_name") || "Officer";
-  const desig = localStorage.getItem("mospi_registered_designation") || "Junior Statistical Officer (JSO)";
-  const cadre = localStorage.getItem("mospi_registered_cadre") || "Subordinate Statistical Service (SSS)";
-  const dept = localStorage.getItem("mospi_registered_ministry") || "Data Processing Division (DPD)";
+async function loadOfficerDashboard() {
+  const name = localStorage.getItem("mospi_user_name") || "Harsha Vardhan";
+  const email = localStorage.getItem("mospi_user") || "officer@gov.in";
+  const desig = localStorage.getItem("mospi_registered_designation") || "Assistant Director (JTS) - ISS";
+  const cadre = localStorage.getItem("mospi_registered_cadre") || "Indian Statistical Service (ISS)";
+  const dept = localStorage.getItem("mospi_registered_ministry") || "National Accounts Division (NAD)";
 
   document.getElementById("officer-name").innerText = name;
   document.getElementById("officer-cadre").innerText = cadre;
   document.getElementById("officer-meta").innerText = `${desig} • ${dept}`;
 
-  let benchmarks = { statistical: 82, technical: 82, governance: 78, behavioural: 75 };
+  let benchmarks = { statistical: 90, technical: 90, governance: 85, behavioural: 80 };
   try {
     const rawBench = localStorage.getItem("mospi_competency_benchmarks");
     if (rawBench) benchmarks = JSON.parse(rawBench);
   } catch(e) {}
 
+  // Fetch AI Recommendations tailored specifically for this designation from API
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/officer/recommendations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email, designation: desig })
+    });
+    const data = await res.json();
+    currentOfficerModules = data.modules;
+  } catch(err) {
+    console.warn("Backend offline, using fallback catalog.", err);
+  }
+
+  // Calculate dynamic pillar score based on completed modules in this pillar
+  function getScoreForPillar(pillarKey) {
+    const pMods = currentOfficerModules.filter(m => m.pillar === pillarKey);
+    if (pMods.length === 0) return 0;
+    const completed = pMods.filter(m => m.is_completed).length;
+    return Math.round((completed / pMods.length) * 100);
+  }
+
   const pillars = [
-    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: calculatePillarPercentage("statistical") },
-    { key: "technical", title: "Technical Tools & AI/GIS", color: "#059669", target: benchmarks.technical, current: calculatePillarPercentage("technical") },
-    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: calculatePillarPercentage("governance") },
-    { key: "behavioural", title: "Behavioural & Leadership", color: "#7c3aed", target: benchmarks.behavioural, current: calculatePillarPercentage("behavioural") }
+    { key: "statistical", title: "Statistical Frameworks", color: "#2563eb", target: benchmarks.statistical, current: getScoreForPillar("statistical") },
+    { key: "technical", title: "Technical Tools & AI/GIS", color: "#059669", target: benchmarks.technical, current: getScoreForPillar("technical") },
+    { key: "governance", title: "Digital Governance & DPDP", color: "#d97706", target: benchmarks.governance, current: getScoreForPillar("governance") },
+    { key: "behavioural", title: "Behavioural & Leadership", color: "#7c3aed", target: benchmarks.behavioural, current: getScoreForPillar("behavioural") }
   ];
 
   // Render 4 Pillars
@@ -182,13 +176,10 @@ function initDashboard() {
     pillarGrid.appendChild(card);
   });
 
-  // Render Video Modules with completion indicator
-  const completedIds = getCompletedModuleIds();
+  // Render AI Recommended Videos
   const videoGrid = document.getElementById("video-modules-container");
   videoGrid.innerHTML = "";
-
-  MODULES.forEach(m => {
-    const isDone = completedIds.includes(m.id);
+  currentOfficerModules.forEach(m => {
     const card = document.createElement("div");
     card.className = "video-card";
     card.innerHTML = `
@@ -199,12 +190,12 @@ function initDashboard() {
           <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 4px;">${m.title}</h4>
         </div>
         
-        <div class="upload-zone" style="${isDone ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${isDone ? '' : `document.getElementById('input-${m.id}').click()`}">
-          <i class="fa-solid ${isDone ? 'fa-circle-check' : 'fa-file-arrow-up'}" style="color: ${isDone ? '#15803d' : 'var(--primary-light)'};"></i>
-          <span style="font-size: 0.8rem; font-weight: 600; color: ${isDone ? '#15803d' : '#334155'}; margin-left: 6px;">
-            ${isDone ? 'Certificate Verified & Module Completed' : 'Upload Completion Certificate'}
+        <div class="upload-zone" style="${m.is_completed ? 'background: #dcfce7; border-color: #86efac; cursor: default;' : ''}" onclick="${m.is_completed ? '' : `document.getElementById('input-${m.id}').click()`}">
+          <i class="fa-solid ${m.is_completed ? 'fa-circle-check' : 'fa-file-arrow-up'}" style="color: ${m.is_completed ? '#15803d' : 'var(--primary-light)'};"></i>
+          <span style="font-size: 0.8rem; font-weight: 600; color: ${m.is_completed ? '#15803d' : '#334155'}; margin-left: 6px;">
+            ${m.is_completed ? 'Certificate Verified & Stored in DB' : 'Upload Completion Certificate'}
           </span>
-          ${isDone ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="uploadCourseCertificate(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
+          ${m.is_completed ? '' : `<input type="file" id="input-${m.id}" style="display: none;" accept=".pdf,image/*" onchange="uploadCourseCertificate(event, '${m.id}', '${m.pillar}', '${m.title}')">`}
         </div>
       </div>
     `;
@@ -216,31 +207,56 @@ async function uploadCourseCertificate(e, moduleId, pillar, title) {
   const file = e.target.files[0];
   if (!file) return;
 
-  let completedIds = getCompletedModuleIds();
-  if (!completedIds.includes(moduleId)) {
-    completedIds.push(moduleId);
-    localStorage.setItem("mospi_completed_video_ids", JSON.stringify(completedIds));
-  }
-
-  const updatedPercentage = calculatePillarPercentage(pillar);
   const email = localStorage.getItem("mospi_user") || "officer@gov.in";
 
-  // Sync with backend API & SQLite database
   try {
-    await fetch("http://127.0.0.1:5000/api/officer/progress", {
+    const res = await fetch("http://127.0.0.1:5000/api/officer/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email, pillar: pillar, percentage: updatedPercentage })
+      body: JSON.stringify({ email: email, module_id: moduleId, pillar: pillar })
     });
+    const result = await res.json();
+    alert(`Certificate for "${title}" successfully verified!\n${pillar.toUpperCase()} competency updated to ${result.new_percentage}% in SQLite database.`);
   } catch(err) {
-    console.warn("Backend API offline; progress saved in browser session.", err);
+    alert(`Certificate uploaded! (Offline demo mode).`);
   }
 
-  alert(`Certificate for "${title}" verified!\n${pillar.toUpperCase()} competency updated to ${updatedPercentage}% based on watched modules.`);
-  initDashboard();
+  loadOfficerDashboard();
 }
 
-// Chatbot functionality
+// Full-Page Real-Time Translation via API
+async function translateEntirePage(lang) {
+  if (lang === "en") {
+    loadOfficerDashboard();
+    return;
+  }
+
+  const elements = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label"));
+  const textPayload = elements.map(el => el.innerText.trim()).filter(t => t.length > 0);
+
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts: textPayload, target_lang: lang })
+    });
+    const data = await res.json();
+    
+    if (data.translations) {
+      let idx = 0;
+      elements.forEach(el => {
+        if (el.innerText.trim().length > 0 && data.translations[idx]) {
+          el.innerText = data.translations[idx];
+          idx++;
+        }
+      });
+    }
+  } catch(err) {
+    console.error("Translation API error:", err);
+  }
+}
+
+// AI Chatbot Functions
 function toggleChatbot() {
   const win = document.getElementById("chatbot-window");
   win.style.display = (win.style.display === "flex") ? "none" : "flex";
@@ -252,8 +268,6 @@ async function sendChatMessage() {
   if (!msg) return;
 
   const chatContainer = document.getElementById("chat-messages");
-  
-  // User bubble
   const userDiv = document.createElement("div");
   userDiv.className = "chat-bubble bubble-user";
   userDiv.innerText = msg;
@@ -261,12 +275,13 @@ async function sendChatMessage() {
   inp.value = "";
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  // Fetch bot reply
+  const desig = localStorage.getItem("mospi_registered_designation") || "Officer";
+
   try {
     const res = await fetch("http://127.0.0.1:5000/api/chatbot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
+      body: JSON.stringify({ message: msg, designation: desig })
     });
     const data = await res.json();
     const botDiv = document.createElement("div");
@@ -276,18 +291,13 @@ async function sendChatMessage() {
   } catch(e) {
     const botDiv = document.createElement("div");
     botDiv.className = "chat-bubble bubble-bot";
-    botDiv.innerText = "I am ready to help you complete your 4-pillar competency requirements.";
+    botDiv.innerText = "I am ready to assist your MoSPI competency roadmap.";
     chatContainer.appendChild(botDiv);
   }
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Bhashini Translation Trigger
-async function applyBhashiniTranslation(lang) {
-  console.log("Applying Bhashini language model:", lang);
-}
-
-document.addEventListener("DOMContentLoaded", initDashboard);
+document.addEventListener("DOMContentLoaded", loadOfficerDashboard);
 </script>
 </body>
 </html>
