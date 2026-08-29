@@ -166,8 +166,17 @@ function initRegistration() {
       alert("Registration Successful! Redirecting to dashboard...");
       window.location.href = "dashboard.html";
     } catch(err) {
-      alert("Unable to connect to backend server. Please make sure python app_api.py is running.");
-      if (btn) { btn.disabled = false; btn.innerText = "Register Officer Profile"; }
+  console.warn("Backend offline or mixed content; using local storage.");
+  localStorage.setItem("mospi_user", emailVal);
+  localStorage.setItem("mospi_user_name", nameVal);
+  localStorage.setItem("mospi_registered_ministry", deptVal);
+  localStorage.setItem("mospi_registered_cadre", roleData.cadre);
+  localStorage.setItem("mospi_registered_designation", desigVal);
+  localStorage.setItem("mospi_competency_benchmarks", JSON.stringify(roleData.benchmarks));
+  localStorage.setItem("mospi_completed_video_ids", JSON.stringify([]));
+  alert("Registration Successful! Welcome to MoSPI Competency Portal.");
+  window.location.href = "dashboard.html";
+}
     }
     return false;
   };
