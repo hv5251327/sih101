@@ -53,7 +53,7 @@ def init_db():
         officer_id INTEGER PRIMARY KEY AUTOINCREMENT,
         full_name VARCHAR(100) NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
-        password VARCHAR(100) NOT NULL,
+        password VARCHAR(100) DEFAULT 'password123',
         department VARCHAR(150) NOT NULL,
         designation_name VARCHAR(150),
         current_statistical INTEGER DEFAULT 0,
@@ -62,6 +62,12 @@ def init_db():
         current_behavioural INTEGER DEFAULT 0,
         registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );''')
+
+    # Automatic Column Migration Check
+    c.execute("PRAGMA table_info(officer_profiles);")
+    columns = [row["name"] for row in c.fetchall()]
+    if "password" not in columns:
+        c.execute("ALTER TABLE officer_profiles ADD COLUMN password VARCHAR(100) DEFAULT 'password123';")
 
     c.execute('''
     CREATE TABLE IF NOT EXISTS officer_recommendations (
@@ -115,7 +121,6 @@ def get_cadre(desig):
         return "DES"
     return "SSS"
 
-# Strict Officer Registration
 @app.route("/api/register", methods=["POST"])
 def register_officer():
     try:
@@ -132,7 +137,6 @@ def register_officer():
         conn = get_db()
         c = conn.cursor()
         
-        # Check if email already exists
         c.execute("SELECT email FROM officer_profiles WHERE LOWER(email) = ?", (email,))
         if c.fetchone():
             conn.close()
@@ -148,7 +152,6 @@ def register_officer():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# Strict Officer Login Authentication
 @app.route("/api/login", methods=["POST"])
 def login_officer():
     try:
