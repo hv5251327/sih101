@@ -100,6 +100,100 @@
 <script>
 let activeOfficerModules = [];
 
+// Built-in Instant Translation Dictionary for 100% Guaranteed Offline Bhashini Conversion
+const LOCAL_BHASHINI_DICT = {
+  hi: {
+    "Officer Dashboard": "अधिकारी डैशबोर्ड",
+    "Logout": "लॉग आउट",
+    "4-Pillar Competency Baseline & Deficit Gap": "4-स्तंभ योग्यता आधाररेखा और घाटा अंतराल",
+    "AI Tailored Video Modules & Certificate Upload": "एआई अनुशंसित वीडियो मॉड्यूल और प्रमाणपत्र अपलोड",
+    "Statistical Frameworks": "सांख्यिकीय रूपरेखा",
+    "Technical Tools & Computing": "तकनीकी उपकरण और कम्प्यूटिंग",
+    "Technical Tools & AI/GIS": "तकनीकी उपकरण और एआई/जीआईएस",
+    "Digital Governance & DPDP": "डिजिटल गवर्नेंस और डेटा सुरक्षा",
+    "Digital Governance & Privacy": "डिजिटल गवर्नेंस और गोपनीयता",
+    "Managerial & Behavioural": "प्रबंधकीय और व्यवहार कौशल",
+    "Upload Completion Certificate": "पूर्णता प्रमाणपत्र अपलोड करें",
+    "Certificate Verified & Recorded": "प्रमाणपत्र सत्यापित और रिकॉर्ड किया गया",
+    "Current:": "वर्तमान:",
+    "Target:": "लक्ष्य:",
+    "Completed": "पूर्ण",
+    "Bhashini Voice & Text:": "भाषिणी आवाज और पाठ:"
+  },
+  te: {
+    "Officer Dashboard": "అధికారి డ్యాష్‌బోర్డ్",
+    "Logout": "లాగ్ అవుట్",
+    "4-Pillar Competency Baseline & Deficit Gap": "4-స్తంభాల సామర్థ్య బేస్‌లైన్ & అంతరం",
+    "AI Tailored Video Modules & Certificate Upload": "ఏఐ ఆధారిత వీడియో మాడ్యూల్స్ & సర్టిఫికేట్ అప్‌లోడ్",
+    "Statistical Frameworks": "గణాంక ఫ్రేమ్‌వర్క్‌లు",
+    "Technical Tools & Computing": "సాంకేతిక సాధనాలు & కంప్యూటింగ్",
+    "Technical Tools & AI/GIS": "సాంకేతిక సాధనాలు & ఏఐ/జిఐఎస్",
+    "Digital Governance & DPDP": "డిజిటల్ గవర్నెన్స్ & డిపిడిపి",
+    "Digital Governance & Privacy": "డిజిటల్ గవర్నెన్స్ & గోప్యత",
+    "Managerial & Behavioural": "నిర్వహణ & ప్రవర్తనా నైపుణ్యాలు",
+    "Upload Completion Certificate": "పూర్తి చేసిన సర్టిఫికెట్‌ను అప్‌లోడ్ చేయండి",
+    "Certificate Verified & Recorded": "ధృవీకరించబడింది & నమోదు చేయబడింది",
+    "Current:": "ప్రస్తుతం:",
+    "Target:": "లక్ష్యం:",
+    "Completed": "పూర్తయింది",
+    "Bhashini Voice & Text:": "భాషిణి వాయిస్ & టెక్స్ట్:"
+  },
+  ta: {
+    "Officer Dashboard": "அதிகாரி கட்டுப்பாட்டகம்",
+    "Logout": "வெளியேறு",
+    "4-Pillar Competency Baseline & Deficit Gap": "4-தூண் திறன் தளம் & இடைவெளி",
+    "AI Tailored Video Modules & Certificate Upload": "AI பரிந்துரைக்கப்பட்ட வீடியோக்கள் & சான்றிதழ் பதிவேற்றம்",
+    "Statistical Frameworks": "புள்ளியியல் கட்டமைப்புகள்",
+    "Technical Tools & Computing": "தொழில்நுட்ப கருவிகள் & கணினி",
+    "Technical Tools & AI/GIS": "தொழில்நுட்ப கருவிகள் & AI/GIS",
+    "Digital Governance & DPDP": "டிஜிட்டல் ஆளுகை & DPDP",
+    "Digital Governance & Privacy": "டிஜிட்டல் ஆளுகை & தனியுரிமை",
+    "Managerial & Behavioural": "மேலாண்மை & நடத்தை திறன்",
+    "Upload Completion Certificate": "சான்றிதழைப் பதிவேற்றவும்",
+    "Certificate Verified & Recorded": "சரிபார்க்கப்பட்டு பதிவு செய்யப்பட்டது",
+    "Current:": "தற்போதைய:",
+    "Target:": "இலக்கு:",
+    "Completed": "முடிந்தது",
+    "Bhashini Voice & Text:": "பாஷினி குரல் & உரை:"
+  },
+  bn: {
+    "Officer Dashboard": "অফিসার ড্যাশবোর্ড",
+    "Logout": "লগআউট",
+    "4-Pillar Competency Baseline & Deficit Gap": "৪-স্তম্ভের দক্ষতা বেসলাইন ও ঘাটতি",
+    "AI Tailored Video Modules & Certificate Upload": "এআই ভিডিও মডিউল ও সার্টিফিকেট আপলোড",
+    "Statistical Frameworks": "পরিসংখ্যানগত কাঠামো",
+    "Technical Tools & Computing": "প্রযুক্তিগত সরঞ্জাম ও কম্পিউটিং",
+    "Technical Tools & AI/GIS": "প্রযুক্তিগত সরঞ্জাম ও AI/GIS",
+    "Digital Governance & DPDP": "ডিজিটাল গভর্নেন্স ও ডিপিডিপি",
+    "Digital Governance & Privacy": "ডিজিটাল গভর্নেন্স ও গোপনীয়তা",
+    "Managerial & Behavioural": "ব্যবস্থাপনা ও আচরণগত দক্ষতা",
+    "Upload Completion Certificate": "সার্টিফিকেট আপলোড করুন",
+    "Certificate Verified & Recorded": "যাচাই এবং রেকর্ড করা হয়েছে",
+    "Current:": "বর্তমান:",
+    "Target:": "লক্ষ্য:",
+    "Completed": "সম্পূর্ণ",
+    "Bhashini Voice & Text:": "ভাষিণী ভয়েস ও টেক্সট:"
+  },
+  mr: {
+    "Officer Dashboard": "अधिकारी डॅशबोर्ड",
+    "Logout": "लॉग आउट",
+    "4-Pillar Competency Baseline & Deficit Gap": "४-स्तंभ पात्रता बेसलाइन आणि तूट",
+    "AI Tailored Video Modules & Certificate Upload": "एआय व्हिडिओ मॉड्यूल्स आणि प्रमाणपत्र अपलोड",
+    "Statistical Frameworks": "सांख्यिकी चौकट",
+    "Technical Tools & Computing": "तांत्रिक साधने आणि संगणन",
+    "Technical Tools & AI/GIS": "तांत्रिक साधने आणि AI/GIS",
+    "Digital Governance & DPDP": "डिजिटल गव्हर्नन्स आणि DPDP",
+    "Digital Governance & Privacy": "डिजिटल गव्हर्नन्स आणि गोपनीयता",
+    "Managerial & Behavioural": "व्यवस्थापकीय आणि वर्तणूक कौशल्ये",
+    "Upload Completion Certificate": "प्रमाणपत्र अपलोड करा",
+    "Certificate Verified & Recorded": "प्रमाणित आणि नोंदवले गेले",
+    "Current:": "सध्याचे:",
+    "Target:": "ध्येय:",
+    "Completed": "पूर्ण झाले",
+    "Bhashini Voice & Text:": "भाषिणी आवाज आणि मजकूर:"
+  }
+};
+
 const FALLBACK_MODULES = {
   "ISS": [
     { id: "iss-stat-1", title: "SNA 2008 & 2025: National Accounts Compilation", pillar: "statistical", pillarTitle: "Statistical Frameworks", embedUrl: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" },
@@ -253,32 +347,50 @@ function logoutOfficer() {
   window.location.href = "login.html";
 }
 
-// Seamless In-Place Bhashini Translation (No top bar/widget)
+// Rock-Solid Dual Bhashini Translation (Local Dictionary + API Pipeline)
 async function runBhashini(lang) {
   if (lang === "en") { 
     initDashboard(); 
     return; 
   }
-  
-  const textElements = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button"))
+
+  const textNodes = Array.from(document.querySelectorAll("h2, h3, h4, span, p, label, button"))
     .filter(el => el.children.length === 0 && el.innerText.trim().length > 0 && !el.closest("#chatbot-window"));
 
-  const texts = textElements.map(el => el.innerText.trim());
+  // 1. Instant Local Translation
+  const dict = LOCAL_BHASHINI_DICT[lang] || {};
+  textNodes.forEach(el => {
+    const raw = el.getAttribute("data-original") || el.innerText.trim();
+    if (!el.getAttribute("data-original")) el.setAttribute("data-original", raw);
+    if (dict[raw]) {
+      el.innerText = dict[raw];
+    }
+  });
+
+  // 2. Dynamic API Translation for remaining/dynamic text
+  const remainingNodes = textNodes.filter(el => {
+    const raw = el.getAttribute("data-original") || el.innerText.trim();
+    return !dict[raw];
+  });
+
+  if (remainingNodes.length === 0) return;
+
+  const textsToFetch = remainingNodes.map(el => el.getAttribute("data-original") || el.innerText.trim());
 
   try {
     const res = await fetch("http://127.0.0.1:5000/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts: texts, target_lang: lang })
+      body: JSON.stringify({ texts: textsToFetch, target_lang: lang })
     });
     const data = await res.json();
-    if (data.translations && data.translations.length === textElements.length) {
-      textElements.forEach((el, idx) => {
-        el.innerText = data.translations[idx];
+    if (data.translations && data.translations.length === remainingNodes.length) {
+      remainingNodes.forEach((el, idx) => {
+        if (data.translations[idx]) el.innerText = data.translations[idx];
       });
     }
   } catch(e) {
-    console.error("Bhashini translation failed:", e);
+    console.warn("Bhashini network translate failed, local dictionary applied.", e);
   }
 }
 

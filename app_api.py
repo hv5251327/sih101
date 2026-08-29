@@ -1,6 +1,7 @@
 ﻿import os
 import sqlite3
 import urllib.parse
+import json
 import requests
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -114,7 +115,6 @@ def get_cadre(desig):
         return "DES"
     return "SSS"
 
-# Endpoint: Officer Registration API (Persists immediately to SQLite)
 @app.route("/api/register", methods=["POST"])
 def register_officer():
     data = request.json or {}
@@ -137,7 +137,6 @@ def register_officer():
     conn.close()
     return jsonify({"status": "success", "message": "Registered successfully in database"})
 
-# Endpoint: Admin Heatmap Aggregated Data across ALL designations
 @app.route("/api/admin/heatmap", methods=["GET"])
 def get_admin_heatmap():
     conn = get_db()
@@ -220,6 +219,7 @@ def update_progress():
     conn.close()
     return jsonify({"status": "success", "pillar": pillar, "new_percentage": percentage})
 
+# Robust Multi-Engine Translation Endpoint
 @app.route("/api/translate", methods=["POST"])
 def translate():
     data = request.json or {}
@@ -230,16 +230,32 @@ def translate():
         return jsonify({"translations": texts})
 
     translated = []
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
     for t in texts:
-        if not t.strip():
+        clean = t.strip()
+        if not clean or len(clean) <= 1:
             translated.append(t)
             continue
         try:
-            url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={target}&dt=t&q={urllib.parse.quote(t)}"
-            res = requests.get(url, timeout=5).json()
-            translated.append(res[0][0][0] if res and res[0] and res[0][0] else t)
+            # 1. Primary: Direct Google GTX API
+            url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={target}&dt=t&q={urllib.parse.quote(clean)}"
+            r = requests.get(url, headers=headers, timeout=4)
+            res = r.json()
+            if res and res[0]:
+                out = "".join([part[0] for part in res[0] if part and part[0]])
+                translated.append(out if out else clean)
+            else:
+                translated.append(clean)
         except Exception:
-            translated.append(t)
+            try:
+                # 2. Fallback: MyMemory Translation API
+                mm_url = f"https://api.mymemory.translated.net/get?q={urllib.parse.quote(clean)}&langpair=en|{target}"
+                mm_res = requests.get(mm_url, headers=headers, timeout=4).json()
+                trans_text = mm_res.get("responseData", {}).get("translatedText", clean)
+                translated.append(trans_text if trans_text else clean)
+            except Exception:
+                translated.append(clean)
 
     return jsonify({"translations": translated})
 
